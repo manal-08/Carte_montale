@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>science - النشاط العلمي Sciences</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Client-side document parsers for PPTX, PDF, and DOCX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'Inter', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Green mint Sciences upload screen styling */
+    .upload-screen-bg {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #dcfce7 0%, #d1fae5 52%, #ecfdf5 100%);
+      color: #064e3b;
+    }
+
+    .pill-top-btn {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      box-shadow: 0 6px 18px -6px rgba(6, 78, 59, 0.16);
+      border-radius: 9999px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+    }
+
+    .pill-top-btn:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px -6px rgba(6, 78, 59, 0.22);
+    }
+
+    .pill-top-btn:active {
+      transform: scale(0.98);
+    }
+
+    .dashed-upload-card {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2.5px dashed #16a34a;
+      border-radius: 1.75rem;
+      box-shadow: 0 14px 32px -12px rgba(22, 163, 74, 0.18);
+      transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .dashed-upload-card:hover,
+    .dashed-upload-card.drag-active {
+      background: rgba(255, 255, 255, 0.96);
+      border-color: #15803d;
+      transform: translateY(-2px);
+      box-shadow: 0 18px 36px -12px rgba(21, 128, 61, 0.26);
+    }
+
+    .create-mindmap-btn {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 12px 24px -8px rgba(21, 128, 61, 0.45);
+      transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .create-mindmap-btn:hover {
+      filter: brightness(1.04);
+      transform: translateY(-1px);
+      box-shadow: 0 15px 28px -8px rgba(21, 128, 61, 0.52);
+    }
+
+    .create-mindmap-btn:active {
+      transform: scale(0.985);
+    }
+
+    /* Dedicated mind map view styling */
+    .mindmap-screen-bg {
+      min-height: 100vh;
+      background-color: #f0fdf4;
+      background-image:
+        radial-gradient(circle at 10% 12%, rgba(245, 158, 11, 0.08) 0%, transparent 38%),
+        radial-gradient(circle at 50% 8%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 88% 18%, rgba(59, 130, 246, 0.08) 0%, transparent 38%),
+        radial-gradient(circle at 85% 88%, rgba(244, 63, 94, 0.07) 0%, transparent 40%);
+      color: #0f172a;
+    }
+
+    [contenteditable="true"] {
+      outline: none;
+      border-radius: 0.375rem;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    [contenteditable="true"]:hover {
+      background-color: rgba(255, 255, 255, 0.72);
+    }
+
+    [contenteditable="true"]:focus {
+      background-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.18);
+    }
+
+    /* Colorful Objectives Banner */
+    .objectives-banner {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 52%, #ecfeff 100%);
+      border: 1.5px solid #a78bfa;
+      box-shadow: 0 6px 18px -8px rgba(109, 40, 217, 0.16);
+    }
+
+    /* Distinct colorful themes for the 4 main stage columns */
+    .stage-column {
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stage-column::before {
+      content: "";
+      display: block;
+      height: 5px;
+      width: 100%;
+      margin: -0.875rem -0.875rem 0.625rem -0.875rem;
+      width: calc(100% + 1.75rem);
+    }
+
+    .stage-column:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 16px 30px -10px rgba(15, 23, 42, 0.16);
+    }
+
+    /* Box 1: Warm Amber / Gold */
+    .stage-col-1 {
+      background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 45%, #fffdf5 100%);
+      border: 1.5px solid #f59e0b;
+      box-shadow: 0 10px 22px -12px rgba(217, 119, 6, 0.34);
+    }
+
+    .stage-col-1::before {
+      background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .stage-col-1 .stage-col-header {
+      background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+      border-bottom: 1px solid #f59e0b;
+    }
+
+    .stage-col-1 .diamond-item {
+      background-color: rgba(255, 255, 255, 0.72);
+      border-right: 2.5px solid #f59e0b;
+      padding: 0.3rem 0.45rem;
+      border-radius: 0.5rem;
+    }
+
+    .stage-col-1 .diamond-bullet {
+      color: #d97706;
+    }
+
+    /* Box 2: Vibrant Emerald / Teal */
+    .stage-col-2 {
+      background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 45%, #f4fdf9 100%);
+      border: 1.5px solid #10b981;
+      box-shadow: 0 10px 22px -12px rgba(5, 150, 105, 0.34);
+    }
+
+    .stage-col-2::before {
+      background: linear-gradient(90deg, #059669 0%, #14b8a6 100%);
+    }
+
+    .stage-col-2 .stage-col-header {
+      background: linear-gradient(90deg, #d1fae5 0%, #a7f3d0 100%);
+      border-bottom: 1px solid #10b981;
+    }
+
+    .stage-col-2 .diamond-item {
+      background-color: rgba(255, 255, 255, 0.72);
+      border-right: 2.5px solid #10b981;
+      padding: 0.3rem 0.45rem;
+      border-radius: 0.5rem;
+    }
+
+    .stage-col-2 .diamond-bullet {
+      color: #059669;
+    }
+
+    /* Box 3: Lively Sky / Sapphire Blue */
+    .stage-col-3 {
+      background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 45%, #f5f9ff 100%);
+      border: 1.5px solid #3b82f6;
+      box-shadow: 0 10px 22px -12px rgba(37, 99, 235, 0.34);
+    }
+
+    .stage-col-3::before {
+      background: linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);
+    }
+
+    .stage-col-3 .stage-col-header {
+      background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+      border-bottom: 1px solid #3b82f6;
+    }
+
+    .stage-col-3 .diamond-item {
+      background-color: rgba(255, 255, 255, 0.72);
+      border-right: 2.5px solid #3b82f6;
+      padding: 0.3rem 0.45rem;
+      border-radius: 0.5rem;
+    }
+
+    .stage-col-3 .diamond-bullet {
+      color: #2563eb;
+    }
+
+    /* Box 4: Warm Coral / Berry Rose */
+    .stage-col-4 {
+      background: linear-gradient(180deg, #fff1f2 0%, #ffe4e6 45%, #fff7f8 100%);
+      border: 1.5px solid #f43f5e;
+      box-shadow: 0 10px 22px -12px rgba(225, 29, 72, 0.34);
+    }
+
+    .stage-col-4::before {
+      background: linear-gradient(90deg, #e11d48 0%, #ec4899 100%);
+    }
+
+    .stage-col-4 .stage-col-header {
+      background: linear-gradient(90deg, #ffe4e6 0%, #fecdd3 100%);
+      border-bottom: 1px solid #f43f5e;
+    }
+
+    .stage-col-4 .diamond-item {
+      background-color: rgba(255, 255, 255, 0.72);
+      border-right: 2.5px solid #f43f5e;
+      padding: 0.3rem 0.45rem;
+      border-radius: 0.5rem;
+    }
+
+    .stage-col-4 .diamond-bullet {
+      color: #e11d48;
+    }
+
+    .stage-column.stage-highlight {
+      box-shadow: 0 0 0 3px #0f172a, 0 18px 34px -8px rgba(15, 23, 42, 0.28);
+      transform: translateY(-3px);
+    }
+
+    .stage-column:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px -8px rgba(15, 23, 42, 0.14);
+    }
+
+    .stage-col-1 {
+      background: linear-gradient(180deg, #fffbeb 0%, #fefce8 100%);
+      border: 1.5px solid #f59e0b;
+      box-shadow: 0 8px 20px -10px rgba(217, 119, 6, 0.22);
+    }
+
+    .stage-col-1 .stage-col-header {
+      background-color: #fef3c7;
+      border-bottom-color: #fcd34d;
+    }
+
+    .stage-col-1 .diamond-bullet {
+      color: #d97706;
+    }
+
+    .stage-col-2 {
+      background: linear-gradient(180deg, #ecfdf5 0%, #f0fdfa 100%);
+      border: 1.5px solid #10b981;
+      box-shadow: 0 8px 20px -10px rgba(5, 150, 105, 0.22);
+    }
+
+    .stage-col-2 .stage-col-header {
+      background-color: #d1fae5;
+      border-bottom-color: #6ee7b7;
+    }
+
+    .stage-col-2 .diamond-bullet {
+      color: #059669;
+    }
+
+    .stage-col-3 {
+      background: linear-gradient(180deg, #eff6ff 0%, #eef2ff 100%);
+      border: 1.5px solid #3b82f6;
+      box-shadow: 0 8px 20px -10px rgba(37, 99, 235, 0.22);
+    }
+
+    .stage-col-3 .stage-col-header {
+      background-color: #dbeafe;
+      border-bottom-color: #93c5fd;
+    }
+
+    .stage-col-3 .diamond-bullet {
+      color: #2563eb;
+    }
+
+    .stage-col-4 {
+      background: linear-gradient(180deg, #fff1f2 0%, #fff5f7 100%);
+      border: 1.5px solid #f43f5e;
+      box-shadow: 0 8px 20px -10px rgba(225, 29, 72, 0.22);
+    }
+
+    .stage-col-4 .stage-col-header {
+      background-color: #ffe4e6;
+      border-bottom-color: #fda4af;
+    }
+
+    .stage-col-4 .diamond-bullet {
+      color: #e11d48;
+    }
+
+    .stage-column.stage-highlight {
+      box-shadow: 0 0 0 3px #0f172a, 0 18px 34px -8px rgba(15, 23, 42, 0.28);
+      transform: translateY(-2px);
+    }
+
+    .stage-pill.active-stage {
+      box-shadow: 0 0 0 2.5px #0f172a, 0 8px 18px -4px rgba(15, 23, 42, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .diamond-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      line-height: 1.58;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .diamond-bullet {
+      color: #15803d;
+      font-size: 0.72rem;
+      line-height: 1.58;
+      flex-shrink: 0;
+      user-select: none;
+    }
+
+    /* Single-page A4 landscape print rules */
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 5mm;
+      }
+
+      html,
+      body {
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background: #ffffff !important;
+        background-image: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        font-size: 8.5px !important;
+        line-height: 1.25 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      #uploadScienceView,
+      #toastBox,
+      .no-print {
+        display: none !important;
+      }
+
+      #resultView {
+        display: block !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .print-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .mindmap-sheet {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 6px 8px !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        transform: scale(0.84);
+        transform-origin: top center;
+        width: 119.04%;
+        margin-right: -9.52%;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      #uploadView,
+      #toastBox,
+      .no-print {
+        display: none !important;
+      }
+
+      #mindmapView {
+        display: block !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .print-container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      .mindmap-sheet {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 6px 8px !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+        transform: scale(0.84);
+        transform-origin: top center;
+        width: 119.04%;
+        margin-right: -9.52%;
+      }
+
+      .mindmap-sheet > * + * {
+        margin-top: 4px !important;
+      }
+
+      .mindmap-sheet header {
+        gap: 3px !important;
+      }
+
+      .mindmap-sheet header h1,
+      .mindmap-sheet header h2 {
+        font-size: 12.5px !important;
+        line-height: 1.15 !important;
+      }
+
+      .mindmap-sheet .diamond-item {
+        font-size: 8px !important;
+        line-height: 1.25 !important;
+        gap: 3px !important;
+      }
+
+      .mindmap-sheet .stage-column {
+        padding: 5px 6px !important;
+        gap: 3px !important;
+        border-radius: 8px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .mindmap-sheet .stage-column ul {
+        gap: 2px !important;
+      }
+
+      .mindmap-sheet .stages-row {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 5px !important;
+      }
+
+      .mindmap-sheet .col-connector {
+        display: none !important;
+      }
+
+      .mindmap-sheet .timeline-bar > div {
+        padding: 4px 6px !important;
+        border-radius: 8px !important;
+      }
+
+      .mindmap-sheet .stage-pill {
+        padding: 3px 6px !important;
+      }
+
+      [contenteditable="true"]:hover,
+      [contenteditable="true"]:focus {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       VIEW 1: GREEN SCIENCES UPLOAD SCREEN
+       ========================================================= -->
+  <section id="uploadScienceView" class="upload-screen-bg flex flex-col justify-between px-4 py-5 sm:px-8 sm:py-6">
+    <div class="w-full max-w-lg mx-auto flex flex-col gap-7">
+      <!-- Top Bar: Right 'رجوع' and Left 'Réinitialiser' -->
+      <div class="flex items-center justify-between gap-3">
+        <a
+          id="backToIndexBtn"
+          href="index.html"
+          class="pill-top-btn inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-extrabold text-emerald-950 no-underline cursor-pointer"
+        >
+          <span>→</span>
+          <span>رجوع</span>
+        </a>
+
+        <button
+          id="resetUploadBtn"
+          type="button"
+          class="pill-top-btn inline-flex items-center gap-1.5 px-4 py-2 text-xs sm:text-sm font-extrabold text-emerald-950 cursor-pointer"
+        >
+          <span>Réinitialiser</span>
+        </button>
+      </div>
+
+      <!-- Title & Subtitle -->
+      <div class="text-center space-y-1.5 pt-2">
+        <h1 class="text-2xl sm:text-3xl font-black text-emerald-950 tracking-tight">
+          النشاط العلمي <span class="font-extrabold">Sciences</span>
+        </h1>
+        <p class="text-xs sm:text-sm font-bold text-emerald-800/90">
+          الخطاطة الذهنية للنشاط العلمي - Fiche mentale des sciences
+        </p>
+      </div>
+
+      <!-- Dashed Green Upload Card -->
+      <div
+        id="dropZone"
+        role="button"
+        tabindex="0"
+        aria-label="ارفع ملف PPTX أو PDF أو TXT أو MD"
+        class="dashed-upload-card p-8 sm:p-10 text-center cursor-pointer flex flex-col items-center justify-center min-h-[250px]"
+      >
+        <input
+          id="fileInput"
+          type="file"
+          accept=".pptx,.pdf,.txt,.md"
+          class="hidden"
+        />
+
+        <div class="w-14 h-14 rounded-2xl bg-emerald-100 border border-emerald-300/80 text-emerald-700 flex items-center justify-center text-2xl font-black mb-3.5 shadow-sm">
+          ↑
+        </div>
+
+        <div id="uploadPrimaryLabel" class="text-lg sm:text-xl font-black text-emerald-950">
+          ارفع ملف PPTX
+        </div>
+
+        <div id="uploadFormatsHint" class="text-xs sm:text-sm font-bold text-emerald-700/85 mt-1">
+          .pptx, .pdf, .txt, .md.
+        </div>
+
+        <div id="selectedFileBadge" class="hidden mt-3.5 px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-extrabold border border-emerald-300">
+        </div>
+      </div>
+
+      <!-- Primary Green CTA Button -->
+      <button
+        id="createMindMapBtn"
+        type="button"
+        class="create-mindmap-btn w-full py-3.5 sm:py-4 px-6 rounded-2xl text-white text-base sm:text-lg font-black tracking-wide cursor-pointer flex items-center justify-center gap-2"
+      >
+        <span id="createBtnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        <span id="createBtnText">إنشاء خريطة ذهنية</span>
+      </button>
+
+      <!-- Status Indicator -->
+      <div id="uploadStatusText" class="text-center text-xs font-bold text-emerald-900/85 min-h-[1.25rem]">
+        جاهز لرفع ملف الدرس (.pptx, .pdf, .txt, .md).
+      </div>
+    </div>
+
+    <div class="h-4"></div>
+  </section>
+
+  <!-- =========================================================
+       VIEW 2: DEDICATED EDITABLE & PRINTABLE MIND MAP VIEW
+       ========================================================= -->
+  <section id="resultView" class="mindmap-screen-bg hidden py-4 px-3 sm:px-6 lg:px-8">
+    <div class="print-container max-w-7xl mx-auto space-y-4">
+
+      <!-- Dedicated Mind Map Action Bar: رجوع، طباعة، تنزيل -->
+      <div class="no-print flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <button
+            id="backToUploadBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-200 transition cursor-pointer"
+          >
+            <span>→</span>
+            <span>رجوع</span>
+          </button>
+
+          <div>
+            <div id="generatedBannerTitle" class="text-xs sm:text-sm font-black text-slate-900">
+              الخطاطة الذهنية للدرس — قابلة للتعديل المباشر
+            </div>
+            <div id="generatedMetaSummary" class="text-[11px] font-bold text-slate-500">
+              المستوى 3 • المرحلة 2 • الأسبوع 2 • الحصة 1
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            id="printMindMapBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition cursor-pointer"
+          >
+            <span>🖨️</span>
+            <span>طباعة</span>
+          </button>
+
+          <button
+            id="downloadMindMapBtn"
+            type="button"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition cursor-pointer"
+          >
+            <span>⬇️</span>
+            <span>تنزيل</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Editable Mind Map Sheet -->
+      <main class="mindmap-sheet bg-gradient-to-b from-slate-50/90 via-white to-slate-50/90 border border-slate-200/90 rounded-3xl p-4 sm:p-6 shadow-md space-y-4">
+        <header class="space-y-3.5">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-2">
+            <!-- Right: Teacher Field -->
+            <div class="flex items-center justify-start text-xs sm:text-sm font-extrabold text-teal-950">
+              <div class="bg-teal-50 border border-teal-200 rounded-xl px-3.5 py-1.5 shadow-2xs">
+                <span>الأستاذ(ة): </span>
+                <span id="metaTeacher" contenteditable="true">...............</span>
+              </div>
+            </div>
+
+            <!-- Center: Title & Lesson Topic -->
+            <div class="flex flex-col items-center justify-center">
+              <div class="px-8 py-1.5 rounded-2xl border-2 border-emerald-700 bg-gradient-to-r from-emerald-50 via-white to-teal-50 shadow-sm text-center">
+                <h2 id="metaMainTitle" contenteditable="true" class="text-base sm:text-xl font-black text-emerald-950">
+                  خطاطة ذهنية
+                </h2>
+              </div>
+              <span id="metaSubjectBadge" contenteditable="true" class="mt-1.5 px-3 py-0.5 rounded-full bg-amber-50/90 border border-amber-200/80 text-[11px] font-extrabold text-amber-950 text-center">
+                النشاط العلمي • <span id="metaLessonTopicInline">ما هي أعضاء جهازي التنفسي وما مسار الهواء الذي أتنفسه؟</span>
+              </span>
+            </div>
+
+            <!-- Left: Lesson Code Summary -->
+            <div class="flex items-center justify-start md:justify-end text-xs font-extrabold text-indigo-900">
+              <span id="metaLessonCodeBadge" contenteditable="true" dir="ltr" class="bg-indigo-50 border border-indigo-200 rounded-xl px-3 py-1">
+                N3_P2_SEM2_S1
+              </span>
+            </div>
+          </div>
+
+          <!-- 4 Pill Indicators: المستوى، المرحلة، الأسبوع، الحصة -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
+            <div class="bg-amber-50/90 border border-amber-300 rounded-full px-4 py-1.5 flex items-center justify-center gap-2 shadow-2xs">
+              <span class="text-xs sm:text-sm font-extrabold text-amber-950">المستوى</span>
+              <span id="pillLevel" contenteditable="true" class="min-w-[1.65rem] h-6 px-2 rounded-full bg-amber-500 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-2xs">
+                3
+              </span>
+            </div>
+
+            <div class="bg-emerald-50/90 border border-emerald-300 rounded-full px-4 py-1.5 flex items-center justify-center gap-2 shadow-2xs">
+              <span class="text-xs sm:text-sm font-extrabold text-emerald-950">المرحلة</span>
+              <span id="pillStage" contenteditable="true" class="min-w-[1.65rem] h-6 px-2 rounded-full bg-emerald-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-2xs">
+                2
+              </span>
+            </div>
+
+            <div class="bg-sky-50/90 border border-sky-300 rounded-full px-4 py-1.5 flex items-center justify-center gap-2 shadow-2xs">
+              <span class="text-xs sm:text-sm font-extrabold text-sky-950">الأسبوع</span>
+              <span id="pillWeek" contenteditable="true" class="min-w-[1.65rem] h-6 px-2 rounded-full bg-blue-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-2xs">
+                2
+              </span>
+            </div>
+
+            <div class="bg-rose-50/90 border border-rose-300 rounded-full px-4 py-1.5 flex items-center justify-center gap-2 shadow-2xs">
+              <span class="text-xs sm:text-sm font-extrabold text-rose-950">الحصة</span>
+              <span id="pillSession" contenteditable="true" class="min-w-[1.65rem] h-6 px-2 rounded-full bg-rose-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-2xs">
+                1
+              </span>
+            </div>
+          </div>
+
+          <!-- Objectives Box -->
+          <div class="objectives-banner rounded-2xl px-4 py-3 sm:px-6">
+            <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5">
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-violet-600 text-white font-black text-sm shadow-2xs" aria-hidden="true">
+                  ◎
+                </span>
+                <h3 id="objectivesTitle" contenteditable="true" class="text-sm font-black text-violet-950">
+                  الأهداف
+                </h3>
+              </div>
+
+              <ul id="objectivesList" class="space-y-1 flex-1"></ul>
+            </div>
+          </div>
+        </header>
+
+        <!-- 4 Stage Columns Row -->
+        <section aria-label="مراحل الدرس وأسئلة الأستاذ" class="stages-row flex flex-col lg:flex-row items-stretch gap-2.5">
+          <!-- Column 1: افتتاح الدرس -->
+          <article
+            id="col-stage-1"
+            data-stage-col="1"
+            class="stage-column stage-col-1 flex-1 rounded-2xl p-3.5 flex flex-col gap-2.5 min-w-0"
+          >
+            <div class="stage-col-header flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl border-b">
+              <div class="flex items-center gap-2">
+                <span contenteditable="true" class="col-1-num w-6 h-6 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                  1
+                </span>
+                <h3 contenteditable="true" class="col-1-title text-sm font-black text-amber-950">
+                  افتتاح الدرس
+                </h3>
+              </div>
+              <span contenteditable="true" dir="ltr" class="col-1-time text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/90 text-amber-900 border border-amber-300 shrink-0">
+                10 min
+              </span>
+            </div>
+            <ul id="col-1-bullets" class="space-y-2 flex-1"></ul>
+          </article>
+
+          <div class="col-connector hidden lg:flex items-center justify-center text-amber-600 font-black text-xl select-none px-0.5" aria-hidden="true">
+            ←
+          </div>
+
+          <!-- Column 2: النشاط الرئيسي -->
+          <article
+            id="col-stage-2"
+            data-stage-col="2"
+            class="stage-column stage-col-2 flex-1 rounded-2xl p-3.5 flex flex-col gap-2.5 min-w-0"
+          >
+            <div class="stage-col-header flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl border-b">
+              <div class="flex items-center gap-2">
+                <span contenteditable="true" class="col-2-num w-6 h-6 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                  2
+                </span>
+                <h3 contenteditable="true" class="col-2-title text-sm font-black text-emerald-950">
+                  النشاط الرئيسي
+                </h3>
+              </div>
+              <span contenteditable="true" dir="ltr" class="col-2-time text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/90 text-emerald-900 border border-emerald-300 shrink-0">
+                25 min
+              </span>
+            </div>
+            <ul id="col-2-bullets" class="space-y-2 flex-1"></ul>
+          </article>
+
+          <div class="col-connector hidden lg:flex items-center justify-center text-emerald-600 font-black text-xl select-none px-0.5" aria-hidden="true">
+            ←
+          </div>
+
+          <!-- Column 3: أنشطة التدرب والإغناء -->
+          <article
+            id="col-stage-3"
+            data-stage-col="3"
+            class="stage-column stage-col-3 flex-1 rounded-2xl p-3.5 flex flex-col gap-2.5 min-w-0"
+          >
+            <div class="stage-col-header flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl border-b">
+              <div class="flex items-center gap-2">
+                <span contenteditable="true" class="col-3-num w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                  3
+                </span>
+                <h3 contenteditable="true" class="col-3-title text-sm font-black text-blue-950">
+                  أنشطة التدرب والإغناء
+                </h3>
+              </div>
+              <span contenteditable="true" dir="ltr" class="col-3-time text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/90 text-blue-900 border border-blue-300 shrink-0">
+                20 min
+              </span>
+            </div>
+            <ul id="col-3-bullets" class="space-y-2 flex-1"></ul>
+          </article>
+
+          <div class="col-connector hidden lg:flex items-center justify-center text-blue-600 font-black text-xl select-none px-0.5" aria-hidden="true">
+            ←
+          </div>
+
+          <!-- Column 4: اختتام الدرس -->
+          <article
+            id="col-stage-4"
+            data-stage-col="4"
+            class="stage-column stage-col-4 flex-1 rounded-2xl p-3.5 flex flex-col gap-2.5 min-w-0"
+          >
+            <div class="stage-col-header flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl border-b">
+              <div class="flex items-center gap-2">
+                <span contenteditable="true" class="col-4-num w-6 h-6 rounded-full bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                  4
+                </span>
+                <h3 contenteditable="true" class="col-4-title text-sm font-black text-rose-950">
+                  اختتام الدرس
+                </h3>
+              </div>
+              <span contenteditable="true" dir="ltr" class="col-4-time text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/90 text-rose-900 border border-rose-300 shrink-0">
+                5 min
+              </span>
+            </div>
+            <ul id="col-4-bullets" class="space-y-2 flex-1"></ul>
+          </article>
+        </section>
+
+        <!-- Bottom Interactive Stages & Timing Bar -->
+        <section aria-label="شريط المراحل والمدد الزمنية للحصة" class="timeline-bar pt-0.5">
+          <div class="bg-gradient-to-r from-amber-50/70 via-emerald-50/70 to-sky-50/70 border border-slate-200/90 rounded-2xl p-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+              <div class="flex items-center gap-2 text-xs font-extrabold text-slate-800">
+                <span>⏱️</span>
+                <span>شريط المراحل والمدد الزمنية للحصة</span>
+              </div>
+              <span class="text-[11px] text-slate-600 font-semibold">
+                انقر على أي مرحلة لإبراز عمودها • جميع الخانات قابلة للتعديل المباشر
+              </span>
+            </div>
+
+            <div id="stageBar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div
+                data-stage="1"
+                class="stage-pill bg-amber-50/90 border border-amber-300 hover:border-amber-500 rounded-xl p-2.5 transition cursor-pointer flex items-center justify-between gap-2"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-6 h-6 rounded-full bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                    1
+                  </span>
+                  <span contenteditable="true" class="stage-label text-xs sm:text-sm font-extrabold text-amber-950 truncate">
+                    افتتاح الدرس
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span contenteditable="true" dir="ltr" class="stage-duration text-xs font-extrabold px-2 py-0.5 rounded-full bg-white text-amber-900 border border-amber-300">
+                    10 min
+                  </span>
+                  <span class="text-amber-600 font-black text-xs hidden lg:inline" aria-hidden="true">←</span>
+                </div>
+              </div>
+
+              <div
+                data-stage="2"
+                class="stage-pill bg-emerald-50/90 border border-emerald-300 hover:border-emerald-500 rounded-xl p-2.5 transition cursor-pointer flex items-center justify-between gap-2"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                    2
+                  </span>
+                  <span contenteditable="true" class="stage-label text-xs sm:text-sm font-extrabold text-emerald-950 truncate">
+                    النشاط الرئيسي
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span contenteditable="true" dir="ltr" class="stage-duration text-xs font-extrabold px-2 py-0.5 rounded-full bg-white text-emerald-900 border border-emerald-300">
+                    25 min
+                  </span>
+                  <span class="text-emerald-600 font-black text-xs hidden lg:inline" aria-hidden="true">←</span>
+                </div>
+              </div>
+
+              <div
+                data-stage="3"
+                class="stage-pill bg-sky-50/90 border border-sky-300 hover:border-blue-500 rounded-xl p-2.5 transition cursor-pointer flex items-center justify-between gap-2"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                    3
+                  </span>
+                  <span contenteditable="true" class="stage-label text-xs sm:text-sm font-extrabold text-blue-950 truncate">
+                    أنشطة التدرب والإغناء
+                  </span>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span contenteditable="true" dir="ltr" class="stage-duration text-xs font-extrabold px-2 py-0.5 rounded-full bg-white text-blue-900 border border-blue-300">
+                    20 min
+                  </span>
+                  <span class="text-blue-600 font-black text-xs hidden lg:inline" aria-hidden="true">←</span>
+                </div>
+              </div>
+
+              <div
+                data-stage="4"
+                class="stage-pill bg-rose-50/90 border border-rose-300 hover:border-rose-500 rounded-xl p-2.5 transition cursor-pointer flex items-center justify-between gap-2"
+              >
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="w-6 h-6 rounded-full bg-rose-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                    4
+                  </span>
+                  <span contenteditable="true" class="stage-label text-xs sm:text-sm font-extrabold text-rose-950 truncate">
+                    اختتام الدرس
+                  </span>
+                </div>
+                <span contenteditable="true" dir="ltr" class="stage-duration text-xs font-extrabold px-2 py-0.5 rounded-full bg-white text-rose-900 border border-rose-300 shrink-0">
+                  5 min
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <!-- Non-blocking Toast Message Box -->
+  <div
+    id="toastBox"
+    class="no-print fixed bottom-5 left-5 z-50 hidden max-w-sm bg-emerald-950 text-white text-xs sm:text-sm font-bold px-4 py-3 rounded-2xl shadow-xl border border-emerald-700/70 flex items-center gap-2.5"
+    role="status"
+    aria-live="polite"
+  >
+    <span id="toastIcon">✅</span>
+    <span id="toastText">تم التحديث</span>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      try {
+        if (window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+            'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+      } catch (_) {}
+
+      const GEMINI_FLASH_3_MODELS = ['gemini-3-flash-preview', 'gemini-3-flash'];
+      const KEY_STORAGE_KEY = 'sciences_mindmap_received_gemini_key';
+
+      const DEFAULT_MINDMAP = {
+        mainTitle: 'خطاطة ذهنية',
+        subject: 'النشاط العلمي',
+        lessonTopic: 'ما هي أعضاء جهازي التنفسي وما مسار الهواء الذي أتنفسه؟',
+        teacher: '...............',
+        pills: { level: '3', stage: '2', week: '2', session: '1' },
+        objectives: [
+          'التعرف على أعضاء الجهاز التنفسي ومسار الهواء عند الإنسان.',
+          'توظيف الملاحظة والتطبيق.'
+        ],
+        columns: [
+          {
+            stage: 1,
+            title: 'افتتاح الدرس',
+            duration: '10 min',
+            bullets: [
+              'تصحيح الأنشطة المنزلية: النشاط 2 (ص 7).',
+              'المرور بين الصفوف وإبداء الرأي حول المطويات وتقديم بعضها من طرف المتعلمين، والعمل في ثنائيات ومناولات بسيطة.',
+              'تقديم هدف الدرس: التعرف على أعضاء الجهاز التنفسي ومسار الهواء عند الإنسان.',
+              'أنشطة تمهيدية: ملاحظة صور والإجابة على اللوحة باختيار رقم الجواب الصحيح.',
+              'أسئلة الأستاذ في الافتتاح والتمهيد: «ماذا تلاحظ في الجزء المؤطر من الوثيقة؟» — «ماذا تلاحظ؟» — «ما العلاقة بين ما نلاحظه وموضوع درس اليوم؟».'
+            ]
+          },
+          {
+            stage: 2,
+            title: 'النشاط الرئيسي',
+            duration: '25 min',
+            bullets: [
+              'عرض فيديو النمذجة مع عمر وندى: أعضاء الجهاز التنفسي ومسار الهواء.',
+              'أسئلة الأستاذ أثناء النمذجة: «أي مجموعة تضم أعضاء من الجهاز التنفسي؟» — «أثناء الشهيق، ما المسار الصحيح للهواء؟» — «أثناء الزفير، كيف يتحرك الهواء؟».',
+              'ممارسة موجهة: إنجاز النشاط 3 في الكراسة (ص 11: تسمية أعضاء الجهاز التنفسي وتحديد مسار الهواء).',
+              'تصحيح النشاط 3 وأسئلة التوجيه: «ما اسم كل عضو مشار إليه على الرسم؟» — «كيف نميز بين مسار دخول الهواء وخروجه؟».'
+            ]
+          },
+          {
+            stage: 3,
+            title: 'أنشطة التدرب والإغناء',
+            duration: '20 min',
+            bullets: [
+              'أتذكر: قراءة الخلاصة حول أعضاء الجهاز التنفسي ومسار الهواء.',
+              'ممارسة مستقلة: إنجاز النشاط 4 (ص 12) وتصحيح النشاط 4.',
+              'إنجاز النشاط 5 (ص 12) وتصحيح الأنشطة المنجزة.',
+              'أسئلة الأستاذ في التدرب والإغناء: «ما الأعضاء الأساسية للجهاز التنفسي؟» — «ما الفرق بين الشهيق والزفير من حيث مسار الهواء؟» — «كيف نطبق ما تعلمناه في حل هذا التمرين؟».'
+            ]
+          },
+          {
+            stage: 4,
+            title: 'اختتام الدرس',
+            duration: '5 min',
+            bullets: [
+              '«ماذا تعلمنا اليوم؟»: استرجاع أعضاء الجهاز التنفسي ومسار الهواء أثناء الشهيق والزفير.',
+              'تكليف التلاميذ بإكمال الأنشطة المتبقية في الكراسة (ص 10 و11) بالمنزل.',
+              'أسئلة الأستاذ الختامية للتقويم: «ماذا تعلمنا اليوم؟» — «ما أهم فكرة ترسخت لديكم حول موضوع الدرس؟».'
+            ]
+          }
+        ]
+      };
+
+      let receivedApiKey = '';
+      let uploadedFileName = '';
+      let extractedLessonText = '';
+      let highlightedStage = null;
+
+      function escapeHtml(str = '') {
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      // Strictly remove any mention of slides or slide numbers
+      function stripSlideMentions(str = '') {
+        return String(str)
+          .replace(/\(\s*شريحة\s*\d+\s*\)/g, '')
+          .replace(/\(\s*الشريحة\s*\d+\s*\)/g, '')
+          .replace(/في\s*الشريحة(?:\s*رقم)?\s*\d+/g, '')
+          .replace(/الشريحة(?:\s*رقم)?\s*\d+/g, '')
+          .replace(/slide\s*\d+/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      }
+
+      function showToast(msg, icon = '✅') {
+        try {
+          const box = document.getElementById('toastBox');
+          const ic = document.getElementById('toastIcon');
+          const tx = document.getElementById('toastText');
+          if (!box || !ic || !tx) return;
+          ic.textContent = icon;
+          tx.textContent = msg;
+          box.classList.remove('hidden');
+          clearTimeout(window.__toastTimer);
+          window.__toastTimer = setTimeout(() => box.classList.add('hidden'), 3000);
+        } catch (_) {}
+      }
+
+      function setUploadStatus(msg) {
+        try {
+          const el = document.getElementById('uploadStatusText');
+          if (el) el.textContent = msg;
+        } catch (_) {}
+      }
+
+      function setCreatingState(isLoading) {
+        try {
+          const btn = document.getElementById('createMindMapBtn');
+          const spinner = document.getElementById('createBtnSpinner');
+          const txt = document.getElementById('createBtnText');
+          if (btn) {
+            btn.disabled = isLoading;
+            btn.classList.toggle('opacity-75', isLoading);
+          }
+          if (spinner) spinner.classList.toggle('hidden', !isLoading);
+          if (txt) txt.textContent = isLoading ? 'جاري إنشاء الخريطة الذهنية...' : 'إنشاء خريطة ذهنية';
+        } catch (_) {}
+      }
+
+      function showView(viewName) {
+        const uploadView = document.getElementById('uploadScienceView');
+        const mindmapView = document.getElementById('resultView');
+        if (!uploadView || !mindmapView) return;
+
+        if (viewName === 'mindmap') {
+          uploadView.classList.add('hidden');
+          mindmapView.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+          mindmapView.classList.add('hidden');
+          uploadView.classList.remove('hidden');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      function storeReceivedKey(rawKey) {
+        const cleaned = String(rawKey || '').trim();
+        if (!cleaned || cleaned.length < 6) return;
+        receivedApiKey = cleaned;
+        try {
+          sessionStorage.setItem(KEY_STORAGE_KEY, cleaned);
+          localStorage.setItem(KEY_STORAGE_KEY, cleaned);
+        } catch (_) {}
+      }
+
+      // Silently receive any Gemini API key passed from parent/opener or storage/URL/window.name/Firestore
+      function captureKeyFromSources() {
+        try {
+          const searchStr = (window.location.search || '').replace(/^\?/, '');
+          const hashStr = (window.location.hash || '').replace(/^#/, '');
+
+          const extractParamKey = (raw) => {
+            if (!raw) return '';
+            const params = new URLSearchParams(raw);
+            return (
+              params.get('key') ||
+              params.get('apiKey') ||
+              params.get('api_key') ||
+              params.get('geminiKey') ||
+              params.get('gemini_key') ||
+              ''
+            ).trim();
+          };
+
+          let key = extractParamKey(searchStr) || extractParamKey(hashStr);
+
+          if (!key && hashStr && !hashStr.includes('=')) {
+            key = decodeURIComponent(hashStr).trim();
+          }
+
+          if (!key && window.name) {
+            try {
+              const parsedName = JSON.parse(window.name);
+              key = (parsedName?.key || parsedName?.apiKey || parsedName?.api_key || '').trim();
+            } catch (_) {
+              if (/^AIza[0-9A-Za-z\-_]{15,}$/.test(window.name.trim())) {
+                key = window.name.trim();
+              }
+            }
+          }
+
+          if (!key) {
+            const keysToCheck = [
+              KEY_STORAGE_KEY,
+              'gemini_api_key',
+              'apiKey',
+              'api_key',
+              'key',
+              'GEMINI_API_KEY'
+            ];
+            for (const storageKey of keysToCheck) {
+              const sVal = sessionStorage.getItem(storageKey);
+              const lVal = localStorage.getItem(storageKey);
+              if (sVal && sVal.trim()) {
+                key = sVal.trim();
+                break;
+              }
+              if (lVal && lVal.trim()) {
+                key = lVal.trim();
+                break;
+              }
+            }
+          }
+
+          if (!key) {
+            const fsCandidates = [
+              window.firestoreGeminiConfig,
+              window.geminiConfig,
+              window.settings?.geminiConfig,
+              window.appSettings?.geminiConfig
+            ];
+            for (const cfg of fsCandidates) {
+              const k = cfg?.key || cfg?.apiKey || cfg?.api_key || '';
+              if (k && String(k).trim()) {
+                key = String(k).trim();
+                break;
+              }
+            }
+          }
+
+          if (key) {
+            storeReceivedKey(key);
+          }
+
+          if (window.opener && !window.opener.closed) {
+            try {
+              window.opener.postMessage({ type: 'REQUEST_GEMINI_KEY', target: 'science' }, '*');
+            } catch (_) {}
+          }
+          if (window.parent && window.parent !== window) {
+            try {
+              window.parent.postMessage({ type: 'REQUEST_GEMINI_KEY', target: 'science' }, '*');
+            } catch (_) {}
+          }
+        } catch (_) {}
+      }
+
+      window.addEventListener('message', (event) => {
+        try {
+          const data = event?.data;
+          if (!data) return;
+          if (typeof data === 'string') {
+            storeReceivedKey(data);
+          } else if (typeof data === 'object') {
+            const candidate = data.key || data.apiKey || data.api_key || data.geminiKey || data.gemini_key || '';
+            if (candidate) storeReceivedKey(candidate);
+          }
+        } catch (_) {}
+      });
+
+      // Parse N<num> (المستوى), P<num> (المرحلة), SEM<num> (الأسبوع), S<num> (الحصة)
+      function extractCodes(source = '') {
+        const text = String(source || '');
+
+        const nMatch = text.match(/(?:^|[^A-Za-z0-9\u0600-\u06FF])N\s*[-_:]?\s*([1-6١-٦])(?=$|[^A-Za-z0-9\u0600-\u06FF])/i);
+        const pMatch = text.match(/(?:^|[^A-Za-z0-9\u0600-\u06FF])P\s*[-_:]?\s*([1-6١-٦])(?=$|[^A-Za-z0-9\u0600-\u06FF])/i);
+        const semMatch = text.match(/(?:^|[^A-Za-z0-9\u0600-\u06FF])SEM\s*[-_:]?\s*([0-9١-٦]+)(?=$|[^A-Za-z0-9\u0600-\u06FF])/i);
+        const sMatch = text.match(/(?:^|[^A-Za-z0-9\u0600-\u06FF])S\s*[-_:]?\s*([1-6١-٦])(?=$|[^A-Za-z0-9\u0600-\u06FF])/i);
+
+        const levelAr = text.match(/المستوى\s*(?:الأول|الثاني|الثالث|الرابع|الخامس|السادس|1|2|3|4|5|6|١|٢|٣|٤|٥|٦)/);
+        const stageAr = text.match(/المرحلة\s*(?:الأولى|الثانية|الثالثة|الرابعة|1|2|3|4|١|٢|٣|٤)/);
+        const weekAr = text.match(/الأسبوع\s*([0-9١-٦]+)/);
+        const sessionAr = text.match(/الحصة\s*([0-9١-٦]+)/);
+
+        const numMap = {
+          'الأول': '1', 'الأولى': '1', '1': '1', '١': '1',
+          'الثاني': '2', 'الثانية': '2', '2': '2', '٢': '2',
+          'الثالث': '3', 'الثالثة': '3', '3': '3', '٣': '3',
+          'الرابع': '4', 'الرابعة': '4', '4': '4', '٤': '4',
+          'الخامس': '5', '5': '5', '٥': '5',
+          'السادس': '6', '6': '6', '٦': '6'
+        };
+
+        const norm = (raw, fallback) => {
+          if (!raw) return fallback;
+          const t = String(raw).trim();
+          return numMap[t] || t.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632)) || fallback;
+        };
+
+        return {
+          level: nMatch ? norm(nMatch[1], '3') : norm(levelAr?.[0]?.replace(/^المستوى\s*/i, ''), '3'),
+          stage: pMatch ? norm(pMatch[1], '2') : norm(stageAr?.[0]?.replace(/^المرحلة\s*/i, ''), '2'),
+          week: semMatch ? norm(semMatch[1], '2') : norm(weekAr?.[1], '2'),
+          session: sMatch ? norm(sMatch[1], '1') : norm(sessionAr?.[1], '1')
+        };
+      }
+
+      function extractQuestions(text = '') {
+        const cleaned = stripSlideMentions(text);
+        const matches = cleaned.match(/[«"]?[^.!\n؟?]*[؟?][»"]?/g) || [];
+        return matches
+          .map((q) => q.replace(/^[«"\s-]+|[»"\s-]+$/g, '').trim())
+          .filter((q) => q.length >= 4);
+      }
+
+      function extractPages(text = '') {
+        const pages = [];
+        const regex = /(?:ص\.?|صفحة)\s*([0-9١-٩]+(?:\s*(?:و|,|،|-)\s*[0-9١-٩]+)?)/g;
+        let m;
+        while ((m = regex.exec(text)) !== null) {
+          pages.push(m[1].replace(/\s+/g, ' ').trim());
+        }
+        return Array.from(new Set(pages));
+      }
+
+      function analyzeLessonLocally(rawText, fileName = '') {
+        const codes = extractCodes(`${fileName}\n${rawText}`);
+        const clean = stripSlideMentions((rawText || '').trim());
+        const lines = clean
+          .split(/\r?\n/)
+          .map((l) => l.replace(/^[◆•*▪▶\d.)\-]+\s*/, '').trim())
+          .filter((l) => l.length > 1);
+
+        const topicMatch = clean.match(/(?:موضوع\s*الدرس|عنوان\s*الدرس|الدرس\s*[0-9١-٦]*)\s*[:：\-]\s*([^\n]+)/);
+        const codeLine = lines.find((l) => /\b(?:N\d+|P\d+|SEM\d+|S\d+)\b/i.test(l));
+        const strippedCodeLine = codeLine
+          ? codeLine
+              .replace(/\b(?:N\d+|P\d+|SEM\d+|S\d+)\b/gi, '')
+              .replace(/^[\s\-–—:|]+|[\s\-–—:|]+$/g, '')
+              .trim()
+          : '';
+
+        const inferredTopic =
+          topicMatch?.[1]?.trim() ||
+          (strippedCodeLine.length > 5 ? strippedCodeLine : '') ||
+          lines.find((l) => !/^(المملكة|وزارة|خطاطة|المستوى|المرحلة|الأسبوع|الحصة|الأهداف|افتتاح|النشاط الرئيسي|أنشطة التدرب|اختتام)/i.test(l) && l.length > 5) ||
+          (fileName
+            ? fileName
+                .replace(/\.[a-z0-9]+$/i, '')
+                .replace(/\b(?:N\d+|P\d+|SEM\d+|S\d+)\b/gi, '')
+                .replace(/[_-]+/g, ' ')
+                .trim()
+            : '') ||
+          DEFAULT_MINDMAP.lessonTopic;
+
+        const objectives = [];
+        let readingObjectives = false;
+        for (const line of lines) {
+          if (/^(الأهداف|هدف\s*الدرس|أهداف\s*الدرس)\s*[:：]?$/i.test(line)) {
+            readingObjectives = true;
+            continue;
+          }
+          if (readingObjectives) {
+            if (/^(1\b|2\b|3\b|4\b|افتتاح|النشاط الرئيسي|أنشطة التدرب|اختتام\s*الدرس)/i.test(line)) {
+              break;
+            }
+            if (line.length > 3) objectives.push(line.replace(/[:：]+$/, '').trim());
+          }
+        }
+
+        if (!objectives.length) {
+          const goalLines = lines.filter((l) => /(?:التعرف|تحديد|تفسير|مقارنة|استنتاج|توظيف|تمييز|فهم|وصف|اكتشاف)/i.test(l));
+          if (goalLines.length) objectives.push(...goalLines.slice(0, 3));
+        }
+
+        const s1 = [], s2 = [], s3 = [], s4 = [];
+        let curStage = 0;
+
+        for (const line of lines) {
+          if (/^(?:1[\s.-]*)?افتتاح\s*الدرس/i.test(line) && line.length < 55) { curStage = 1; continue; }
+          if (/^(?:2[\s.-]*)?النشاط\s*الرئيسي/i.test(line) && line.length < 55) { curStage = 2; continue; }
+          if (/^(?:3[\s.-]*)?أنشطة\s*التدرب/i.test(line) && line.length < 65) { curStage = 3; continue; }
+          if (/^(?:4[\s.-]*)?اختتام\s*الدرس/i.test(line) && line.length < 55) { curStage = 4; continue; }
+
+          if (curStage === 1) s1.push(line);
+          else if (curStage === 2) s2.push(line);
+          else if (curStage === 3) s3.push(line);
+          else if (curStage === 4) s4.push(line);
+        }
+
+        if (!s1.length && !s2.length && !s3.length && !s4.length) {
+          const bodyLines = lines.filter((l) => !/^(المملكة|وزارة|خطاطة|المستوى|المرحلة|الأسبوع|الحصة|الأهداف)/i.test(l));
+          bodyLines.forEach((l, idx) => {
+            if (/تمهيد|ملاحظة|تذكير|منزل|افتتاح/i.test(l)) s1.push(l);
+            else if (/نمذجة|نشاط\s*1|نشاط\s*2|نشاط\s*3|موجهة|تجربة|مناولة/i.test(l)) s2.push(l);
+            else if (/تدرب|إغناء|أتذكر|خلاصة|نشاط\s*4|نشاط\s*5|مستقلة|تطبيق/i.test(l)) s3.push(l);
+            else if (/اختتام|تقويم|تعلمنا|واجب|منزل/i.test(l)) s4.push(l);
+            else {
+              const b = idx % 4;
+              if (b === 0) s1.push(l);
+              else if (b === 1) s2.push(l);
+              else if (b === 2) s3.push(l);
+              else s4.push(l);
+            }
+          });
+        }
+
+        const pages = extractPages(clean);
+        const p1 = pages[0] ? `ص ${pages[0]}` : 'الكراسة';
+        const p2 = pages[1] ? `ص ${pages[1]}` : p1;
+        const pLast = pages[pages.length - 1] ? `ص ${pages[pages.length - 1]}` : p2;
+
+        const allQ = extractQuestions(clean);
+        const q1Arr = extractQuestions(s1.join(' '));
+        const q2Arr = extractQuestions(s2.join(' '));
+        const q3Arr = extractQuestions(s3.join(' '));
+        const q4Arr = extractQuestions(s4.join(' '));
+        const fmt = (arr) => arr.map((q) => `«${q.replace(/[«»]/g, '')}»`).join(' — ');
+
+        const q1 = q1Arr.length
+          ? `أسئلة الأستاذ في الافتتاح والتمهيد: ${fmt(q1Arr)}.`
+          : `أسئلة الأستاذ في الافتتاح والتمهيد: «ماذا تلاحظون في هذا النشاط؟» — «ما العلاقة بين ملاحظتكم وموضوع «${inferredTopic}»؟».`;
+
+        const q2 = q2Arr.length
+          ? `أسئلة الأستاذ أثناء النمذجة والممارسة الموجهة: ${fmt(q2Arr)}.`
+          : `أسئلة الأستاذ أثناء النمذجة والممارسة الموجهة: «كيف نفسر ما نلاحظه في «${inferredTopic}»؟» — «ما العناصر الأساسية التي توصلنا إليها؟».`;
+
+        const q3 = q3Arr.length
+          ? `أسئلة الأستاذ في التدرب والإغناء: ${fmt(q3Arr)}.`
+          : `أسئلة الأستاذ في التدرب والإغناء: «كيف نطبق ما تعلمناه في حل هذا النشاط؟» — «ما الخلاصة التي نثبتها؟».`;
+
+        const q4 = q4Arr.length
+          ? `أسئلة الأستاذ الختامية للتقويم: ${fmt(q4Arr)}.`
+          : (allQ.length
+              ? `أسئلة الأستاذ الختامية للتقويم: «ماذا تعلمنا اليوم؟» — ${fmt(allQ.slice(-2))}.`
+              : `أسئلة الأستاذ الختامية للتقويم: «ماذا تعلمنا اليوم؟» — «ما أهم فكرة ترسخت لديكم حول «${inferredTopic}»؟».`);
+
+        return {
+          ...DEFAULT_MINDMAP,
+          lessonTopic: inferredTopic,
+          pills: codes,
+          objectives: objectives.length
+            ? objectives.slice(0, 3)
+            : [
+                `التعرف على مضامين الدرس حول ${inferredTopic}.`,
+                'توظيف الملاحظة والاستنتاج والتطبيق في الأنشطة العلمية.'
+              ],
+          columns: [
+            {
+              stage: 1,
+              title: 'افتتاح الدرس',
+              duration: '10 min',
+              bullets: [
+                ...(s1.length ? s1 : [
+                  `تصحيح الأنشطة المنزلية السابقة (${p1}).`,
+                  'المرور بين الصفوف والعمل في ثنائيات ومناولات بسيطة.',
+                  `تقديم هدف الدرس: ${objectives[0] || inferredTopic}.`,
+                  'أنشطة تمهيدية: ملاحظة الصور أو الوثائق والإجابة على اللوحة.'
+                ]),
+                q1
+              ]
+            },
+            {
+              stage: 2,
+              title: 'النشاط الرئيسي',
+              duration: '25 min',
+              bullets: [
+                ...(s2.length ? s2 : [
+                  `عرض النمذجة أو المناولة المتعلقة بـ: ${inferredTopic}.`,
+                  `ممارسة موجهة: إنجاز النشاط التطبيقي (${p2}) وتوجيه المتعلمين.`,
+                  'تصحيح الأنشطة الموجهة ومناقشة النتائج.'
+                ]),
+                q2
+              ]
+            },
+            {
+              stage: 3,
+              title: 'أنشطة التدرب والإغناء',
+              duration: '20 min',
+              bullets: [
+                ...(s3.length ? s3 : [
+                  'أتذكر: قراءة الخلاصة العلمية وتثبيت المفاهيم الأساسية.',
+                  `ممارسة مستقلة (التدرب): إنجاز النشاط التطبيقي (${pLast}) وتصحيحه.`,
+                  'الإغناء: إنجاز أنشطة إغنائية وتصحيح الأنشطة المنجزة.'
+                ]),
+                q3
+              ]
+            },
+            {
+              stage: 4,
+              title: 'اختتام الدرس',
+              duration: '5 min',
+              bullets: [
+                ...(s4.length ? s4 : [
+                  `«ماذا تعلمنا اليوم؟»: استرجاع أهم عناصر الدرس حول ${inferredTopic}.`,
+                  `تكليف التلاميذ بإتمام الأنشطة المتبقية في الكراسة (${pLast}) بالمنزل.`
+                ]),
+                q4
+              ]
+            }
+          ]
+        };
+      }
+
+      async function callGeminiFlash3(apiKey, lessonText, fileName = '') {
+        const prompt = `
+أنت خبير تربوي في مادة النشاط العلمي. حلّل الدرس التالي وأعد JSON صالح فقط (ممنوع كلياً ذكر كلمة "شريحة" أو أرقام الشرائح أو المملكة المغربية أو وزارة).
+استخرج رموز N (المستوى)، P (المرحلة)، SEM (الأسبوع)، وS (الحصة) من العنوان أو اسم الملف أو النص، وأدرج الأهداف والأنشطة والأسئلة الفعلية التي يطرحها الأستاذ في كل مرحلة:
+{
+  "mainTitle": "خطاطة ذهنية",
+  "subject": "النشاط العلمي",
+  "lessonTopic": "موضوع الدرس",
+  "teacher": "...............",
+  "pills": { "level": "3", "stage": "2", "week": "2", "session": "1" },
+  "objectives": ["هدف 1", "هدف 2"],
+  "columns": [
+    { "stage": 1, "title": "افتتاح الدرس", "duration": "10 min", "bullets": ["..."] },
+    { "stage": 2, "title": "النشاط الرئيسي", "duration": "25 min", "bullets": ["..."] },
+    { "stage": 3, "title": "أنشطة التدرب والإغناء", "duration": "20 min", "bullets": ["..."] },
+    { "stage": 4, "title": "اختتام الدرس", "duration": "5 min", "bullets": ["..."] }
+  ]
+}
+
+اسم الملف: ${fileName}
+نص الدرس:
+${lessonText}
+`;
+
+        for (const modelName of GEMINI_FLASH_3_MODELS) {
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { responseMimeType: 'application/json' }
+              })
+            });
+
+            if (!res.ok) continue;
+            const json = await res.json();
+            const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            const match = rawText.match(/\{[\s\S]*\}/);
+            if (!match) continue;
+            return JSON.parse(match[0]);
+          } catch (_) {}
+        }
+        return null;
+      }
+
+      async function extractTextFromFile(file) {
+        const lower = (file.name || '').toLowerCase();
+
+        if (lower.endsWith('.txt') || lower.endsWith('.md')) {
+          return await file.text();
+        }
+
+        if (lower.endsWith('.pdf')) {
+          if (!window.pdfjsLib) throw new Error('تعذر تحميل قارئ ملفات PDF.');
+          const buf = await file.arrayBuffer();
+          const pdf = await window.pdfjsLib.getDocument({ data: buf }).promise;
+          const pages = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            pages.push(content.items.map((item) => item.str).join(' '));
+          }
+          return pages.join('\n\n');
+        }
+
+        if (lower.endsWith('.pptx')) {
+          if (!window.JSZip) throw new Error('تعذر تحميل قارئ ملفات PPTX.');
+          const buf = await file.arrayBuffer();
+          const zip = await window.JSZip.loadAsync(buf);
+          const slidePaths = Object.keys(zip.files)
+            .filter((k) => /^ppt\/slides\/slide\d+\.xml$/i.test(k))
+            .sort((a, b) => {
+              const na = parseInt((a.match(/(\d+)/) || [0])[1], 10);
+              const nb = parseInt((b.match(/(\d+)/) || [0])[1], 10);
+              return na - nb;
+            });
+
+          const collected = [];
+          for (const path of slidePaths) {
+            const xmlStr = await zip.files[path].async('string');
+            const xmlDoc = new DOMParser().parseFromString(xmlStr, 'text/xml');
+            const texts = Array.from(xmlDoc.getElementsByTagNameNS('*', 't'))
+              .map((n) => n.textContent || '')
+              .join(' ')
+              .trim();
+            if (texts) collected.push(texts);
+          }
+          return collected.join('\n');
+        }
+
+        if (lower.endsWith('.docx')) {
+          if (window.mammoth && typeof window.mammoth.extractRawText === 'function') {
+            const buf = await file.arrayBuffer();
+            const res = await window.mammoth.extractRawText({ arrayBuffer: buf });
+            if (res && res.value) return res.value;
+          }
+          if (window.JSZip) {
+            const buf = await file.arrayBuffer();
+            const zip = await window.JSZip.loadAsync(buf);
+            if (zip.files['word/document.xml']) {
+              const xmlStr = await zip.files['word/document.xml'].async('string');
+              const xmlDoc = new DOMParser().parseFromString(xmlStr, 'text/xml');
+              return Array.from(xmlDoc.getElementsByTagNameNS('*', 't'))
+                .map((n) => n.textContent || '')
+                .join(' ');
+            }
+          }
+          throw new Error('تعذر استخراج النص من ملف DOCX.');
+        }
+
+        return await file.text();
+      }
+
+      function renderMindMapView(data) {
+        const setTxt = (id, val) => {
+          const el = document.getElementById(id);
+          if (el && val !== undefined && val !== null) el.textContent = val;
+        };
+
+        setTxt('metaMainTitle', data.mainTitle || DEFAULT_MINDMAP.mainTitle);
+        setTxt('metaTeacher', data.teacher || DEFAULT_MINDMAP.teacher);
+
+        const subj = stripSlideMentions(data.subject || DEFAULT_MINDMAP.subject);
+        const topic = stripSlideMentions(data.lessonTopic || DEFAULT_MINDMAP.lessonTopic);
+        const badgeEl = document.getElementById('metaSubjectBadge');
+        if (badgeEl) {
+          badgeEl.innerHTML = `${escapeHtml(subj)} • <span id="metaLessonTopicInline">${escapeHtml(topic)}</span>`;
+        }
+
+        const pills = data.pills || DEFAULT_MINDMAP.pills;
+        setTxt('pillLevel', pills.level || '3');
+        setTxt('pillStage', pills.stage || '2');
+        setTxt('pillWeek', pills.week || '2');
+        setTxt('pillSession', pills.session || '1');
+        setTxt(
+          'metaLessonCodeBadge',
+          `N${pills.level || '3'}_P${pills.stage || '2'}_SEM${pills.week || '2'}_S${pills.session || '1'}`
+        );
+
+        setTxt(
+          'generatedMetaSummary',
+          `المستوى ${pills.level || '3'} • المرحلة ${pills.stage || '2'} • الأسبوع ${pills.week || '2'} • الحصة ${pills.session || '1'}`
+        );
+
+        const objUl = document.getElementById('objectivesList');
+        const objectives = Array.isArray(data.objectives) && data.objectives.length
+          ? data.objectives
+          : DEFAULT_MINDMAP.objectives;
+
+        if (objUl) {
+          objUl.innerHTML = objectives
+            .map(
+              (o) => `
+              <li class="diamond-item">
+                <span class="diamond-bullet">◆</span>
+                <span contenteditable="true">${escapeHtml(stripSlideMentions(o))}</span>
+              </li>`
+            )
+            .join('');
+        }
+
+        const cols = Array.isArray(data.columns) && data.columns.length === 4
+          ? data.columns
+          : DEFAULT_MINDMAP.columns;
+        const barItems = document.querySelectorAll('#stageBar [data-stage]');
+
+        cols.forEach((col, idx) => {
+          const num = col.stage || idx + 1;
+          const article = document.getElementById(`col-stage-${num}`);
+          const title = stripSlideMentions(col.title || DEFAULT_MINDMAP.columns[idx].title);
+          const duration = col.duration || DEFAULT_MINDMAP.columns[idx].duration;
+
+          if (article) {
+            const numEl = article.querySelector(`.col-${num}-num`);
+            const titleEl = article.querySelector(`.col-${num}-title`);
+            const timeEl = article.querySelector(`.col-${num}-time`);
+            const ulEl = document.getElementById(`col-${num}-bullets`);
+
+            if (numEl) numEl.textContent = String(num);
+            if (titleEl) titleEl.textContent = title;
+            if (timeEl) timeEl.textContent = duration;
+
+            if (ulEl) {
+              const bullets = Array.isArray(col.bullets) && col.bullets.length
+                ? col.bullets
+                : DEFAULT_MINDMAP.columns[idx].bullets;
+
+              ulEl.innerHTML = bullets
+                .map(
+                  (b) => `
+                  <li class="diamond-item">
+                    <span class="diamond-bullet">◆</span>
+                    <span contenteditable="true">${escapeHtml(stripSlideMentions(b))}</span>
+                  </li>`
+                )
+                .join('');
+            }
+          }
+
+          const pill = barItems[idx];
+          if (pill) {
+            const lbl = pill.querySelector('.stage-label');
+            const dur = pill.querySelector('.stage-duration');
+            if (lbl) lbl.textContent = title;
+            if (dur) dur.textContent = duration;
+          }
+        });
+      }
+
+      async function handleCreateMindMap() {
+        try {
+          captureKeyFromSources();
+          const combinedSource = [uploadedFileName, extractedLessonText].filter(Boolean).join('\n');
+
+          if (!combinedSource.trim()) {
+            setUploadStatus('يرجى رفع ملف (.pptx, .pdf, .txt, .md) أولاً ثم الضغط على "إنشاء خريطة ذهنية".');
+            showToast('ارفع ملف الدرس أولاً', '⚠️');
+            return;
+          }
+
+          setCreatingState(true);
+          setUploadStatus('جاري تحليل الملف وإنشاء الخريطة الذهنية...');
+
+          const codes = extractCodes(combinedSource);
+          let mindmapData = analyzeLessonLocally(extractedLessonText || uploadedFileName, uploadedFileName);
+
+          if (receivedApiKey) {
+            const aiData = await callGeminiFlash3(receivedApiKey, combinedSource, uploadedFileName);
+            if (aiData && Array.isArray(aiData.columns) && aiData.columns.length === 4) {
+              mindmapData = {
+                ...mindmapData,
+                ...aiData,
+                pills: {
+                  level: codes.level || aiData?.pills?.level || mindmapData.pills.level,
+                  stage: codes.stage || aiData?.pills?.stage || mindmapData.pills.stage,
+                  week: codes.week || aiData?.pills?.week || mindmapData.pills.week,
+                  session: codes.session || aiData?.pills?.session || mindmapData.pills.session
+                }
+              };
+            }
+          }
+
+          renderMindMapView(mindmapData);
+          showView('mindmap');
+          setUploadStatus('تم إنشاء الخريطة الذهنية بنجاح.');
+          showToast('تم إنشاء الخريطة الذهنية', '🧠');
+        } catch (err) {
+          console.error('handleCreateMindMap error:', err);
+          const fallback = analyzeLessonLocally(extractedLessonText || uploadedFileName, uploadedFileName);
+          renderMindMapView(fallback);
+          showView('mindmap');
+          showToast('تم إنشاء الخريطة الذهنية', '🧠');
+        } finally {
+          setCreatingState(false);
+        }
+      }
+
+      async function handleFilePicked(file) {
+        try {
+          if (!file) return;
+          uploadedFileName = file.name || '';
+          extractedLessonText = '';
+
+          const badge = document.getElementById('selectedFileBadge');
+          if (badge) {
+            badge.textContent = `الملف المحدد: ${uploadedFileName}`;
+            badge.classList.remove('hidden');
+          }
+          setUploadStatus(`جاري استخراج محتوى الملف: ${uploadedFileName}...`);
+
+          const extracted = await extractTextFromFile(file);
+          extractedLessonText = (extracted || '').trim();
+
+          const codes = extractCodes(`${uploadedFileName}\n${extractedLessonText}`);
+          setUploadStatus(
+            `تم تحميل "${uploadedFileName}" • المستوى ${codes.level} • المرحلة ${codes.stage} • الأسبوع ${codes.week} • الحصة ${codes.session}`
+          );
+          showToast(`تم تحميل: ${uploadedFileName}`, '📄');
+        } catch (err) {
+          console.error('handleFilePicked error:', err);
+          setUploadStatus(err.message || 'تعذر قراءة الملف.');
+          showToast('تعذر قراءة الملف', '⚠️');
+        }
+      }
+
+      function handleResetUpload() {
+        try {
+          uploadedFileName = '';
+          extractedLessonText = '';
+          const fileInput = document.getElementById('fileInput');
+          const badge = document.getElementById('selectedFileBadge');
+          if (fileInput) fileInput.value = '';
+          if (badge) {
+            badge.textContent = '';
+            badge.classList.add('hidden');
+          }
+          try {
+            sessionStorage.removeItem('sciences_last_lesson_text');
+            sessionStorage.removeItem('sciences_last_file_name');
+            localStorage.removeItem('sciences_last_lesson_text');
+            localStorage.removeItem('sciences_last_file_name');
+          } catch (_) {}
+          setUploadStatus('تمت إعادة التهيئة. جاهز لرفع ملف الدرس (.pptx, .pdf, .txt, .md).');
+          showToast('Réinitialiser', '🔄');
+        } catch (_) {}
+      }
+
+      function handleBackNavigation() {
+        try {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else if (window.opener && !window.opener.closed) {
+            window.focus();
+          } else {
+            showView('upload');
+          }
+        } catch (_) {
+          showView('upload');
+        }
+      }
+
+      function toggleStageHighlight(stageNum) {
+        try {
+          const pills = document.querySelectorAll('#stageBar [data-stage]');
+          const cols = document.querySelectorAll('.stage-column[data-stage-col]');
+
+          if (highlightedStage === stageNum) {
+            highlightedStage = null;
+            pills.forEach((p) => p.classList.remove('active-stage'));
+            cols.forEach((c) => c.classList.remove('stage-highlight'));
+            return;
+          }
+
+          highlightedStage = stageNum;
+          pills.forEach((p) => p.classList.toggle('active-stage', p.getAttribute('data-stage') === stageNum));
+          cols.forEach((c) => c.classList.toggle('stage-highlight', c.getAttribute('data-stage-col') === stageNum));
+        } catch (_) {}
+      }
+
+      function downloadMindMapHtml() {
+        try {
+          const clone = document.documentElement.cloneNode(true);
+          clone.querySelector('#uploadScienceView')?.classList.add('hidden');
+          clone.querySelector('#resultView')?.classList.remove('hidden');
+          clone.querySelector('#toastBox')?.classList.add('hidden');
+
+          const htmlStr = '<!DOCTYPE html>\n' + clone.outerHTML;
+          const blob = new Blob([htmlStr], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'science-mindmap.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showToast('تم تنزيل الخطاطة الذهنية', '⬇️');
+        } catch (err) {
+          console.error('downloadMindMapHtml error:', err);
+          showToast('تعذر التنزيل', '⚠️');
+        }
+      }
+
+      function bindEvents() {
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        dropZone?.addEventListener('click', () => fileInput?.click());
+        dropZone?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fileInput?.click();
+          }
+        });
+
+        dropZone?.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          dropZone.classList.add('drag-active');
+        });
+
+        dropZone?.addEventListener('dragleave', () => {
+          dropZone.classList.remove('drag-active');
+        });
+
+        dropZone?.addEventListener('drop', (e) => {
+          e.preventDefault();
+          dropZone.classList.remove('drag-active');
+          const f = e.dataTransfer?.files?.[0];
+          if (f) handleFilePicked(f);
+        });
+
+        fileInput?.addEventListener('change', (e) => {
+          const f = e.target?.files?.[0];
+          if (f) handleFilePicked(f);
+        });
+
+        document.getElementById('backBtn')?.addEventListener('click', handleBackNavigation);
+        document.getElementById('resetUploadBtn')?.addEventListener('click', handleResetUpload);
+        document.getElementById('createMindMapBtn')?.addEventListener('click', handleCreateMindMap);
+
+        document.getElementById('backToUploadBtn')?.addEventListener('click', () => {
+          showView('upload');
+        });
+
+        document.getElementById('printMindMapBtn')?.addEventListener('click', () => {
+          window.print();
+        });
+
+        document.getElementById('downloadMindMapBtn')?.addEventListener('click', downloadMindMapHtml);
+
+        document.addEventListener('click', (e) => {
+          const pill = e.target.closest?.('#stageBar [data-stage]');
+          if (pill) {
+            if (e.target.getAttribute('contenteditable') === 'true' && document.activeElement === e.target) {
+              return;
+            }
+            const st = pill.getAttribute('data-stage');
+            if (st) toggleStageHighlight(st);
+          }
+        });
+      }
+
+      function init() {
+        captureKeyFromSources();
+        renderMindMapView(DEFAULT_MINDMAP);
+        bindEvents();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
