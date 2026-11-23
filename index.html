@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartes Mentales - الخطاطات الذهنية</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Cairo Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --text-main: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .auth-canvas {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(249, 115, 22, 0.14), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(37, 99, 235, 0.14), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.14), transparent 40%),
+        #f8fafc;
+    }
+
+    .btn-grad-primary {
+      background: linear-gradient(90deg, #059669 0%, #2563eb 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .btn-grad-primary:hover {
+      filter: brightness(1.05);
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. LOGIN / REGISTRATION GATE SCREEN -->
+  <section id="authView" class="auth-canvas flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white/95 backdrop-blur rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col items-center text-center space-y-3">
+        <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-amber-100 via-sky-100 to-emerald-100 border border-slate-200 flex items-center justify-center shadow-inner">
+          <svg class="w-14 h-14" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+            <circle cx="32" cy="32" r="9" fill="#f59e0b" />
+            <circle cx="14" cy="16" r="5" fill="#2563eb" />
+            <circle cx="50" cy="16" r="5" fill="#10b981" />
+            <circle cx="14" cy="48" r="5" fill="#8b5cf6" />
+            <circle cx="50" cy="48" r="5" fill="#ec4899" />
+            <line x1="25" y1="26" x2="18" y2="20" stroke="#475569" stroke-width="2.5" />
+            <line x1="39" y1="26" x2="46" y2="20" stroke="#475569" stroke-width="2.5" />
+            <line x1="25" y1="38" x2="18" y2="44" stroke="#475569" stroke-width="2.5" />
+            <line x1="39" y1="38" x2="46" y2="44" stroke="#475569" stroke-width="2.5" />
+          </svg>
+        </div>
+        <h1 id="authHeading" class="text-2xl sm:text-3xl font-black text-slate-900">تسجيل الدخول</h1>
+        <p class="text-xs sm:text-sm font-bold text-slate-500">Cartes Mentales - الخطاطات الذهنية</p>
+      </div>
+
+      <form id="authForm" class="space-y-4">
+        <div>
+          <label for="authUsername" class="block text-xs font-extrabold text-slate-700 mb-1.5">الاسم</label>
+          <input
+            type="text"
+            id="authUsername"
+            required
+            autocomplete="username"
+            placeholder="الاسم"
+            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+          />
+        </div>
+
+        <div>
+          <label for="authPassword" class="block text-xs font-extrabold text-slate-700 mb-1.5">كلمة المرور</label>
+          <input
+            type="password"
+            id="authPassword"
+            required
+            autocomplete="current-password"
+            placeholder="كلمة المرور"
+            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
+          />
+        </div>
+
+        <div id="authMsg" class="text-xs sm:text-sm font-extrabold text-center min-h-[20px]"></div>
+
+        <button
+          type="submit"
+          id="authSubmitBtn"
+          class="w-full py-3.5 px-5 rounded-2xl text-sm sm:text-base font-extrabold btn-grad-primary cursor-pointer transition"
+        >
+          تسجيل الدخول
+        </button>
+      </form>
+
+      <div class="pt-1 text-center">
+        <button
+          type="button"
+          id="toggleAuthModeBtn"
+          class="text-sm font-extrabold text-blue-700 hover:text-blue-900 underline underline-offset-4 cursor-pointer"
+        >
+          إنشاء حساب جديد
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ADMIN DASHBOARD (Restricted to hajar / 19641947) -->
+  <section id="adminView" class="hidden min-h-screen bg-slate-100 p-4 sm:p-6">
+    <div class="max-w-5xl mx-auto space-y-5">
+      <header class="bg-slate-900 text-white rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3 shadow">
+        <div>
+          <h2 class="text-lg sm:text-xl font-black">لوحة الإدارة - الحسابات والمفتاح المشترك</h2>
+          <p class="text-xs text-emerald-300 font-bold mt-1">
+            إدارة حسابات المستخدمين ومفتاح الربط المشترك لجميع الحسابات
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="admin-account-badge px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs font-extrabold">
+            الحساب: hajar
+          </span>
+          <button
+            type="button"
+            data-action="open-home"
+            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-extrabold cursor-pointer transition"
+          >
+            دخول الخطاطات
+          </button>
+          <button
+            type="button"
+            data-action="logout"
+            class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-400 text-white text-xs sm:text-sm font-extrabold cursor-pointer transition"
+          >
+            خروج
+          </button>
+        </div>
+      </header>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-3">
+        <h3 class="text-base font-black text-slate-900">مفتاح الربط المشترك لجميع الحسابات</h3>
+        <div class="flex flex-col sm:flex-row gap-2.5">
+          <input
+            type="password"
+            id="adminSharedApiKey"
+            placeholder="أدخل مفتاح الربط هنا"
+            class="flex-1 rounded-xl border border-slate-300 bg-slate-50 px-4 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <button
+            type="button"
+            id="saveSharedKeyBtn"
+            class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-extrabold cursor-pointer transition"
+          >
+            حفظ وتحديث المفتاح
+          </button>
+        </div>
+        <div id="adminKeyStatus" class="text-xs font-extrabold text-emerald-700 min-h-[18px]"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-sm space-y-4">
+        <div class="flex items-center justify-between gap-2">
+          <h3 class="text-base font-black text-slate-900">جدول حسابات المستخدمين</h3>
+          <button
+            type="button"
+            id="refreshUsersBtn"
+            class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-extrabold border border-slate-300 cursor-pointer"
+          >
+            تحديث القائمة
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-right border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="py-3 px-4 font-extrabold">الاسم</th>
+                <th class="py-3 px-4 font-extrabold">كلمة المرور</th>
+                <th class="py-3 px-4 font-extrabold">الحالة</th>
+                <th class="py-3 px-4 font-extrabold">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTbody" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. HOME SELECTION SCREEN -->
+  <section id="homeView" class="hidden min-h-screen auth-canvas px-4 py-6 sm:px-8 sm:py-8">
+    <div class="max-w-3xl mx-auto space-y-7">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          data-action="logout"
+          class="px-5 py-2.5 rounded-2xl bg-rose-100 hover:bg-rose-200 text-rose-700 text-sm font-extrabold border border-rose-200 cursor-pointer transition"
+        >
+          خروج
+        </button>
+
+        <span class="account-badge-text px-4 py-2 rounded-2xl bg-white text-slate-800 text-xs sm:text-sm font-extrabold border border-slate-200 shadow-sm">
+          الحساب: -
+        </span>
+      </div>
+
+      <div class="text-center space-y-2 pt-1">
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900">Cartes Mentales</h1>
+        <p class="text-sm sm:text-base font-extrabold text-slate-600">
+          Vos cartes mentales, organisées - الخطاطات الذهنية
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <button
+          type="button"
+          id="openMathsBtn"
+          data-open-subject="math"
+          class="w-full rounded-3xl bg-gradient-to-br from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white p-7 sm:p-8 shadow-lg flex flex-col items-center justify-center gap-3 cursor-pointer transition"
+        >
+          <span class="text-3xl sm:text-4xl font-black">π + √x</span>
+          <span class="text-lg sm:text-xl font-black">Mathématiques الرياضيات</span>
+        </button>
+
+        <button
+          type="button"
+          id="openFrancaisBtn"
+          data-open-subject="fr"
+          class="w-full rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white p-7 sm:p-8 shadow-lg flex flex-col items-center justify-center gap-3 cursor-pointer transition"
+        >
+          <span class="text-3xl sm:text-4xl font-black">A</span>
+          <span class="text-lg sm:text-xl font-black">Français الفرنسية</span>
+        </button>
+
+        <button
+          type="button"
+          id="openScienceBtn"
+          data-open-subject="sci"
+          class="sm:col-span-2 w-full rounded-3xl bg-gradient-to-br from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white p-7 sm:p-8 shadow-lg flex flex-col items-center justify-center gap-3 cursor-pointer transition"
+        >
+          <span class="text-3xl sm:text-4xl font-black">⚛</span>
+          <span class="text-lg sm:text-xl font-black">Activité Scientifique النشاط العلمي</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      getDoc,
+      getDocs,
+      setDoc,
+      updateDoc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    (function () {
+      "use strict";
+
+      var FIREBASE_CONFIG = {
+        apiKey: "AlzaSyCN7JURPMrCLBGLRTUKwewnZ_kGe_qvR58",
+        authDomain: "catre-montale.firebaseapp.com",
+        projectId: "catre-montale",
+        storageBucket: "catre-montale.firebasestorage.app",
+        messagingSenderId: "1063326176863",
+        appId: "1:1063326176863:web:32d54a37318e166e74edea",
+        measurementId: "G-PDD7TRWEYX"
+      };
+
+      var LOCAL_USERS_KEY = "cartes_mentales_users_v1";
+      var LOCAL_SHARED_KEY = "cartes_mentales_shared_api_key_v1";
+      var LEGACY_SHARED_KEY = "gemini_khatata_api_key";
+      var SESSION_USER_KEY = "cartes_mentales_current_user";
+      var MATHS_PAGE_URL = "./maths.html";
+      var FRANCAIS_PAGE_URL = "./francais.html";
+      var SCIENCE_PAGE_URL = "./science.html";
+
+      var db = null;
+      var firestoreReady = false;
+      var isRegisterMode = false;
+      var currentUser = null;
+      var cachedApiKey = "";
+
+      var ALL_VIEWS = [
+        "authView",
+        "adminView",
+        "homeView"
+      ];
+
+      /**
+       * Initializes Firebase and Firestore safely.
+       */
+      function initFirebase() {
+        try {
+          var app = initializeApp(FIREBASE_CONFIG);
+          db = getFirestore(app);
+          firestoreReady = true;
+        } catch (e) {
+          firestoreReady = false;
+        }
+      }
+
+      /**
+       * Displays the target view and hides others.
+       */
+      function showView(viewId) {
+        for (var i = 0; i < ALL_VIEWS.length; i++) {
+          var id = ALL_VIEWS[i];
+          var el = document.getElementById(id);
+          if (!el) continue;
+          if (id === viewId) {
+            el.classList.remove("hidden");
+            el.style.display = id === "authView" ? "flex" : "block";
+          } else {
+            el.classList.add("hidden");
+            el.style.display = "none";
+          }
+        }
+        window.scrollTo(0, 0);
+      }
+
+      /**
+       * Updates login/registration feedback text.
+       */
+      function setAuthMsg(msg, isError) {
+        var el = document.getElementById("authMsg");
+        if (!el) return;
+        el.textContent = msg || "";
+        el.className = isError
+          ? "text-xs sm:text-sm font-extrabold text-center min-h-[20px] text-rose-600"
+          : "text-xs sm:text-sm font-extrabold text-center min-h-[20px] text-emerald-700";
+      }
+
+      /**
+       * Updates active user labels across views.
+       */
+      function updateAccountBadges() {
+        var label =
+          currentUser && currentUser.username
+            ? "الحساب: " + currentUser.username
+            : "الحساب: -";
+        var badges = document.querySelectorAll(".account-badge-text");
+        for (var i = 0; i < badges.length; i++) {
+          badges[i].textContent = label;
+        }
+
+        var adminBadges = document.querySelectorAll(".admin-account-badge");
+        for (var j = 0; j < adminBadges.length; j++) {
+          adminBadges[j].textContent =
+            currentUser && currentUser.username
+              ? "الحساب: " + currentUser.username
+              : "الحساب: hajar";
+        }
+      }
+
+      /**
+       * Saves or clears current session user in sessionStorage and localStorage.
+       */
+      function persistSessionUser(userObj) {
+        try {
+          if (userObj && userObj.username) {
+            sessionStorage.setItem(SESSION_USER_KEY, JSON.stringify(userObj));
+            localStorage.setItem(SESSION_USER_KEY, JSON.stringify(userObj));
+          } else {
+            sessionStorage.removeItem(SESSION_USER_KEY);
+            localStorage.removeItem(SESSION_USER_KEY);
+          }
+        } catch (e) {}
+      }
+
+      /**
+       * Resolves a promise or null if a timeout expires first.
+       */
+      function withTimeout(promise, ms) {
+        return new Promise(function (resolve) {
+          var settled = false;
+          var timer = setTimeout(function () {
+            if (!settled) {
+              settled = true;
+              resolve(null);
+            }
+          }, ms || 4000);
+
+          Promise.resolve(promise)
+            .then(function (val) {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(val);
+              }
+            })
+            .catch(function () {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            });
+        });
+      }
+
+      /**
+       * Normalizes account status into 'frozen' or 'active'.
+       */
+      function normalizeStatus(statusVal) {
+        return statusVal === "frozen" || statusVal === "مجمد" ? "frozen" : "active";
+      }
+
+      /**
+       * Reads user list from localStorage safely.
+       */
+      function readLocalUsers() {
+        try {
+          var raw = localStorage.getItem(LOCAL_USERS_KEY);
+          var arr = raw ? JSON.parse(raw) : [];
+          return Array.isArray(arr) ? arr : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      /**
+       * Writes user list to localStorage safely.
+       */
+      function writeLocalUsers(users) {
+        try {
+          localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+        } catch (e) {}
+      }
+
+      /**
+       * Inserts or updates a user record in localStorage.
+       */
+      function upsertLocalUser(acc) {
+        var cleanAcc = {
+          username: String(acc.username || "").trim(),
+          password: String(acc.password || ""),
+          status: normalizeStatus(acc.status),
+          createdAt: acc.createdAt || new Date().toISOString()
+        };
+        var users = readLocalUsers();
+        var found = false;
+        for (var i = 0; i < users.length; i++) {
+          if (
+            String(users[i].username || "").trim().toLowerCase() ===
+            cleanAcc.username.toLowerCase()
+          ) {
+            users[i] = cleanAcc;
+            found = true;
+            break;
+          }
+        }
+        if (!found) users.push(cleanAcc);
+        writeLocalUsers(users);
+        return cleanAcc;
+      }
+
+      /**
+       * Deletes a user record from localStorage by username.
+       */
+      function removeLocalUser(username) {
+        var users = readLocalUsers().filter(function (u) {
+          return (
+            String(u.username || "").trim().toLowerCase() !==
+            String(username || "").trim().toLowerCase()
+          );
+        });
+        writeLocalUsers(users);
+      }
+
+      /**
+       * Fetches users from Firestore 'users' collection and merges with localStorage.
+       */
+      function getAllUsers() {
+        var localUsers = readLocalUsers();
+        if (!firestoreReady || !db) {
+          return Promise.resolve(localUsers);
+        }
+
+        return withTimeout(getDocs(collection(db, "users")), 4500).then(function (snap) {
+          if (!snap || typeof snap.forEach !== "function") {
+            return localUsers;
+          }
+          var map = {};
+          for (var i = 0; i < localUsers.length; i++) {
+            var lu = localUsers[i];
+            var keyL = String(lu.username || "").trim().toLowerCase();
+            if (!keyL) continue;
+            map[keyL] = {
+              username: String(lu.username || "").trim(),
+              password: String(lu.password || ""),
+              status: normalizeStatus(lu.status),
+              createdAt: lu.createdAt || ""
+            };
+          }
+
+          snap.forEach(function (d) {
+            var data = d.data() || {};
+            var uname = String(data.username || d.id || "").trim();
+            if (!uname) return;
+            var keyR = uname.toLowerCase();
+            var existing = map[keyR] || {};
+            map[keyR] = {
+              username: uname,
+              password: String(data.password !== undefined ? data.password : existing.password || ""),
+              status: normalizeStatus(data.status !== undefined ? data.status : existing.status),
+              createdAt: data.createdAt || existing.createdAt || ""
+            };
+          });
+
+          var merged = Object.keys(map).map(function (k) {
+            return map[k];
+          });
+          writeLocalUsers(merged);
+          return merged;
+        });
+      }
+
+      /**
+       * Looks up a user by username in Firestore 'users' collection and localStorage.
+       */
+      function findUserByUsername(username) {
+        var targetKey = String(username || "").trim().toLowerCase();
+        if (!targetKey) return Promise.resolve({ user: null, firestoreChecked: false });
+
+        var localUsers = readLocalUsers();
+        var localMatch = null;
+        for (var i = 0; i < localUsers.length; i++) {
+          if (String(localUsers[i].username || "").trim().toLowerCase() === targetKey) {
+            localMatch = {
+              username: String(localUsers[i].username || "").trim(),
+              password: String(localUsers[i].password || ""),
+              status: normalizeStatus(localUsers[i].status),
+              createdAt: localUsers[i].createdAt || ""
+            };
+            break;
+          }
+        }
+
+        if (!firestoreReady || !db) {
+          return Promise.resolve({ user: localMatch, firestoreChecked: false });
+        }
+
+        var docId = encodeURIComponent(targetKey);
+        return withTimeout(getDoc(doc(db, "users", docId)), 4500).then(function (snap) {
+          if (snap && typeof snap.exists === "function") {
+            if (snap.exists()) {
+              var data = snap.data() || {};
+              var remoteUser = {
+                username: String(data.username || (localMatch && localMatch.username) || username).trim(),
+                password: String(data.password !== undefined ? data.password : (localMatch && localMatch.password) || ""),
+                status: normalizeStatus(data.status !== undefined ? data.status : (localMatch && localMatch.status)),
+                createdAt: data.createdAt || (localMatch && localMatch.createdAt) || ""
+              };
+              upsertLocalUser(remoteUser);
+              return { user: remoteUser, firestoreChecked: true };
+            }
+            if (localMatch) {
+              removeLocalUser(username);
+            }
+            return { user: null, firestoreChecked: true };
+          }
+          return { user: localMatch, firestoreChecked: false };
+        });
+      }
+
+      /**
+       * Saves user account to localStorage and awaits writing to Firestore 'users'.
+       */
+      function saveUserAccount(acc) {
+        var cleanAcc = upsertLocalUser(acc);
+        var payload = {
+          username: cleanAcc.username,
+          password: cleanAcc.password,
+          status: cleanAcc.status,
+          createdAt: cleanAcc.createdAt
+        };
+
+        if (!firestoreReady || !db) {
+          return Promise.resolve({ account: cleanAcc, savedToFirestore: false });
+        }
+
+        var docId = encodeURIComponent(cleanAcc.username.toLowerCase());
+        return withTimeout(setDoc(doc(db, "users", docId), payload), 5000).then(function (res) {
+          return {
+            account: cleanAcc,
+            savedToFirestore: res !== null
+          };
+        });
+      }
+
+      /**
+       * Toggles frozen status in localStorage and Firestore 'users'.
+       */
+      function setUserFrozenStatus(username, frozen) {
+        var nextStatus = frozen ? "frozen" : "active";
+        var users = readLocalUsers();
+        var target = null;
+        for (var i = 0; i < users.length; i++) {
+          if (
+            String(users[i].username || "").trim().toLowerCase() ===
+            String(username || "").trim().toLowerCase()
+          ) {
+            users[i].status = nextStatus;
+            target = users[i];
+            break;
+          }
+        }
+        writeLocalUsers(users);
+
+        if (!firestoreReady || !db) return Promise.resolve();
+        var docId = encodeURIComponent(String(username || "").trim().toLowerCase());
+        return withTimeout(
+          updateDoc(doc(db, "users", docId), { status: nextStatus }).catch(function () {
+            if (target) {
+              return setDoc(doc(db, "users", docId), {
+                username: target.username,
+                password: target.password,
+                status: nextStatus,
+                createdAt: target.createdAt || new Date().toISOString()
+              });
+            }
+          }),
+          3500
+        );
+      }
+
+      /**
+       * Deletes user account from localStorage and Firestore 'users'.
+       */
+      function deleteUserAccount(username) {
+        removeLocalUser(username);
+        if (!firestoreReady || !db) return Promise.resolve();
+        var docId = encodeURIComponent(String(username || "").trim().toLowerCase());
+        return withTimeout(deleteDoc(doc(db, "users", docId)), 3500);
+      }
+
+      /**
+       * Reads shared API key from memory cache, sessionStorage, or localStorage.
+       */
+      function readLocalSharedKey() {
+        if (cachedApiKey) return cachedApiKey;
+        try {
+          var s1 = (sessionStorage.getItem(LOCAL_SHARED_KEY) || "").trim();
+          if (s1) return s1;
+          var s2 = (sessionStorage.getItem(LEGACY_SHARED_KEY) || "").trim();
+          if (s2) return s2;
+        } catch (e) {}
+        try {
+          var v1 = (localStorage.getItem(LOCAL_SHARED_KEY) || "").trim();
+          if (v1) return v1;
+          return (localStorage.getItem(LEGACY_SHARED_KEY) || "").trim();
+        } catch (e) {
+          return "";
+        }
+      }
+
+      /**
+       * Stores or clears shared API key in memory cache, localStorage, and sessionStorage.
+       */
+      function writeLocalSharedKey(keyVal) {
+        var trimmed = String(keyVal || "").trim();
+        cachedApiKey = trimmed;
+        try {
+          if (trimmed) {
+            localStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+            localStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+            sessionStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+            sessionStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+          } else {
+            localStorage.removeItem(LOCAL_SHARED_KEY);
+            localStorage.removeItem(LEGACY_SHARED_KEY);
+            sessionStorage.removeItem(LOCAL_SHARED_KEY);
+            sessionStorage.removeItem(LEGACY_SHARED_KEY);
+          }
+        } catch (e) {}
+      }
+
+      /**
+       * Retrieves shared API key from Firestore settings/geminiConfig with local fallback.
+       */
+      function getSharedApiKey() {
+        var localKey = readLocalSharedKey();
+        if (!firestoreReady || !db) {
+          return Promise.resolve(localKey);
+        }
+        return withTimeout(getDoc(doc(db, "settings", "geminiConfig")), 3000).then(function (snap) {
+          if (snap && typeof snap.exists === "function" && snap.exists()) {
+            var data = snap.data() || {};
+            var remoteKey = String(data.apiKey || "").trim();
+            if (remoteKey) {
+              writeLocalSharedKey(remoteKey);
+              return remoteKey;
+            }
+          }
+          if (localKey) writeLocalSharedKey(localKey);
+          return localKey;
+        });
+      }
+
+      /**
+       * Saves shared API key locally and in Firestore settings/geminiConfig.
+       */
+      function saveSharedApiKey(keyVal) {
+        var trimmed = String(keyVal || "").trim();
+        writeLocalSharedKey(trimmed);
+        if (!firestoreReady || !db) {
+          return Promise.resolve(true);
+        }
+        return withTimeout(
+          setDoc(
+            doc(db, "settings", "geminiConfig"),
+            { apiKey: trimmed, updatedAt: new Date().toISOString() },
+            { merge: true }
+          ),
+          3500
+        ).then(function () {
+          return true;
+        });
+      }
+
+      /**
+       * Renders user accounts table for admin.
+       */
+      function renderAdminUsersTable() {
+        var tbody = document.getElementById("adminUsersTbody");
+        if (!tbody) return;
+        tbody.innerHTML =
+          '<tr><td colspan="4" class="py-4 px-4 text-center text-slate-500 font-bold">جاري التحميل...</td></tr>';
+
+        getAllUsers().then(function (users) {
+          tbody.innerHTML = "";
+          if (!users.length) {
+            tbody.innerHTML =
+              '<tr><td colspan="4" class="py-4 px-4 text-center text-slate-400 font-bold">لا توجد حسابات مسجلة بعد</td></tr>';
+            return;
+          }
+
+          for (var i = 0; i < users.length; i++) {
+            var u = users[i];
+            var isFrozen = normalizeStatus(u.status) === "frozen";
+
+            var tr = document.createElement("tr");
+            tr.className = "hover:bg-slate-50";
+
+            var tdName = document.createElement("td");
+            tdName.className = "py-3 px-4 font-extrabold text-slate-900";
+            tdName.textContent = u.username;
+
+            var tdPass = document.createElement("td");
+            tdPass.className = "py-3 px-4 font-mono text-slate-700";
+            tdPass.textContent = u.password;
+
+            var tdStatus = document.createElement("td");
+            tdStatus.className = "py-3 px-4";
+            var badge = document.createElement("span");
+            badge.className = isFrozen
+              ? "px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800"
+              : "px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800";
+            badge.textContent = isFrozen ? "مجمد" : "نشط";
+            tdStatus.appendChild(badge);
+
+            var tdActions = document.createElement("td");
+            tdActions.className = "py-3 px-4 flex flex-wrap items-center gap-2";
+
+            var freezeBtn = document.createElement("button");
+            freezeBtn.type = "button";
+            freezeBtn.setAttribute("data-toggle-freeze", u.username);
+            freezeBtn.setAttribute("data-frozen-state", isFrozen ? "1" : "0");
+            freezeBtn.className = isFrozen
+              ? "px-3 py-1 rounded-lg text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+              : "px-3 py-1 rounded-lg text-xs font-extrabold bg-amber-500 hover:bg-amber-400 text-white cursor-pointer";
+            freezeBtn.textContent = isFrozen ? "إلغاء التجميد" : "تجميد";
+
+            var delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.setAttribute("data-delete-user", u.username);
+            delBtn.className =
+              "px-3 py-1 rounded-lg text-xs font-extrabold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer";
+            delBtn.textContent = "حذف";
+
+            tdActions.appendChild(freezeBtn);
+            tdActions.appendChild(delBtn);
+
+            tr.appendChild(tdName);
+            tr.appendChild(tdPass);
+            tr.appendChild(tdStatus);
+            tr.appendChild(tdActions);
+            tbody.appendChild(tr);
+          }
+        });
+      }
+
+      /**
+       * Refreshes shared API key field in admin dashboard.
+       */
+      function refreshAdminApiKeyInput() {
+        var inp = document.getElementById("adminSharedApiKey");
+        var st = document.getElementById("adminKeyStatus");
+        if (st) st.textContent = "جاري التحميل...";
+        getSharedApiKey().then(function (keyVal) {
+          if (inp) inp.value = keyVal || "";
+          if (st) {
+            st.textContent = keyVal
+              ? "المفتاح محفوظ وجاهز لجميع الحسابات"
+              : "لم يتم ضبط مفتاح مشترك بعد";
+          }
+        });
+      }
+
+      /**
+       * Opens admin dashboard for hajar / 19641947.
+       */
+      function openAdminDashboard() {
+        currentUser = {
+          username: currentUser && currentUser.username ? currentUser.username : "hajar",
+          role: "admin"
+        };
+        persistSessionUser(currentUser);
+        updateAccountBadges();
+        showView("adminView");
+        refreshAdminApiKeyInput();
+        renderAdminUsersTable();
+      }
+
+      /**
+       * Opens home selection view for standard users.
+       */
+      function openUserHome(username) {
+        currentUser = { username: username, role: "user" };
+        persistSessionUser(currentUser);
+        updateAccountBadges();
+        showView("homeView");
+        getSharedApiKey();
+      }
+
+      /**
+       * Handles user login and account creation.
+       */
+      function handleAuthSubmit(ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        var nameInp = document.getElementById("authUsername");
+        var passInp = document.getElementById("authPassword");
+        var submitBtn = document.getElementById("authSubmitBtn");
+
+        var username = nameInp ? nameInp.value.trim() : "";
+        var password = passInp ? passInp.value.trim() : "";
+
+        if (!username || !password) {
+          setAuthMsg("المرجو إدخال الاسم وكلمة المرور", true);
+          return;
+        }
+
+        if (username.toLowerCase() === "hajar" && password === "19641947") {
+          setAuthMsg("", false);
+          if (passInp) passInp.value = "";
+          if (submitBtn) submitBtn.disabled = false;
+          openAdminDashboard();
+          return;
+        }
+
+        if (submitBtn) submitBtn.disabled = true;
+        setAuthMsg("جاري التحقق من قاعدة البيانات...", false);
+
+        findUserByUsername(username)
+          .then(function (lookup) {
+            var matchedUser = lookup && lookup.user ? lookup.user : null;
+
+            if (isRegisterMode) {
+              if (matchedUser) {
+                setAuthMsg("هذا الاسم مسجل مسبقاً", true);
+                return;
+              }
+              var newUser = {
+                username: username,
+                password: password,
+                status: "active",
+                createdAt: new Date().toISOString()
+              };
+              setAuthMsg("جاري حفظ الحساب في قاعدة البيانات...", false);
+              return saveUserAccount(newUser).then(function (saveResult) {
+                if (passInp) passInp.value = "";
+                setAuthMsg("", false);
+                openUserHome(saveResult.account.username);
+              });
+            }
+
+            if (!matchedUser) {
+              setAuthMsg("هذا الحساب غير موجود في قاعدة البيانات، يمكنك إنشاء حساب جديد", true);
+              return;
+            }
+
+            if (normalizeStatus(matchedUser.status) === "frozen") {
+              setAuthMsg("هذا الحساب مجمد ولا يمكن الدخول حالياً", true);
+              return;
+            }
+
+            if (String(matchedUser.password) !== password) {
+              setAuthMsg("كلمة المرور غير صحيحة", true);
+              return;
+            }
+
+            if (passInp) passInp.value = "";
+            setAuthMsg("", false);
+            openUserHome(matchedUser.username);
+          })
+          .catch(function () {
+            setAuthMsg("تعذر التحقق من الحساب حالياً، حاول مرة أخرى", true);
+          })
+          .finally(function () {
+            if (submitBtn) submitBtn.disabled = false;
+          });
+      }
+
+      /**
+       * Toggles login and sign-up mode.
+       */
+      function toggleAuthMode() {
+        isRegisterMode = !isRegisterMode;
+        var heading = document.getElementById("authHeading");
+        var submitBtn = document.getElementById("authSubmitBtn");
+        var toggleBtn = document.getElementById("toggleAuthModeBtn");
+        setAuthMsg("", false);
+
+        if (isRegisterMode) {
+          if (heading) heading.textContent = "إنشاء حساب جديد";
+          if (submitBtn) submitBtn.textContent = "إنشاء حساب";
+          if (toggleBtn) toggleBtn.textContent = "تسجيل الدخول";
+        } else {
+          if (heading) heading.textContent = "تسجيل الدخول";
+          if (submitBtn) submitBtn.textContent = "تسجيل الدخول";
+          if (toggleBtn) toggleBtn.textContent = "إنشاء حساب جديد";
+        }
+      }
+
+      /**
+       * Logs out back to authentication view.
+       */
+      function logoutToAuth() {
+        currentUser = null;
+        isRegisterMode = false;
+        persistSessionUser(null);
+
+        var heading = document.getElementById("authHeading");
+        var submitBtn = document.getElementById("authSubmitBtn");
+        var toggleBtn = document.getElementById("toggleAuthModeBtn");
+        var passInp = document.getElementById("authPassword");
+
+        if (heading) heading.textContent = "تسجيل الدخول";
+        if (submitBtn) submitBtn.textContent = "تسجيل الدخول";
+        if (toggleBtn) toggleBtn.textContent = "إنشاء حساب جديد";
+        if (passInp) passInp.value = "";
+
+        setAuthMsg("", false);
+        updateAccountBadges();
+        showView("authView");
+      }
+
+      /**
+       * Persists shared API key and navigates to target URL without displaying any message.
+       */
+      function navigateToSubjectUrl(url) {
+        writeLocalSharedKey(readLocalSharedKey());
+        try {
+          window.location.assign(url);
+        } catch (e) {
+          try {
+            window.location.href = url;
+          } catch (e2) {}
+        }
+      }
+
+      /**
+       * Persists shared API key and navigates to ./maths.html.
+       */
+      function navigateToMathsPage() {
+        navigateToSubjectUrl(MATHS_PAGE_URL);
+      }
+
+      /**
+       * Persists shared API key and navigates to ./francais.html.
+       */
+      function navigateToFrancaisPage() {
+        navigateToSubjectUrl(FRANCAIS_PAGE_URL);
+      }
+
+      /**
+       * Persists shared API key and navigates to ./science.html.
+       */
+      function navigateToSciencePage() {
+        navigateToSubjectUrl(SCIENCE_PAGE_URL);
+      }
+
+      /**
+       * Binds event listeners across the application safely inside proper scopes.
+       */
+      function bindEvents() {
+        var authForm = document.getElementById("authForm");
+        var toggleModeBtn = document.getElementById("toggleAuthModeBtn");
+        var saveKeyBtn = document.getElementById("saveSharedKeyBtn");
+        var refreshUsersBtn = document.getElementById("refreshUsersBtn");
+
+        if (authForm) authForm.addEventListener("submit", handleAuthSubmit);
+        if (toggleModeBtn) toggleModeBtn.addEventListener("click", toggleAuthMode);
+
+        if (saveKeyBtn) {
+          saveKeyBtn.addEventListener("click", function () {
+            var inp = document.getElementById("adminSharedApiKey");
+            var st = document.getElementById("adminKeyStatus");
+            var val = inp ? inp.value.trim() : "";
+            if (st) st.textContent = "جاري الحفظ...";
+            saveSharedApiKey(val).then(function () {
+              if (st) {
+                st.textContent = "تم حفظ وتحديث المفتاح المشترك لجميع الحسابات";
+              }
+            });
+          });
+        }
+
+        if (refreshUsersBtn) {
+          refreshUsersBtn.addEventListener("click", renderAdminUsersTable);
+        }
+
+        document.addEventListener("click", function (ev) {
+          var target = ev.target;
+          if (!target || !target.closest) return;
+
+          var mathTrigger = target.closest('[data-open-subject="math"]');
+          if (mathTrigger) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            navigateToMathsPage();
+            return;
+          }
+
+          var frTrigger = target.closest('[data-open-subject="fr"]');
+          if (frTrigger) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            navigateToFrancaisPage();
+            return;
+          }
+
+          var sciTrigger = target.closest('[data-open-subject="sci"]');
+          if (sciTrigger) {
+            if (ev && ev.preventDefault) ev.preventDefault();
+            navigateToSciencePage();
+            return;
+          }
+
+          if (target.closest('[data-action="logout"]')) {
+            logoutToAuth();
+            return;
+          }
+
+          if (target.closest('[data-action="open-home"]')) {
+            if (currentUser && currentUser.username) {
+              openUserHome(currentUser.username);
+            } else {
+              logoutToAuth();
+            }
+            return;
+          }
+
+          var freezeEl = target.closest("[data-toggle-freeze]");
+          if (freezeEl) {
+            var uname = freezeEl.getAttribute("data-toggle-freeze");
+            var isCurrentlyFrozen = freezeEl.getAttribute("data-frozen-state") === "1";
+            setUserFrozenStatus(uname, !isCurrentlyFrozen).then(function () {
+              renderAdminUsersTable();
+            });
+            return;
+          }
+
+          var delEl = target.closest("[data-delete-user]");
+          if (delEl) {
+            var delName = delEl.getAttribute("data-delete-user");
+            deleteUserAccount(delName).then(function () {
+              renderAdminUsersTable();
+            });
+          }
+        });
+      }
+
+      /**
+       * Initializes app state and restores active session if available.
+       */
+      function initApp() {
+        initFirebase();
+        bindEvents();
+        getSharedApiKey();
+
+        try {
+          var savedSession =
+            sessionStorage.getItem(SESSION_USER_KEY) ||
+            localStorage.getItem(SESSION_USER_KEY) ||
+            "";
+          if (savedSession) {
+            var parsed = JSON.parse(savedSession);
+            if (parsed && parsed.username) {
+              currentUser = parsed;
+              updateAccountBadges();
+              if (parsed.role === "admin" || String(parsed.username).toLowerCase() === "hajar") {
+                openAdminDashboard();
+              } else {
+                openUserHome(parsed.username);
+              }
+              return;
+            }
+          }
+        } catch (e) {}
+
+        updateAccountBadges();
+        showView("authView");
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
