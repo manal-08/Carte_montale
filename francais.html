@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>francais - Schéma mental de la séance</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js & JSZip for extracting text from PDF and PPTX files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- Cairo Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --text-main: #0f172a;
+      --card-1-bg: #fffbeb;
+      --card-1-hd: #fde68a;
+      --card-1-tx: #92400e;
+      --card-2-bg: #ecfdf5;
+      --card-2-hd: #a7f3d0;
+      --card-2-tx: #065f46;
+      --card-3-bg: #eff6ff;
+      --card-3-hd: #bfdbfe;
+      --card-3-tx: #1e3a8a;
+      --card-4-bg: #f8fafc;
+      --card-4-hd: #e2e8f0;
+      --card-4-tx: #1e293b;
+      --card-5-bg: #fff1f2;
+      --card-5-hd: #fecdd3;
+      --card-5-tx: #9f1239;
+      --card-6-bg: #f5f3ff;
+      --card-6-hd: #ddd6fe;
+      --card-6-tx: #5b21b6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .page-canvas {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(249, 115, 22, 0.14), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(37, 99, 235, 0.14), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.14), transparent 40%),
+        #f8fafc;
+    }
+
+    .btn-grad-fr {
+      background: linear-gradient(90deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(29, 78, 216, 0.22);
+    }
+
+    .btn-grad-fr:hover {
+      filter: brightness(1.05);
+    }
+
+    .topbar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.22);
+    }
+
+    .status-strip {
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-top: 1px solid #334155;
+    }
+
+    .sheet-scroll {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .mindmap-page {
+      background: #ffffff;
+      width: 1120px;
+      min-width: 1120px;
+      min-height: 780px;
+      margin: 0 auto;
+      padding: 18px 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      border: 1.5px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .top-header {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .header-box {
+      border: 1.5px solid #94a3b8;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      background: #f8fafc;
+    }
+
+    .header-box div span[contenteditable="true"] {
+      display: inline-block;
+      min-width: 75px;
+      border-bottom: 1px dotted #64748b;
+      font-weight: 700;
+      color: #0f172a;
+      padding: 0 4px;
+    }
+
+    .header-center {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .header-center h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      color: #1e3a8a;
+    }
+
+    .header-center .sub-meta {
+      margin-top: 4px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .col-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1.5px solid #cbd5e1;
+      overflow: auto;
+      resize: vertical;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-title {
+      padding: 6px 12px;
+      font-weight: 800;
+      font-size: 13.5px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .card-body {
+      padding: 10px 12px;
+      font-size: 11.7px;
+      line-height: 1.62;
+      resize: vertical;
+      overflow: auto;
+      min-height: 76px;
+      flex: 1 1 auto;
+    }
+
+    .card-body ul {
+      margin: 0;
+      padding-right: 16px;
+    }
+
+    .card-body li {
+      margin-bottom: 5px;
+    }
+
+    .c1 {
+      background: var(--card-1-bg);
+      border-color: #fcd34d;
+    }
+    .c1 .card-title {
+      background: var(--card-1-hd);
+      color: var(--card-1-tx);
+    }
+
+    .c2 {
+      background: var(--card-2-bg);
+      border-color: #6ee7b7;
+    }
+    .c2 .card-title {
+      background: var(--card-2-hd);
+      color: var(--card-2-tx);
+    }
+
+    .c3 {
+      background: var(--card-3-bg);
+      border-color: #93c5fd;
+    }
+    .c3 .card-title {
+      background: var(--card-3-hd);
+      color: var(--card-3-tx);
+    }
+
+    .c4 {
+      background: var(--card-4-bg);
+      border-color: #cbd5e1;
+    }
+    .c4 .card-title {
+      background: var(--card-4-hd);
+      color: var(--card-4-tx);
+    }
+
+    .c5 {
+      background: var(--card-5-bg);
+      border-color: #fda4af;
+    }
+    .c5 .card-title {
+      background: var(--card-5-hd);
+      color: var(--card-5-tx);
+    }
+
+    .c6 {
+      background: var(--card-6-bg);
+      border-color: #c4b5fd;
+    }
+    .c6 .card-title {
+      background: var(--card-6-hd);
+      color: var(--card-6-tx);
+    }
+
+    .week-bar {
+      border: 1.5px solid #94a3b8;
+      border-radius: 14px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 6px;
+      background: #f8fafc;
+      font-size: 10.5px;
+    }
+
+    .week-bar-title {
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+      padding-left: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .session-chip {
+      flex: 1;
+      text-align: center;
+      padding: 5px 8px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      line-height: 1.35;
+    }
+
+    .session-chip .chip-head {
+      font-weight: 800;
+      font-size: 10px;
+      opacity: 0.88;
+    }
+
+    .session-chip.active {
+      background: #1d4ed8;
+      color: #ffffff;
+      border-color: #1e3a8a;
+      font-weight: 800;
+    }
+
+    .fr-sheet {
+      direction: ltr;
+      text-align: left;
+    }
+
+    .fr-sheet .card-body ul {
+      padding-left: 18px;
+      padding-right: 0;
+    }
+
+    .card-resize-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 4px 8px;
+      background: rgba(15, 23, 42, 0.04);
+      border-top: 1px dashed rgba(15, 23, 42, 0.16);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .card-resize-btn {
+      padding: 2px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.25);
+      background: #ffffff;
+      color: #0f172a;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 900;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    .card-resize-btn:active {
+      background: #e2e8f0;
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2563eb;
+      background: rgba(37, 99, 235, 0.06);
+      border-radius: 4px;
+    }
+
+    .drag-over {
+      border-color: #2563eb !important;
+      background-color: #eff6ff !important;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 4mm;
+      }
+
+      html,
+      body {
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        overflow: visible !important;
+      }
+
+      #resultView {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: 0 !important;
+        background: #ffffff !important;
+      }
+
+      .topbar,
+      .status-strip,
+      .card-resize-bar {
+        display: none !important;
+      }
+
+      .sheet-scroll {
+        padding: 0 !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+
+      .mindmap-page {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        padding: 8px 12px !important;
+        gap: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        border: 1px solid #94a3b8 !important;
+        justify-content: flex-start !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .top-header {
+        gap: 8px !important;
+      }
+
+      .header-box {
+        padding: 5px 8px !important;
+        font-size: 10.5px !important;
+        line-height: 1.4 !important;
+      }
+
+      .header-center h2 {
+        font-size: 18px !important;
+      }
+
+      .header-center .sub-meta {
+        font-size: 11px !important;
+        margin-top: 2px !important;
+      }
+
+      .main-grid {
+        gap: 8px !important;
+        flex: 0 0 auto !important;
+      }
+
+      .col-stack {
+        gap: 6px !important;
+      }
+
+      .card,
+      .card-body {
+        resize: none !important;
+        overflow: visible !important;
+        min-height: 0 !important;
+        height: auto !important;
+        flex: 0 0 auto !important;
+      }
+
+      .card-title {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+      }
+
+      .card-body {
+        padding: 6px 8px !important;
+        font-size: 9.8px !important;
+        line-height: 1.38 !important;
+      }
+
+      .card-body li {
+        margin-bottom: 2px !important;
+      }
+
+      .card-body p {
+        margin: 2px 0 !important;
+      }
+
+      .week-bar {
+        padding: 4px 8px !important;
+        gap: 4px !important;
+        font-size: 9.5px !important;
+      }
+
+      .session-chip {
+        padding: 3px 5px !important;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. FRENCH LESSON UPLOAD SCREEN (DEFAULT START SCREEN) -->
+  <section id="uploadFrView" class="page-canvas px-4 py-6 sm:px-8">
+    <div class="max-w-xl mx-auto space-y-6">
+      <div class="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          id="resetUploadBtn"
+          class="px-5 py-2.5 rounded-2xl bg-white hover:bg-slate-50 text-blue-700 text-sm font-extrabold border border-blue-200 shadow-sm cursor-pointer transition"
+        >
+          Réinitialiser
+        </button>
+
+        <span
+          id="accountBadge"
+          class="px-4 py-2 rounded-2xl bg-white text-slate-700 text-xs font-extrabold border border-slate-200 shadow-sm"
+        >
+          francais
+        </span>
+      </div>
+
+      <div class="text-center space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-black text-blue-700">Français الفرنسية</h1>
+        <p class="text-xs sm:text-sm font-bold text-slate-600">
+          Schéma mental de la séance - الخطاطة الذهنية للفرنسية
+        </p>
+      </div>
+
+      <label
+        for="fileInputFr"
+        id="dropZoneFr"
+        class="block w-full rounded-3xl border-2 border-dashed border-blue-300 hover:border-blue-500 bg-white/95 p-10 sm:p-14 text-center shadow-sm cursor-pointer transition space-y-3"
+      >
+        <div class="text-5xl text-blue-500 font-black">⬆</div>
+        <div class="text-xl sm:text-2xl font-black text-slate-800">ارفع ملف PPTX</div>
+        <div class="text-xs font-bold text-slate-400">.pptx, .pdf, .txt, .md</div>
+        <div
+          id="uploadStatusText"
+          class="text-sm font-extrabold text-blue-700 min-h-[22px]"
+        ></div>
+      </label>
+      <input
+        type="file"
+        id="fileInputFr"
+        accept=".pptx,.pdf,.txt,.md"
+        class="hidden"
+      />
+
+      <button
+        type="button"
+        id="generateFrBtn"
+        class="w-full py-4 px-6 rounded-2xl text-base sm:text-lg font-black btn-grad-fr cursor-pointer transition"
+      >
+        إنشاء خريطة ذهنية
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. DEDICATED FRENCH MIND MAP RESULT VIEW -->
+  <section id="resultView" class="hidden min-h-screen bg-slate-100 pb-10">
+    <header class="topbar">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="resultBackUploadBtn"
+            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white cursor-pointer transition"
+          >
+            رجوع
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="printMindmapBtn"
+            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white cursor-pointer transition"
+          >
+            طباعة
+          </button>
+          <button
+            type="button"
+            id="downloadMindmapBtn"
+            class="px-5 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-amber-400 hover:bg-amber-300 text-amber-950 cursor-pointer transition"
+          >
+            تنزيل
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <div id="resultStatusText" class="max-w-6xl mx-auto"></div>
+    </div>
+
+    <main class="sheet-scroll">
+      <div id="resultContainer"></div>
+    </main>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    (function () {
+      "use strict";
+
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+
+      var FIREBASE_CONFIG = {
+        apiKey: "AlzaSyCN7JURPMrCLBGLRTUKwewnZ_kGe_qvR58",
+        authDomain: "catre-montale.firebaseapp.com",
+        projectId: "catre-montale",
+        storageBucket: "catre-montale.firebasestorage.app",
+        messagingSenderId: "1063326176863",
+        appId: "1:1063326176863:web:32d54a37318e166e74edea",
+        measurementId: "G-PDD7TRWEYX"
+      };
+
+      var LOCAL_SHARED_KEY = "cartes_mentales_shared_api_key_v1";
+      var LEGACY_SHARED_KEY = "gemini_khatata_api_key";
+
+      var GEMINI_FLASH_3_MODELS = [
+        "gemini-3-flash-preview",
+        "gemini-3-flash",
+        "gemini-2.5-flash"
+      ];
+
+      // =========================================================================
+      // FRENCH-ONLY SYSTEM INSTRUCTION
+      // =========================================================================
+      var FRENCH_SYSTEM_INSTRUCTION = [
+        "Tu es un assistant pédagogique expert en didactique du Français au primaire. À partir du fichier/titre et du contenu réel des diapositives, produis une analyse fidèle, détaillée et structurée au format << Schéma mental de la séance >> identique aux modèles pédagogiques fournis, en exposant clairement chaque étape, consigne, exemple et détail.",
+        "Règles strictes :",
+        "1. Respecte strictement le nombre de niveaux présent dans le titre ou l'en-tête (un seul niveau ex. 'Niveau 6' ou deux niveaux ex. 'Niveaux 5 et 6').",
+        "2. Extrais 'Semaine' en priorité à partir du titre/nom du fichier et du texte (par exemple 'sem2' ou 'sem 2' ou 'semaine 2' -> 'Semaine 2', 'sem1' -> 'Semaine 1', etc.).",
+        "3. Développe avec précision et détail chaque rubrique à partir des diapositives :",
+        "- Résumé de la séance (Oral, Écrit, Lecture ou Axe / Thème, avec indication des niveaux/pages si présents).",
+        "- Objectifs (au moins 80% des élèves) : formuler chaque objectif de façon précise en incluant les mots, mesures, expressions, questions mentionnées, réponses modèles ou règles exactes du cours.",
+        "- Supports : lister précisément les supports (diapositives, vidéos, audio, livret avec numéros de pages, ardoises, tableau).",
+        "- 1. Ouverture (Routine) : détailler les étapes et citer les questions mentionnées ou de révision présentes dans les diapositives.",
+        "- 2. Oral : détailler pas à pas le déroulement et citer explicitement toutes les questions mentionnées / posées dans les diapositives ainsi que les réponses modèles ou activités associées.",
+        "- 3. Écrit : détailler pas à pas la démarche (observation et règle/conjugaison/accord/orthographe avec exemples concrets, travail sur les ardoises) et indiquer pour chaque activité : son numéro, sa page sur le livret et ses questions exactes.",
+        "- 4. Lecture : détailler pas à pas la démarche (découpage en parties ou étapes, lecture silencieuse, écoute/lecture à voix haute ou en binômes, mots difficiles) en précisant le numéro de l'activité, sa page sur le livret et ses questions exactes.",
+        "- 5. Clôture de la séance : préciser le Devoir exact (avec numéro d'activité, page et questions si présents) et l'Estimation sur le cahier journal.",
+        "4. N'inclus aucune durée, minute, seconde ou chronomètre, et nettoie tout bruit technique ('Réservé à l'enseignant(e)', '5+6', '6+5', 'صفحة ...', 'شريحة ...', symboles bruts ou points parasites).",
+        "5. Si un élément (numéro d'activité, page, questions mentionnées ou devoir) n'est pas explicite dans les diapositives, indique-le sobrement sans inventer.",
+        "6. Réponds UNIQUEMENT par un objet JSON valide avec les clés suivantes :",
+        '{ "levels": "Niveaux 5 et 6", "period": "Période 2", "week": "Semaine 2", "session_num": "1", "school_year": "2026/2027", "session_summary_lines": ["..."], "axis_title": "...", "objectives": ["..."], "supports": "...", "ouverture": "...", "oral_title": "2. Oral", "oral_badge": "Oral", "oral": "...", "ecrit_title": "3. Écrit", "ecrit_badge": "Écrit", "ecrit": "...", "lecture_title": "4. Lecture", "lecture_badge": "Lecture", "lecture": "...", "devoir": "...", "estimation": "Estimer le taux de maîtrise à partir des productions des élèves et le noter sur la page du jour du cahier journal." }'
+      ].join("\n");
+
+      var db = null;
+      var firestoreReady = false;
+      var activeSessionNum = "1";
+      var extractedLessonContent = "";
+      var extractedFileName = "";
+      var currentMindmapData = null;
+
+      /**
+       * Initializes Firebase Firestore for retrieving shared configuration.
+       */
+      function initFirebase() {
+        try {
+          var app = initializeApp(FIREBASE_CONFIG);
+          db = getFirestore(app);
+          firestoreReady = true;
+        } catch (e) {
+          firestoreReady = false;
+        }
+      }
+
+      /**
+       * Shows the upload screen and hides the result view.
+       */
+      function showUploadScreen() {
+        var upEl = document.getElementById("uploadFrView");
+        var resEl = document.getElementById("resultView");
+        if (upEl) {
+          upEl.classList.remove("hidden");
+          upEl.style.display = "block";
+        }
+        if (resEl) {
+          resEl.classList.add("hidden");
+          resEl.style.display = "none";
+        }
+        window.scrollTo(0, 0);
+      }
+
+      /**
+       * Shows the mind map result view and hides the upload screen.
+       */
+      function showResultScreen() {
+        var upEl = document.getElementById("uploadFrView");
+        var resEl = document.getElementById("resultView");
+        if (resEl) {
+          resEl.classList.remove("hidden");
+          resEl.style.display = "block";
+        }
+        if (upEl) {
+          upEl.classList.add("hidden");
+          upEl.style.display = "none";
+        }
+        window.scrollTo(0, 0);
+      }
+
+      /**
+       * Updates upload status feedback text.
+       */
+      function setUploadStatus(msg) {
+        var el = document.getElementById("uploadStatusText");
+        if (el) el.textContent = msg || "";
+      }
+
+      /**
+       * Updates top status strip text on the mind map view.
+       */
+      function setResultStatus(msg) {
+        var el = document.getElementById("resultStatusText");
+        if (!el) return;
+        el.textContent =
+          msg ||
+          "Séance " +
+            activeSessionNum +
+            "/6 - يمكنك تعديل أي خانة مباشرة ثم الضغط على «تنزيل» أو «طباعة».";
+      }
+
+      /**
+       * Wraps a promise with a timeout guard.
+       */
+      function withTimeout(promise, ms) {
+        return new Promise(function (resolve) {
+          var settled = false;
+          var timer = setTimeout(function () {
+            if (!settled) {
+              settled = true;
+              resolve(null);
+            }
+          }, ms || 900);
+
+          Promise.resolve(promise)
+            .then(function (val) {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(val);
+              }
+            })
+            .catch(function () {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            });
+        });
+      }
+
+      /**
+       * Reads stored shared API key from a given Web Storage instance.
+       */
+      function readStoredKeyFrom(storageObj) {
+        if (!storageObj) return "";
+        try {
+          var v1 = (storageObj.getItem(LOCAL_SHARED_KEY) || "").trim();
+          if (v1) return v1;
+          var v2 = (storageObj.getItem(LEGACY_SHARED_KEY) || "").trim();
+          if (v2) return v2;
+        } catch (e) {}
+        return "";
+      }
+
+      /**
+       * Persists shared API key in localStorage and sessionStorage.
+       */
+      function writeLocalSharedKey(keyVal) {
+        var trimmed = String(keyVal || "").trim();
+        if (!trimmed) return;
+        try {
+          localStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+          localStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+        } catch (e) {}
+        try {
+          sessionStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+          sessionStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+        } catch (e) {}
+      }
+
+      /**
+       * Retrieves the shared API key from localStorage/sessionStorage or Firestore.
+       */
+      function getSharedApiKey() {
+        var localKey =
+          readStoredKeyFrom(window.localStorage) ||
+          readStoredKeyFrom(window.sessionStorage);
+
+        if (localKey) {
+          writeLocalSharedKey(localKey);
+        }
+
+        if (!firestoreReady || !db) {
+          return Promise.resolve(localKey);
+        }
+
+        return withTimeout(getDoc(doc(db, "settings", "geminiConfig")), 1200).then(
+          function (snap) {
+            if (snap && typeof snap.exists === "function" && snap.exists()) {
+              var data = snap.data() || {};
+              var remoteKey = String(data.apiKey || "").trim();
+              if (remoteKey) {
+                writeLocalSharedKey(remoteKey);
+                return remoteKey;
+              }
+            }
+            return localKey;
+          }
+        );
+      }
+
+      // =========================================================================
+      // FILE READERS (.PPTX, .PDF, .TXT, .MD)
+      // =========================================================================
+      function readFileAsArrayBufferSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.arrayBuffer === "function") {
+              file.arrayBuffer().then(resolve).catch(function () {
+                readViaFileReader(file, "arrayBuffer").then(resolve).catch(reject);
+              });
+              return;
+            }
+            readViaFileReader(file, "arrayBuffer").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readFileAsTextSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.text === "function") {
+              file.text().then(resolve).catch(function () {
+                readViaFileReader(file, "text").then(resolve).catch(reject);
+              });
+              return;
+            }
+            readViaFileReader(file, "text").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readViaFileReader(file, mode) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (typeof FileReader === "undefined") {
+              reject(new Error("NO_FILEREADER"));
+              return;
+            }
+            var reader = new FileReader();
+            reader.onload = function () {
+              resolve(reader.result);
+            };
+            reader.onerror = function () {
+              reject(reader.error || new Error("FILEREADER_ERROR"));
+            };
+            reader.onabort = function () {
+              reject(new Error("FILEREADER_ABORT"));
+            };
+            if (mode === "arrayBuffer") {
+              reader.readAsArrayBuffer(file);
+            } else {
+              reader.readAsText(file, "UTF-8");
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function buildFilenameFallbackText(fileName) {
+        var cleanTitle = String(fileName || "Séance de français")
+          .replace(/\.(pptx|pdf|txt|md)$/i, "")
+          .replace(/[_-]+/g, " ")
+          .trim();
+        return "[شريحة 1] " + (cleanTitle || "Séance de français");
+      }
+
+      function readPdfFile(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (!window.pdfjsLib || typeof window.pdfjsLib.getDocument !== "function") {
+              reject(new Error("PDF"));
+              return;
+            }
+            readFileAsArrayBufferSafe(file)
+              .then(function (buf) {
+                return window.pdfjsLib.getDocument({ data: buf }).promise;
+              })
+              .then(function (pdf) {
+                var pages = [];
+                function step(p) {
+                  if (p > pdf.numPages) {
+                    resolve(pages.join("\n\n"));
+                    return;
+                  }
+                  pdf
+                    .getPage(p)
+                    .then(function (pg) {
+                      return pg.getTextContent();
+                    })
+                    .then(function (cnt) {
+                      var items = cnt && Array.isArray(cnt.items) ? cnt.items : [];
+                      pages.push(
+                        "[صفحة " +
+                          p +
+                          "] " +
+                          items
+                            .map(function (it) {
+                              return it && it.str ? it.str : "";
+                            })
+                            .join(" ")
+                      );
+                      step(p + 1);
+                    })
+                    .catch(function () {
+                      step(p + 1);
+                    });
+                }
+                step(1);
+              })
+              .catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readPptxFile(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (!window.JSZip || typeof window.JSZip.loadAsync !== "function") {
+              reject(new Error("PPTX"));
+              return;
+            }
+            readFileAsArrayBufferSafe(file)
+              .then(function (buf) {
+                return window.JSZip.loadAsync(buf);
+              })
+              .then(function (zip) {
+                var slideNames = Object.keys(zip.files || {})
+                  .filter(function (n) {
+                    return /^ppt\/slides\/slide\d+\.xml$/.test(n);
+                  })
+                  .sort(function (a, b) {
+                    return parseInt(a.match(/\d+/)[0], 10) - parseInt(b.match(/\d+/)[0], 10);
+                  });
+                var slides = [];
+                function step(idx) {
+                  if (idx >= slideNames.length) {
+                    resolve(slides.join("\n\n"));
+                    return;
+                  }
+                  zip.files[slideNames[idx]]
+                    .async("string")
+                    .then(function (xml) {
+                      var docXml = new DOMParser().parseFromString(xml, "text/xml");
+                      var paras = docXml.getElementsByTagName("a:p");
+                      var parts = [];
+                      for (var i = 0; i < paras.length; i++) {
+                        var ts = paras[i].getElementsByTagName("a:t");
+                        var line = "";
+                        for (var j = 0; j < ts.length; j++) {
+                          line += ts[j].textContent || "";
+                        }
+                        if (line.trim()) parts.push(line.trim());
+                      }
+                      slides.push("[شريحة " + (idx + 1) + "] " + parts.join("\n"));
+                      step(idx + 1);
+                    })
+                    .catch(function () {
+                      step(idx + 1);
+                    });
+                }
+                step(0);
+              })
+              .catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      // =========================================================================
+      // LEVEL, SESSION & FRENCH MIND MAP ENGINE
+      // =========================================================================
+      function toLatinDigit(tok) {
+        var ar = "٠١٢٣٤٥٦٧٨٩";
+        return String(tok || "").replace(/[٠-٩]/g, function (c) {
+          return String(ar.indexOf(c));
+        });
+      }
+
+      function normalizeLevelDigit(raw) {
+        if (!raw) return null;
+        var t = String(raw).trim().toLowerCase();
+        var wordMap = {
+          "1er": "1",
+          "1ère": "1",
+          "1re": "1",
+          "1e": "1",
+          "premiere": "1",
+          "première": "1",
+          "premier": "1",
+          "الأول": "1",
+          "الاول": "1",
+          "2eme": "2",
+          "2ème": "2",
+          "2e": "2",
+          "deuxieme": "2",
+          "deuxième": "2",
+          "الثاني": "2",
+          "3eme": "3",
+          "3ème": "3",
+          "3e": "3",
+          "troisieme": "3",
+          "troisième": "3",
+          "الثالث": "3",
+          "4eme": "4",
+          "4ème": "4",
+          "4e": "4",
+          "quatrieme": "4",
+          "quatrième": "4",
+          "الرابع": "4",
+          "5eme": "5",
+          "5ème": "5",
+          "5e": "5",
+          "cinquieme": "5",
+          "cinquième": "5",
+          "الخامس": "5",
+          "6eme": "6",
+          "6ème": "6",
+          "6e": "6",
+          "sixieme": "6",
+          "sixième": "6",
+          "السادس": "6"
+        };
+        if (wordMap[t]) return wordMap[t];
+        var d = toLatinDigit(t);
+        return /^[1-6]$/.test(d) ? d : null;
+      }
+
+      function extractLevelsFromTitle(titleOrText) {
+        var src = String(titleOrText || "");
+        var found = [];
+        function pushLevel(rawVal) {
+          var norm = normalizeLevelDigit(rawVal);
+          if (norm && found.indexOf(norm) === -1) {
+            found.push(norm);
+          }
+        }
+
+        var levelToken =
+          "[1-6١-٦]|الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس|1er|1ère|1re|1e|2eme|2ème|2e|3eme|3ème|3e|4eme|4ème|4e|5eme|5ème|5e|6eme|6ème|6e";
+
+        var dualRe = new RegExp(
+          "(?:niveaux?|niveau|المستويان|المستوى|المستوي|م)\\s*[:\\-–—]?\\s*(" +
+            levelToken +
+            ")\\s*(?:et|و|&|\\+|/)\\s*(" +
+            levelToken +
+            ")",
+          "gi"
+        );
+        var dm;
+        while ((dm = dualRe.exec(src)) !== null) {
+          pushLevel(dm[1]);
+          pushLevel(dm[2]);
+        }
+
+        var singleRe = new RegExp(
+          "(?:niveaux?|niveau|المستويان|المستوى|المستوي|م)\\s*[:\\-–—]?\\s*(" +
+            levelToken +
+            ")",
+          "gi"
+        );
+        var sm;
+        while ((sm = singleRe.exec(src)) !== null) {
+          pushLevel(sm[1]);
+        }
+
+        found.sort(function (a, b) {
+          return parseInt(a, 10) - parseInt(b, 10);
+        });
+        return found;
+      }
+
+      function detectTwoLevels(text, fileName) {
+        var titleOnly = String(fileName || "");
+        var firstLine =
+          String(text || "")
+            .replace(/^\[(?:شريحة|صفحة)\s*\d+\]\s*/i, "")
+            .split(/\r?\n/)[0] || "";
+        var titleLevels = extractLevelsFromTitle(titleOnly);
+        var headerLevels = titleLevels.length
+          ? titleLevels
+          : extractLevelsFromTitle(firstLine);
+        var nums = headerLevels.length ? headerLevels : extractLevelsFromTitle(text);
+
+        if (nums.length === 1) {
+          var singleNum = nums[0];
+          return {
+            isSingleLevel: true,
+            firstNum: singleNum,
+            secondNum: singleNum,
+            frLabel: "Niveau " + singleNum
+          };
+        }
+
+        var firstNum = nums[0] || "5";
+        var secondNum =
+          nums[1] ||
+          (firstNum === "5" ? "6" : String(Math.min(6, parseInt(firstNum, 10) + 1)));
+        return {
+          isSingleLevel: false,
+          firstNum: firstNum,
+          secondNum: secondNum,
+          frLabel: "Niveaux " + firstNum + " et " + secondNum
+        };
+      }
+
+      function normalizeSessionDigit(raw) {
+        if (!raw) return null;
+        var t = String(raw).trim().toLowerCase();
+        var map = {
+          "1": "1",
+          "١": "1",
+          "s1": "1",
+          "premiere": "1",
+          "première": "1",
+          "premier": "1",
+          "1re": "1",
+          "1e": "1",
+          "2": "2",
+          "٢": "2",
+          "s2": "2",
+          "deuxieme": "2",
+          "deuxième": "2",
+          "deux": "2",
+          "2eme": "2",
+          "2ème": "2",
+          "2e": "2",
+          "3": "3",
+          "٣": "3",
+          "s3": "3",
+          "troisieme": "3",
+          "troisième": "3",
+          "trois": "3",
+          "3eme": "3",
+          "3ème": "3",
+          "3e": "3",
+          "4": "4",
+          "٤": "4",
+          "s4": "4",
+          "quatrieme": "4",
+          "quatrième": "4",
+          "quatre": "4",
+          "4eme": "4",
+          "4ème": "4",
+          "4e": "4",
+          "5": "5",
+          "٥": "5",
+          "s5": "5",
+          "cinquieme": "5",
+          "cinquième": "5",
+          "cinq": "5",
+          "5eme": "5",
+          "5ème": "5",
+          "5e": "5",
+          "6": "6",
+          "٦": "6",
+          "s6": "6",
+          "sixieme": "6",
+          "sixième": "6",
+          "six": "6",
+          "6eme": "6",
+          "6ème": "6",
+          "6e": "6"
+        };
+        if (map[t]) return map[t];
+        var d = toLatinDigit(t);
+        return /^[1-6]$/.test(d) ? d : null;
+      }
+
+      /**
+       * Detects the week/semaine label (e.g. 'Semaine 2') from patterns like
+       * 'sem2', 'sem_2', 'sem-2', 'sem 2', 'semaine 2', or Arabic week markers.
+       */
+      function detectSemaineLabel(text, fileName) {
+        var titleSrc = String(fileName || extractedFileName || "");
+        var bodySrc = String(text || "");
+        var sources = [titleSrc, bodySrc];
+
+        for (var i = 0; i < sources.length; i++) {
+          var src = sources[i];
+          if (!src) continue;
+
+          var semMatch = src.match(
+            /(?:^|[^a-zA-Z0-9\u0600-\u06FF])sem(?:aine)?\s*[:\-_.]?\s*([1-6١-٦]|premi[eè]re|deuxi[eè]me|troisi[eè]me|quatri[eè]me|cinqui[eè]me|sixi[eè]me|1re|1e|2e|3e|4e|5e|6e)(?=$|[^a-zA-Z0-9\u0600-\u06FF])/i
+          );
+          if (semMatch && semMatch[1]) {
+            var num = normalizeSessionDigit(semMatch[1]) || toLatinDigit(semMatch[1]);
+            if (num) return "Semaine " + num;
+          }
+
+          var arWeekMatch = src.match(
+            /(?:الأسبوع|الاسبوع)\s*[:\-_.]?\s*([1-6١-٦]|الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس)/i
+          );
+          if (arWeekMatch && arWeekMatch[1]) {
+            var arNum = normalizeLevelDigit(arWeekMatch[1]) || toLatinDigit(arWeekMatch[1]);
+            if (arNum) return "Semaine " + arNum;
+          }
+        }
+
+        return "Semaine 2";
+      }
+
+      function stripFrenchTimeText(text) {
+        return String(text || "")
+          .replace(/\b\d{1,3}\s*(?:h|heures?|min(?:utes?)?|mn|s|sec(?:ondes?)?)\b/gi, "")
+          .replace(
+            /\b(?:durée(?:\s+totale)?|minuteur|chronomètre|chrono)\s*[:\-–—]?\s*[^\n.?!]*/gi,
+            ""
+          )
+          .replace(/\(\s*[^)]*\b\d{1,3}\s*(?:min|mn|h|s)\b[^)]*\)/gi, "");
+      }
+
+      function cleanFrenchNoise(rawText) {
+        return stripFrenchTimeText(String(rawText || ""))
+          .replace(/\[(?:شريحة|صفحة)\s*\d+\]/gim, " ")
+          .replace(/<{2,}|>{2,}/g, " ")
+          .replace(/<\?[\s\S]*?\?>/g, " ")
+          .replace(/réservé\s+à\s+l[’']?enseignant\s*\(?\s*e\s*\)?/gi, " ")
+          .replace(/\b(?:6\s*\+\s*5|5\s*\+\s*6)\b/g, "")
+          .replace(/([A-Za-zÀ-ÿ]+)\.\s+([a-zà-ÿ]+)/g, "$1 $2")
+          .replace(/(?:\.\s*!|\!\s*\.|\.\s*\.+)/g, ".")
+          .replace(/\.{2,}/g, ".")
+          .replace(/\s*[\-–—]\s*$/g, "")
+          .replace(/[\t]+/g, " ")
+          .replace(/\n{3,}/g, "\n")
+          .trim();
+      }
+
+      function polishFrenchSentence(str) {
+        var s = cleanFrenchNoise(str)
+          .replace(/\s+([?!:;])/g, " $1")
+          .replace(/\s+,/g, ",")
+          .replace(/\s+\./g, ".")
+          .replace(/\s{2,}/g, " ")
+          .replace(/^\s*[,;:\-–—.]+\s*/g, "")
+          .trim();
+        if (!s) return "";
+        s = s.charAt(0).toUpperCase() + s.slice(1);
+        if (!/[.!?]$/.test(s)) {
+          s += ".";
+        }
+        return s;
+      }
+
+      function inferFrenchSessionFromSlides(fullText) {
+        var t = cleanFrenchNoise(fullText).toLowerCase();
+        var hasVocab =
+          /présentation\s+du\s+vocabulaire|exploitation\s+du\s+vocabulaire|activités?\s+de\s+vocabulaire|sur\s+le\s+livret|recette|ingrédients/i.test(
+            t
+          );
+        var hasOral1 = /acte\s+de\s+parole\s*1|prise\s+de\s+parole/i.test(t);
+        var hasLang1 = /point\s+de\s+langue\s*1|conditionnel\s+présent/i.test(t);
+        var hasFluidite = /lecture\s*[\-–—:]\s*texte\s*\(?\s*fluidité|fluidité/i.test(t);
+        var hasOral2 = /acte\s+de\s+parole\s*2|dialogue/i.test(t);
+        var hasLang2 = /point\s+de\s+langue\s*2/i.test(t);
+
+        if (hasVocab && !hasOral1 && !hasLang1 && !hasFluidite && !hasOral2 && !hasLang2) {
+          return { session: "1" };
+        }
+        if (hasOral1 || hasLang1 || hasFluidite) {
+          return { session: "2" };
+        }
+        if (hasOral2 || hasLang2) {
+          return { session: "3" };
+        }
+        return null;
+      }
+
+      function detectFrenchSessionNumber(text, fileName) {
+        var titleSrc = String(fileName || extractedFileName || "");
+        var fullSrc = String(text || "");
+        var titleMatch = titleSrc.match(
+          /(?:^|[^a-zA-Z0-9])S\s*([1-6١-٦])(?=$|[^a-zA-Z0-9])|séance\s*(?:n[°o]?\s*)?([1-6١-٦]|première|deuxième|troisième|quatrième|cinquième|sixième|1re|1e|2e|3e|4e|5e|6e)/i
+        );
+        if (titleMatch) {
+          var rawT = titleMatch[1] || titleMatch[2];
+          var normT = normalizeSessionDigit(rawT) || toLatinDigit(rawT);
+          if (normT) return normT;
+        }
+        var inferred = inferFrenchSessionFromSlides(fullSrc);
+        if (inferred && inferred.session) return inferred.session;
+        return "1";
+      }
+
+      function extractFrenchSupports(fullText) {
+        var cleaned = cleanFrenchNoise(fullText);
+        var items = [];
+        var hasSlide = /diaporama|diapositives|présentation|slide/i.test(cleaned);
+        var hasVideo = /vidéo|lecture\s+de\s+la\s+vidéo/i.test(cleaned);
+        var hasAudio = /audio|écoute\s+audio/i.test(cleaned);
+
+        if (hasSlide || hasVideo || hasAudio) {
+          var media = [];
+          if (hasSlide) media.push("diapositives");
+          if (hasVideo) media.push("vidéos");
+          if (hasAudio) media.push("audio");
+          items.push("Présentation de la séance (" + media.join(", ") + ")");
+        }
+
+        var pageMatches = [];
+        var pRe =
+          /(?:livret\s*(?:à\s*la\s*)?(?:page|p\.?)|page|p\.?)\s*(\d{1,3}(?:\s*[\-–—]\s*\d{1,3})?)/gi;
+        var pm;
+        while ((pm = pRe.exec(cleaned)) !== null) {
+          var pg = pm[1].replace(/\s+/g, " ");
+          if (pageMatches.indexOf(pg) === -1) {
+            pageMatches.push(pg);
+          }
+        }
+
+        if (pageMatches.length > 0) {
+          items.push("livret (p. " + pageMatches.join(", ") + ")");
+        } else if (/livret|cahier\s+d[’']?activités/i.test(cleaned)) {
+          items.push("livret");
+        }
+
+        if (/ardoises?/i.test(cleaned)) {
+          items.push("ardoises");
+        }
+        if (/tableau/i.test(cleaned)) {
+          items.push("tableau");
+        }
+
+        if (!items.length) {
+          return "Présentation de la séance (diapositives), livret, ardoises, tableau.";
+        }
+        return polishFrenchSentence(items.join(", "));
+      }
+
+      function extractFrenchDevoir(fullText) {
+        var cleaned = cleanFrenchNoise(fullText);
+        var devoirMatch = cleaned.match(
+          /(?:à\s+la\s+maison[^.?!\n]*[.?!]|devoir[^.?!\n]*[.?!])/i
+        );
+        if (devoirMatch && devoirMatch[0]) {
+          return polishFrenchSentence(devoirMatch[0]);
+        }
+        return "Aucun devoir à domicile n'est précisé dans cette présentation.";
+      }
+
+      function extractMentionedQuestions(cleaned) {
+        var qs = [];
+        var lines = String(cleaned || "").split(/[\n\r]+/);
+        for (var i = 0; i < lines.length; i++) {
+          var l = lines[i].trim();
+          if (!l) continue;
+          var qMatches = l.match(/[^.?!\n]{4,160}\?/g) || [];
+          for (var j = 0; j < qMatches.length; j++) {
+            var q = polishFrenchSentence(qMatches[j]);
+            if (q && qs.indexOf(q) === -1) {
+              qs.push(q);
+            }
+          }
+        }
+        return qs.slice(0, 6);
+      }
+
+      function extractActivitiesWithPageAndQuestions(cleaned) {
+        var raw = String(cleaned || "");
+        var pageMatch = raw.match(
+          /(?:livret\s*(?:à\s*la\s*)?(?:page|p\.?)|page|p\.?)\s*(\d{1,3}(?:\s*[\-–—]\s*\d{1,3})?)/i
+        );
+        var pageStr = pageMatch
+          ? "page " + pageMatch[1].replace(/\s+/g, " ")
+          : "page non précisée";
+        var actNumMatch = raw.match(
+          /(?:activité|exercice|question)\s*(?:n[°o]?\s*)?(\d{1,2})/i
+        );
+        var actNumStr = actNumMatch
+          ? "activité n° " + actNumMatch[1]
+          : "activité (numéro non précisé)";
+        var qs = extractMentionedQuestions(raw);
+        var qsStr = qs.length
+          ? "Questions : " + qs.join(" / ")
+          : "Questions : non précisées dans le texte extrait.";
+
+        return {
+          pageStr: pageStr,
+          actNumStr: actNumStr,
+          qs: qs,
+          qsStr: qsStr
+        };
+      }
+
+      function extractFrenchSentences(cleaned) {
+        var out = [];
+        var matches = cleaned.match(/[^.?!\n]{8,140}[.?!]/g) || [];
+        for (var i = 0; i < matches.length; i++) {
+          var s = polishFrenchSentence(matches[i]);
+          if (
+            s &&
+            !/^(?:séance|semaine|période|objectifs?|supports?|ouverture|oral|écrit|lecture|clôture|devoir|estimation)/i.test(
+              s
+            ) &&
+            out.indexOf(s) === -1
+          ) {
+            out.push(s);
+            if (out.length >= 4) break;
+          }
+        }
+        return out;
+      }
+
+      function buildFrenchLocalMindmap(text, sessionNum) {
+        var lvls = detectTwoLevels(text, extractedFileName);
+        var sNum = sessionNum || detectFrenchSessionNumber(text, extractedFileName) || "1";
+        var cleaned = cleanFrenchNoise(text);
+
+        var periodMatch = cleaned.match(/période\s*([1-6])/i);
+        var periodLabel = periodMatch ? "Période " + periodMatch[1] : "Période 2";
+        var weekLabel = detectSemaineLabel(text, extractedFileName);
+        var yearMatch = cleaned.match(/(20\d{2}\s*[\/\-]\s*20\d{2})/);
+        var schoolYear = yearMatch ? yearMatch[1].replace(/\s+/g, "") : "2026/2027";
+        var levelsText = lvls.isSingleLevel
+          ? "Niveau " + lvls.firstNum
+          : "Niveaux " + lvls.firstNum + " et " + lvls.secondNum;
+
+        var hasBinomeRule =
+          /règles\s+du\s+travail\s+en\s+binôme|5\s+étapes\s+du\s+travail\s+en\s+binôme|routine\s+du\s+travail\s+en\s+binôme/i.test(
+            cleaned
+          );
+        var hasArdoiseRoutine = /routine\s+de\s+l[’']?ardoise|ardoise/i.test(cleaned);
+
+        var ouvertureText = hasBinomeRule
+          ? "Rappeler les règles du travail en binôme en 5 étapes : j'écoute, je réfléchis seul(e), j'échange avec mon voisin, nous nous mettons d'accord, je partage la réponse. Puis début de la leçon."
+          : hasArdoiseRoutine
+          ? "Présenter la routine de l'ardoise : dès que l'icône de l'ardoise apparaît, les élèves suivent les mêmes étapes. Révision de la scène étudiée : un élève la décrit."
+          : "Accueil des élèves, rappel des consignes de travail et activation des acquis antérieurs liés à la séance.";
+
+        var extractedSents = extractFrenchSentences(cleaned);
+        var sampleStr = extractedSents.slice(0, 2).join(" ");
+        var mentionedQs = extractMentionedQuestions(cleaned);
+        var questionsMentionneesStr = mentionedQs.length
+          ? "Questions mentionnées : " + mentionedQs.join(" / ")
+          : "Questions mentionnées : aucune question explicite repérée dans le texte extrait.";
+        var actInfo = extractActivitiesWithPageAndQuestions(cleaned);
+
+        var hasVocabSection =
+          /présentation\s+du\s+vocabulaire|exploitation\s+du\s+vocabulaire|activités?\s+de\s+vocabulaire|vocabulaire/i.test(
+            cleaned
+          );
+
+        var sessionSummaryLines = [];
+        var axisTitle = "";
+        var objectivesArr = [];
+        var oralTitle = "2. Oral";
+        var oralBadge = "Oral";
+        var oralText = "";
+        var ecritTitle = "3. Écrit";
+        var ecritBadge = "Écrit";
+        var ecritText = "";
+        var lectureTitle = "4. Lecture";
+        var lectureBadge = "Lecture";
+        var lectureText = "";
+
+        if (hasVocabSection && String(sNum) === "1") {
+          axisTitle =
+            "Présentation et exploitation du vocabulaire (mots clés, notions et scènes de la séance)";
+          sessionSummaryLines = [
+            "<strong>Axe :</strong> " + axisTitle,
+            periodLabel + " " + weekLabel + " Séance " + sNum + "/6"
+          ];
+          objectivesArr = [
+            "Reconnaître et dire les mots et expressions clés de la séance à partir des supports visuels.",
+            "Identifier et employer les termes ou notions étudiés dans des phrases simples et variées.",
+            "Distinguer les formes ou marques grammaticales/lexicales rencontrées dans les exemples.",
+            "Faire des phrases à partir d'images et décrire une scène de manière structurée."
+          ];
+          oralTitle = "2. Présentation du vocabulaire";
+          oralBadge = "Oral";
+          oralText =
+            "Étape 1 : pour chaque mot ou expression, répétition collective puis explication/traduction et emploi dans une phrase modèle. Étape 2 : observation des exemples présentés dans la vidéo ou les diapositives. Étape 3 : entraînement sur les ardoises (indiquer ou identifier l'élément demandé) et jeu d'observation. " +
+            questionsMentionneesStr +
+            (sampleStr ? " Détails relevés : " + sampleStr : "");
+          ecritTitle = "3. Exploitation du vocabulaire";
+          ecritBadge = "Oral";
+          ecritText =
+            "Étape 1 : produire des phrases orales ou écrites à partir d'images et d'exemples modèles. Étape 2 : observer attentivement une scène, puis répondre aux questions précises (lieu, action, éléments présents). Étape 3 : un élève vient décrire la scène complète au tableau. Activité : " +
+            actInfo.actNumStr +
+            ", " +
+            actInfo.pageStr +
+            " - " +
+            actInfo.qsStr;
+          lectureTitle = "4. Activités sur livret";
+          lectureBadge = "Livret";
+          lectureText =
+            "Étape 1 : mise en binômes sur le livret (" +
+            actInfo.pageStr +
+            "). Étape 2 : travail à tour de rôle : un élève montre une image ou un mot et l'autre le nomme ou formule une phrase. Étape 3 : l'enseignant(e) circule dans les rangs pour guider et vérifier. Activité : " +
+            actInfo.actNumStr +
+            " (" +
+            actInfo.pageStr +
+            ") - " +
+            actInfo.qsStr;
+        } else {
+          axisTitle =
+            "Pratique orale (acte de parole), structuration à l'écrit (point de langue) et lecture";
+          sessionSummaryLines = [
+            "<strong>Oral :</strong> Acte de parole (questions mentionnées, réponses modèles et jeu de rôle)",
+            "<strong>Écrit :</strong> Point de langue (règle, ardoises, activité : numéro, page et questions)",
+            "<strong>Lecture :</strong> Lecture, compréhension et questions des activités sur le livret",
+            periodLabel + " " + weekLabel + " Séance " + sNum + "/6"
+          ];
+          objectivesArr = [
+            "Poser une question adaptée à la situation de communication et formuler des réponses complètes.",
+            "Employer correctement la structure, la conjugaison ou la règle étudiée à l'écrit.",
+            "Appliquer la notion sur les ardoises puis dans les activités du livret (numéro, page et questions).",
+            "Lire le texte ou les énoncés du livret et répondre aux questions posées."
+          ];
+          oralTitle = "2. Oral : acte de parole";
+          oralBadge = "Oral";
+          oralText =
+            "Étape 1 : présentation des questions mentionnées et des réponses modèles selon différents contextes. Étape 2 : modélisation et jeu de rôle au tableau avec des élèves. Étape 3 : pratique en binômes où chacun pose une question et formule une réponse variée. " +
+            questionsMentionneesStr +
+            (sampleStr ? " Exemples relevés : " + sampleStr : "");
+          ecritTitle = "3. Écrit : point de langue";
+          ecritBadge = "Écrit";
+          ecritText =
+            "Étape 1 : lecture et observation de phrases modèles pour dégager la règle, la forme ou la conjugaison. Étape 2 : entraînement rapide sur les ardoises. Étape 3 : réalisation de l'activité sur le livret suivie d'une correction collective. Activité : " +
+            actInfo.actNumStr +
+            ", " +
+            actInfo.pageStr +
+            " - " +
+            actInfo.qsStr;
+          lectureTitle = "4. Lecture : compréhension et exploitation";
+          lectureBadge = "Lecture";
+          lectureText =
+            "Étape 1 : lecture silencieuse des passages ou du texte sur le livret (" +
+            actInfo.pageStr +
+            "), suivie d'une écoute ou d'une lecture modèle. Étape 2 : repérage et explication des mots difficiles. Étape 3 : lecture à voix haute ou en binômes, puis lecture et réponse aux questions. Activité : " +
+            actInfo.actNumStr +
+            " (" +
+            actInfo.pageStr +
+            ") - " +
+            actInfo.qsStr;
+        }
+
+        return {
+          levels: levelsText,
+          period: periodLabel,
+          week: weekLabel,
+          sessionNum: sNum,
+          schoolYear: schoolYear,
+          sessionSummaryLines: sessionSummaryLines,
+          axisTitle: polishFrenchSentence(axisTitle),
+          objectives: objectivesArr,
+          supports: extractFrenchSupports(cleaned),
+          ouverture: ouvertureText,
+          oralTitle: oralTitle,
+          oralBadge: oralBadge,
+          oral: polishFrenchSentence(oralText),
+          ecritTitle: ecritTitle,
+          ecritBadge: ecritBadge,
+          ecrit: polishFrenchSentence(ecritText),
+          lectureTitle: lectureTitle,
+          lectureBadge: lectureBadge,
+          lecture: polishFrenchSentence(lectureText),
+          devoir: extractFrenchDevoir(cleaned),
+          estimation:
+            "Estimer le taux de maîtrise à partir des productions des élèves pendant la pratique autonome et le noter sur la page du jour du cahier journal."
+        };
+      }
+
+      function normalizeFrenchModelOutput(aiObj, sessionNum) {
+        var base = buildFrenchLocalMindmap(extractedLessonContent, sessionNum);
+        if (!aiObj || typeof aiObj !== "object") return base;
+
+        var sNum =
+          normalizeSessionDigit(aiObj.session_num) ||
+          detectFrenchSessionNumber(extractedLessonContent, extractedFileName) ||
+          String(sessionNum);
+
+        var objs = Array.isArray(aiObj.objectives)
+          ? aiObj.objectives
+              .map(function (o) {
+                return polishFrenchSentence(o);
+              })
+              .filter(Boolean)
+          : base.objectives;
+        if (!objs.length) objs = base.objectives;
+
+        var sumLines = Array.isArray(aiObj.session_summary_lines)
+          ? aiObj.session_summary_lines
+              .map(function (l) {
+                return cleanFrenchNoise(l);
+              })
+              .filter(Boolean)
+          : base.sessionSummaryLines;
+        if (!sumLines.length) sumLines = base.sessionSummaryLines;
+
+        var titleLevels = extractLevelsFromTitle(extractedFileName);
+        var aiLevelsStr = aiObj.levels ? cleanFrenchNoise(aiObj.levels) : "";
+        var resolvedLevels = titleLevels.length
+          ? titleLevels.length === 1
+            ? "Niveau " + titleLevels[0]
+            : "Niveaux " + titleLevels[0] + " et " + titleLevels[1]
+          : aiLevelsStr || base.levels;
+
+        var detectedWeek = detectSemaineLabel(extractedLessonContent, extractedFileName);
+        var hasExplicitWeekInTitleOrText =
+          /(?:^|[^a-zA-Z0-9\u0600-\u06FF])sem(?:aine)?\s*[:\-_.]?\s*[1-6١-٦]|(?:الأسبوع|الاسبوع)\s*[:\-_.]?\s*[1-6١-٦]/i.test(
+            String(extractedFileName || "") + " " + String(extractedLessonContent || "")
+          );
+        var aiWeekStr = aiObj.week ? cleanFrenchNoise(aiObj.week) : "";
+        var resolvedWeek = hasExplicitWeekInTitleOrText
+          ? detectedWeek
+          : aiWeekStr || base.week;
+
+        return {
+          levels: resolvedLevels,
+          period: aiObj.period ? cleanFrenchNoise(aiObj.period) : base.period,
+          week: resolvedWeek,
+          sessionNum: sNum,
+          schoolYear: aiObj.school_year
+            ? cleanFrenchNoise(aiObj.school_year)
+            : base.schoolYear,
+          sessionSummaryLines: sumLines,
+          axisTitle: aiObj.axis_title
+            ? polishFrenchSentence(aiObj.axis_title)
+            : base.axisTitle,
+          objectives: objs,
+          supports: aiObj.supports ? polishFrenchSentence(aiObj.supports) : base.supports,
+          ouverture: aiObj.ouverture
+            ? polishFrenchSentence(aiObj.ouverture)
+            : base.ouverture,
+          oralTitle: aiObj.oral_title ? cleanFrenchNoise(aiObj.oral_title) : base.oralTitle,
+          oralBadge: aiObj.oral_badge ? cleanFrenchNoise(aiObj.oral_badge) : base.oralBadge,
+          oral: aiObj.oral ? polishFrenchSentence(aiObj.oral) : base.oral,
+          ecritTitle: aiObj.ecrit_title ? cleanFrenchNoise(aiObj.ecrit_title) : base.ecritTitle,
+          ecritBadge: aiObj.ecrit_badge ? cleanFrenchNoise(aiObj.ecrit_badge) : base.ecritBadge,
+          ecrit: aiObj.ecrit ? polishFrenchSentence(aiObj.ecrit) : base.ecrit,
+          lectureTitle: aiObj.lecture_title
+            ? cleanFrenchNoise(aiObj.lecture_title)
+            : base.lectureTitle,
+          lectureBadge: aiObj.lecture_badge
+            ? cleanFrenchNoise(aiObj.lecture_badge)
+            : base.lectureBadge,
+          lecture: aiObj.lecture ? polishFrenchSentence(aiObj.lecture) : base.lecture,
+          devoir: aiObj.devoir ? polishFrenchSentence(aiObj.devoir) : base.devoir,
+          estimation: aiObj.estimation
+            ? polishFrenchSentence(aiObj.estimation)
+            : base.estimation
+        };
+      }
+
+      function callFlash3ModelWithKey(apiKey, userPromptText, idx, lastErr) {
+        if (idx >= GEMINI_FLASH_3_MODELS.length) {
+          return Promise.reject(new Error(lastErr || "ERROR"));
+        }
+        var modelName = GEMINI_FLASH_3_MODELS[idx];
+        var url =
+          "https://generativelanguage.googleapis.com/v1beta/models/" +
+          encodeURIComponent(modelName) +
+          ":generateContent?key=" +
+          encodeURIComponent(apiKey);
+
+        var bodyPayload = {
+          systemInstruction: {
+            parts: [{ text: FRENCH_SYSTEM_INSTRUCTION }]
+          },
+          contents: [{ role: "user", parts: [{ text: userPromptText }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        };
+
+        return fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyPayload)
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) {
+                throw new Error(
+                  (data && data.error && data.error.message) || "HTTP " + res.status
+                );
+              }
+              return data;
+            });
+          })
+          .then(function (data) {
+            var raw = "";
+            try {
+              raw = data.candidates[0].content.parts[0].text || "";
+            } catch (e) {
+              throw new Error("EMPTY");
+            }
+            var cleanJson = raw
+              .replace(/^```json\s*/i, "")
+              .replace(/```\s*$/i, "")
+              .trim();
+            return JSON.parse(cleanJson);
+          })
+          .catch(function (err) {
+            return callFlash3ModelWithKey(
+              apiKey,
+              userPromptText,
+              idx + 1,
+              (err && err.message) || "ERR"
+            );
+          });
+      }
+
+      function renderFrenchMindmapSheet(frData) {
+        var s = frData.sessionNum || "1";
+        var objItemsHtml = (frData.objectives || [])
+          .map(function (item) {
+            return "<li>" + item + "</li>";
+          })
+          .join("");
+
+        var summaryHtml = (frData.sessionSummaryLines || [])
+          .map(function (line, idx) {
+            var cls =
+              idx === (frData.sessionSummaryLines || []).length - 1
+                ? ' style="font-size:10.5px;opacity:0.9;margin-top:6px;"'
+                : ' style="margin-bottom:4px;"';
+            return "<p" + cls + ">" + line + "</p>";
+          })
+          .join("");
+
+        var chipsHtml = "";
+        for (var k = 1; k <= 6; k++) {
+          var isAct = String(k) === String(s);
+          var lbl = k === 6 ? "Séance 6/6 - Révision" : "Séance " + k + "/6";
+          chipsHtml +=
+            '<div class="' +
+            (isAct ? "session-chip active" : "session-chip") +
+            '" data-select-fr-session="' +
+            k +
+            '" contenteditable="true">' +
+            '<span class="chip-head">' +
+            lbl +
+            "</span>" +
+            "</div>";
+        }
+
+        var yearRow = frData.schoolYear
+          ? '<div>Année scolaire : <span contenteditable="true">' +
+            frData.schoolYear +
+            "</span></div>"
+          : "";
+
+        return (
+          '<article class="mindmap-page fr-sheet" id="mindmapPage" aria-label="Schéma mental de la séance">' +
+          '<header class="top-header">' +
+          '<div class="header-box">' +
+          '<div>Enseignant(e) : <span contenteditable="true">.................</span></div>' +
+          '<div>Académie régionale : <span contenteditable="true">.................</span></div>' +
+          yearRow +
+          "</div>" +
+          '<div class="header-center">' +
+          '<h2 contenteditable="true">Schéma mental de la séance</h2>' +
+          '<div class="sub-meta" contenteditable="true">' +
+          "Français - " +
+          frData.levels +
+          " - " +
+          frData.period +
+          " - " +
+          frData.week +
+          " - Séance " +
+          s +
+          "</div>" +
+          "</div>" +
+          '<div class="header-box">' +
+          '<div>Matière : <span contenteditable="true">Français</span></div>' +
+          '<div>Direction provinciale : <span contenteditable="true">.................</span></div>' +
+          '<div>Séance : <span contenteditable="true">' +
+          s +
+          "/6</span></div>" +
+          "</div>" +
+          "</header>" +
+          '<section class="main-grid">' +
+          '<div class="col-stack">' +
+          '<div class="card c2">' +
+          '<div class="card-title" contenteditable="true">Séance ' +
+          s +
+          " - " +
+          frData.levels +
+          "</div>" +
+          '<div class="card-body" contenteditable="true">' +
+          summaryHtml +
+          "</div>" +
+          "</div>" +
+          '<div class="card c1">' +
+          '<div class="card-title" contenteditable="true">Objectifs (au moins 80% des élèves)</div>' +
+          '<div class="card-body" contenteditable="true"><ul>' +
+          objItemsHtml +
+          "</ul></div>" +
+          "</div>" +
+          '<div class="card c3">' +
+          '<div class="card-title" contenteditable="true">Supports</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          frData.supports +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="col-stack">' +
+          '<div class="card c4">' +
+          '<div class="card-title" contenteditable="true">1. Ouverture (Routine)</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          frData.ouverture +
+          "</div>" +
+          "</div>" +
+          '<div class="card c5">' +
+          '<div class="card-title" contenteditable="true">' +
+          frData.ecritTitle +
+          " [" +
+          frData.ecritBadge +
+          "]</div>" +
+          '<div class="card-body" contenteditable="true">' +
+          frData.ecrit +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="col-stack">' +
+          '<div class="card c6">' +
+          '<div class="card-title" contenteditable="true">' +
+          frData.oralTitle +
+          " [" +
+          frData.oralBadge +
+          "]</div>" +
+          '<div class="card-body" contenteditable="true">' +
+          frData.oral +
+          "</div>" +
+          "</div>" +
+          '<div class="card c2">' +
+          '<div class="card-title" contenteditable="true">' +
+          frData.lectureTitle +
+          " [" +
+          frData.lectureBadge +
+          "]</div>" +
+          '<div class="card-body" contenteditable="true">' +
+          frData.lecture +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          "</section>" +
+          '<section class="card c1">' +
+          '<div class="card-title" contenteditable="true">5. Clôture de la séance</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<p><strong>Devoir :</strong> " +
+          frData.devoir +
+          "</p>" +
+          "<p><strong>Estimation :</strong> " +
+          frData.estimation +
+          "</p>" +
+          "</div>" +
+          "</section>" +
+          '<footer class="week-bar" id="weekBar">' +
+          '<span class="week-bar-title">' +
+          frData.week +
+          " :</span>" +
+          chipsHtml +
+          "</footer>" +
+          "</article>"
+        );
+      }
+
+      function attachCardSizeControls() {
+        var container = document.getElementById("resultContainer");
+        if (!container) return;
+        var cards = container.querySelectorAll(".card");
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          if (card.querySelector(".card-resize-bar")) continue;
+          var bar = document.createElement("div");
+          bar.className = "card-resize-bar";
+          bar.setAttribute("contenteditable", "false");
+
+          var plusBtn = document.createElement("button");
+          plusBtn.type = "button";
+          plusBtn.className = "card-resize-btn";
+          plusBtn.setAttribute("data-card-resize", "grow");
+          plusBtn.title = "تطويل البطاقة";
+          plusBtn.textContent = "+ تطويل";
+
+          var minusBtn = document.createElement("button");
+          minusBtn.type = "button";
+          minusBtn.className = "card-resize-btn";
+          minusBtn.setAttribute("data-card-resize", "shrink");
+          minusBtn.title = "تصغير البطاقة";
+          minusBtn.textContent = "- تصغير";
+
+          bar.appendChild(plusBtn);
+          bar.appendChild(minusBtn);
+          card.appendChild(bar);
+        }
+      }
+
+      function renderResultSheet(frData) {
+        currentMindmapData = frData;
+        var container = document.getElementById("resultContainer");
+        if (!container) return;
+        container.innerHTML = renderFrenchMindmapSheet(frData);
+        attachCardSizeControls();
+      }
+
+      function handleFileSelected(inputEl) {
+        var file = null;
+        try {
+          file = inputEl && inputEl.files && inputEl.files[0] ? inputEl.files[0] : null;
+        } catch (e) {
+          file = null;
+        }
+        if (!file) {
+          setUploadStatus("");
+          return;
+        }
+
+        extractedFileName = file.name || "seance_francais";
+        activeSessionNum = detectFrenchSessionNumber("", extractedFileName);
+        setUploadStatus("جاري التحميل...");
+
+        var settled = false;
+        function finalizeRead(rawText) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(safetyTimer);
+          var trimmed = String(rawText || "").trim();
+          extractedLessonContent = trimmed || buildFilenameFallbackText(extractedFileName);
+          activeSessionNum = detectFrenchSessionNumber(
+            extractedLessonContent,
+            extractedFileName
+          );
+          setUploadStatus(extractedFileName);
+        }
+
+        var safetyTimer = setTimeout(function () {
+          finalizeRead(buildFilenameFallbackText(extractedFileName));
+        }, 12000);
+
+        var lower = extractedFileName.toLowerCase();
+        var prom;
+        try {
+          if (lower.endsWith(".pdf")) {
+            prom = readPdfFile(file);
+          } else if (lower.endsWith(".pptx")) {
+            prom = readPptxFile(file);
+          } else {
+            prom = readFileAsTextSafe(file);
+          }
+        } catch (e) {
+          finalizeRead(buildFilenameFallbackText(extractedFileName));
+          return;
+        }
+
+        Promise.resolve(prom)
+          .then(function (txt) {
+            finalizeRead(txt);
+          })
+          .catch(function () {
+            finalizeRead(buildFilenameFallbackText(extractedFileName));
+          });
+      }
+
+      function generateFrenchMindmap() {
+        var genBtn = document.getElementById("generateFrBtn");
+        if (genBtn) genBtn.disabled = true;
+
+        activeSessionNum = detectFrenchSessionNumber(
+          extractedLessonContent,
+          extractedFileName
+        );
+        setUploadStatus("جاري التحميل...");
+
+        function presentMindmap(mindmapData) {
+          activeSessionNum = mindmapData.sessionNum || activeSessionNum;
+          renderResultSheet(mindmapData);
+          showResultScreen();
+          setResultStatus("");
+        }
+
+        var cleanedFrText = cleanFrenchNoise(extractedLessonContent);
+        var detectedWeekForPrompt = detectSemaineLabel(
+          extractedLessonContent,
+          extractedFileName
+        );
+
+        getSharedApiKey()
+          .then(function (apiKey) {
+            if (!cleanedFrText || !apiKey) {
+              presentMindmap(buildFrenchLocalMindmap(cleanedFrText, activeSessionNum));
+              return null;
+            }
+
+            var frPrompt =
+              "Nom du fichier / titre : " +
+              cleanFrenchNoise(extractedFileName) +
+              "\nSemaine détectée : " +
+              detectedWeekForPrompt +
+              "\nSéance détectée : Séance " +
+              activeSessionNum +
+              "\n\nContenu nettoyé des diapositives :\n" +
+              cleanedFrText;
+
+            return withTimeout(callFlash3ModelWithKey(apiKey, frPrompt, 0, ""), 12000)
+              .then(function (aiObj) {
+                presentMindmap(normalizeFrenchModelOutput(aiObj, activeSessionNum));
+              })
+              .catch(function () {
+                presentMindmap(
+                  buildFrenchLocalMindmap(cleanedFrText, activeSessionNum)
+                );
+              });
+          })
+          .catch(function () {
+            presentMindmap(buildFrenchLocalMindmap(cleanedFrText, activeSessionNum));
+          })
+          .finally(function () {
+            setUploadStatus(extractedFileName || "");
+            if (genBtn) genBtn.disabled = false;
+          });
+      }
+
+      function downloadResultMindmap() {
+        var pageEl = document.getElementById("mindmapPage");
+        if (!pageEl) return;
+
+        var docHtml =
+          '<!DOCTYPE html>\n<html lang="fr" dir="ltr">\n<head>\n' +
+          '<meta charset="UTF-8" />\n' +
+          "<title>francais - Séance " +
+          activeSessionNum +
+          "</title>\n" +
+          '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />\n' +
+          "<style>\n" +
+          "body { margin: 0; padding: 14px; font-family: 'Cairo', system-ui, sans-serif; background: #ffffff; color: #0f172a; }\n" +
+          ".mindmap-page { width: 1120px; margin: 0 auto; padding: 18px 22px; border-radius: 12px; border: 1.5px solid #cbd5e1; display: flex; flex-direction: column; gap: 12px; }\n" +
+          ".top-header { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 12px; align-items: start; }\n" +
+          ".header-box { border: 1.5px solid #94a3b8; border-radius: 10px; padding: 8px 12px; font-size: 12px; line-height: 1.7; background: #f8fafc; }\n" +
+          ".header-center { text-align: center; padding-top: 4px; }\n" +
+          ".header-center h2 { margin: 0; font-size: 24px; font-weight: 900; color: #1e3a8a; }\n" +
+          ".header-center .sub-meta { margin-top: 4px; font-size: 13.5px; font-weight: 700; color: #1d4ed8; }\n" +
+          ".main-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: stretch; }\n" +
+          ".col-stack { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }\n" +
+          ".card { border-radius: 12px; border: 1.5px solid #cbd5e1; overflow: hidden; display: flex; flex-direction: column; flex: 1; }\n" +
+          ".card-title { padding: 6px 12px; font-weight: 800; font-size: 13.5px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); }\n" +
+          ".card-body { padding: 10px 12px; font-size: 11.7px; line-height: 1.62; flex: 1; }\n" +
+          ".card-body ul { margin: 0; padding-left: 18px; }\n" +
+          ".card-body li { margin-bottom: 5px; }\n" +
+          ".c1 { background: #fffbeb; border-color: #fcd34d; } .c1 .card-title { background: #fde68a; color: #92400e; }\n" +
+          ".c2 { background: #ecfdf5; border-color: #6ee7b7; } .c2 .card-title { background: #a7f3d0; color: #065f46; }\n" +
+          ".c3 { background: #eff6ff; border-color: #93c5fd; } .c3 .card-title { background: #bfdbfe; color: #1e3a8a; }\n" +
+          ".c4 { background: #f8fafc; border-color: #cbd5e1; } .c4 .card-title { background: #e2e8f0; color: #1e293b; }\n" +
+          ".c5 { background: #fff1f2; border-color: #fda4af; } .c5 .card-title { background: #fecdd3; color: #9f1239; }\n" +
+          ".c6 { background: #f5f3ff; border-color: #c4b5fd; } .c6 .card-title { background: #ddd6fe; color: #5b21b6; }\n" +
+          ".week-bar { border: 1.5px solid #94a3b8; border-radius: 14px; padding: 6px 12px; display: flex; align-items: stretch; justify-content: space-between; gap: 6px; background: #f8fafc; font-size: 10.5px; }\n" +
+          ".week-bar-title { font-weight: 800; color: #0f172a; white-space: nowrap; display: flex; align-items: center; }\n" +
+          ".session-chip { flex: 1; text-align: center; padding: 5px 8px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 600; display: flex; flex-direction: column; gap: 2px; }\n" +
+          ".session-chip .chip-head { font-weight: 800; font-size: 10px; }\n" +
+          ".session-chip.active { background: #1d4ed8; color: #ffffff; border-color: #1e3a8a; font-weight: 800; }\n" +
+          ".fr-sheet { direction: ltr; text-align: left; }\n" +
+          ".card-resize-bar { display: none !important; }\n" +
+          "@media print { @page { size: A4 landscape; margin: 6mm; } body { padding: 0; } .mindmap-page { width: 100%; border: 1px solid #94a3b8; } }\n" +
+          "</style>\n</head>\n<body>\n" +
+          pageEl.outerHTML +
+          "\n</body>\n</html>";
+
+        try {
+          var blob = new Blob([docHtml], { type: "text/html;charset=utf-8" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = "francais - Séance " + activeSessionNum + ".html";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 1000);
+        } catch (e) {}
+      }
+
+      function bindDropZone() {
+        var zone = document.getElementById("dropZoneFr");
+        var inp = document.getElementById("fileInputFr");
+        if (!zone || !inp) return;
+
+        ["dragenter", "dragover"].forEach(function (evtName) {
+          zone.addEventListener(evtName, function (ev) {
+            ev.preventDefault();
+            zone.classList.add("drag-over");
+          });
+        });
+
+        ["dragleave", "drop"].forEach(function (evtName) {
+          zone.addEventListener(evtName, function (ev) {
+            ev.preventDefault();
+            zone.classList.remove("drag-over");
+          });
+        });
+
+        zone.addEventListener("drop", function (ev) {
+          var dt = ev.dataTransfer;
+          if (dt && dt.files && dt.files.length > 0) {
+            try {
+              inp.files = dt.files;
+            } catch (e) {}
+            handleFileSelected({ files: [dt.files[0]] });
+          }
+        });
+      }
+
+      function bindEvents() {
+        var fileFr = document.getElementById("fileInputFr");
+        var genBtn = document.getElementById("generateFrBtn");
+        var resetBtn = document.getElementById("resetUploadBtn");
+        var backUploadBtn = document.getElementById("resultBackUploadBtn");
+        var printBtn = document.getElementById("printMindmapBtn");
+        var downloadBtn = document.getElementById("downloadMindmapBtn");
+
+        if (fileFr) {
+          fileFr.addEventListener("change", function () {
+            handleFileSelected(fileFr);
+          });
+        }
+
+        bindDropZone();
+
+        if (genBtn) {
+          genBtn.addEventListener("click", generateFrenchMindmap);
+        }
+
+        if (resetBtn) {
+          resetBtn.addEventListener("click", function () {
+            extractedLessonContent = "";
+            extractedFileName = "";
+            activeSessionNum = "1";
+            if (fileFr) fileFr.value = "";
+            setUploadStatus("");
+          });
+        }
+
+        if (backUploadBtn) {
+          backUploadBtn.addEventListener("click", showUploadScreen);
+        }
+
+        if (printBtn) {
+          printBtn.addEventListener("click", function () {
+            window.print();
+          });
+        }
+
+        if (downloadBtn) {
+          downloadBtn.addEventListener("click", downloadResultMindmap);
+        }
+
+        document.addEventListener("click", function (ev) {
+          var target = ev.target;
+          if (!target || !target.closest) return;
+
+          var resizeBtn = target.closest("[data-card-resize]");
+          if (resizeBtn) {
+            var mode = resizeBtn.getAttribute("data-card-resize");
+            var hostCard = resizeBtn.closest(".card");
+            if (hostCard) {
+              var currentH = hostCard.getBoundingClientRect().height;
+              var nextH =
+                mode === "grow" ? currentH + 70 : Math.max(110, currentH - 70);
+              hostCard.style.flex = "none";
+              hostCard.style.height = nextH + "px";
+            }
+            return;
+          }
+
+          var frChipEl = target.closest("[data-select-fr-session]");
+          if (frChipEl) {
+            var frPicked = frChipEl.getAttribute("data-select-fr-session");
+            if (frPicked) {
+              activeSessionNum = frPicked;
+              var updatedFr = buildFrenchLocalMindmap(
+                extractedLessonContent,
+                activeSessionNum
+              );
+              renderResultSheet(updatedFr);
+              setResultStatus("");
+            }
+          }
+        });
+      }
+
+      function initApp() {
+        initFirebase();
+        showUploadScreen();
+        bindEvents();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
