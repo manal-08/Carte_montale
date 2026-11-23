@@ -241,13 +241,15 @@
         </button>
 
         <button
-          type="button"
-          data-placeholder-subject="fr"
-          class="w-full rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white p-7 sm:p-8 shadow-lg flex flex-col items-center justify-center gap-3 cursor-pointer transition"
-        >
-          <span class="text-3xl sm:text-4xl font-black">A</span>
-          <span class="text-lg sm:text-xl font-black">Français الفرنسية</span>
-        </button>
+  type="button"
+  id="openFrancaisBtn"
+  data-open-subject="fr"
+  class="w-full rounded-3xl bg-gradient-to-br from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white p-7 sm:p-8 shadow-lg flex flex-col items-center justify-center gap-3 cursor-pointer transition"
+>
+  <span class="text-3xl sm:text-4xl font-black">A</span>
+  <span class="text-lg sm:text-xl font-black">Français الفرنسية</span>
+</button>
+
 
         <button
           type="button"
@@ -292,7 +294,9 @@
       var LEGACY_SHARED_KEY = "gemini_khatata_api_key";
       var SESSION_USER_KEY = "cartes_mentales_current_user";
       var MATHS_PAGE_URL = "./maths.html";
-
+      var FRANCAIS_PAGE_URL = "./francais.html";
+      
+      
       var db = null;
       var firestoreReady = false;
       var isRegisterMode = false;
@@ -1005,6 +1009,18 @@
         }
       }
 
+function navigateToFrancaisPage() {
+  var currentKey = readLocalSharedKey();
+  writeLocalSharedKey(currentKey);
+
+  try {
+    window.location.assign(FRANCAIS_PAGE_URL);
+  } catch (e) {
+    window.location.href = FRANCAIS_PAGE_URL;
+  }
+}
+      
+      
       /**
        * Binds event listeners across the application.
        */
@@ -1014,7 +1030,13 @@
         var saveKeyBtn = document.getElementById("saveSharedKeyBtn");
         var refreshUsersBtn = document.getElementById("refreshUsersBtn");
         var openMathsBtn = document.getElementById("openMathsBtn");
-
+var frTrigger = target.closest('[data-open-subject="fr"]');
+if (frTrigger) {
+  if (ev && ev.preventDefault) ev.preventDefault();
+  navigateToFrancaisPage();
+  return;
+    }
+        
         if (authForm) authForm.addEventListener("submit", handleAuthSubmit);
         if (toggleModeBtn) toggleModeBtn.addEventListener("click", toggleAuthMode);
 
