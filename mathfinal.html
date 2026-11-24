@@ -1,0 +1,2183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cartes maths — الخطاطة الذهنية للرياضيات</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF.js & JSZip for extracting text from PDF and PPTX lesson files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- Cairo Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --text-main: #0f172a;
+      --card-1-bg: #fffbeb;
+      --card-1-hd: #fde68a;
+      --card-1-tx: #92400e;
+      --card-2-bg: #ecfdf5;
+      --card-2-hd: #a7f3d0;
+      --card-2-tx: #065f46;
+      --card-3-bg: #eff6ff;
+      --card-3-hd: #bfdbfe;
+      --card-3-tx: #1e3a8a;
+      --card-4-bg: #f8fafc;
+      --card-4-hd: #e2e8f0;
+      --card-4-tx: #1e293b;
+      --card-5-bg: #fff1f2;
+      --card-5-hd: #fecdd3;
+      --card-5-tx: #9f1239;
+      --card-6-bg: #f5f3ff;
+      --card-6-hd: #ddd6fe;
+      --card-6-tx: #5b21b6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .auth-canvas {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(249, 115, 22, 0.14), transparent 34%),
+        radial-gradient(circle at 88% 18%, rgba(37, 99, 235, 0.14), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.14), transparent 40%),
+        #f8fafc;
+    }
+
+    .btn-grad-primary {
+      background: linear-gradient(90deg, #059669 0%, #2563eb 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+    }
+
+    .btn-grad-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .topbar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.22);
+    }
+
+    .back-action-btn {
+      background: #2563eb;
+      color: #ffffff;
+      border: 1px solid #60a5fa;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+    }
+
+    .back-action-btn:hover {
+      background: #1d4ed8;
+    }
+
+    .status-strip {
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 16px;
+      border-top: 1px solid #334155;
+    }
+
+    .sheet-scroll {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .mindmap-page {
+      background: #ffffff;
+      width: 100%;
+      max-width: 1120px;
+      min-height: 780px;
+      margin: 0 auto;
+      padding: 18px 22px;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+      border: 1.5px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .top-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      align-items: start;
+    }
+
+    .header-box {
+      border: 1.5px solid #94a3b8;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.7;
+      background: #f8fafc;
+    }
+
+    .header-box div span[contenteditable="true"] {
+      display: inline-block;
+      min-width: 75px;
+      border-bottom: 1px dotted #64748b;
+      font-weight: 700;
+      color: #0f172a;
+      padding: 0 4px;
+    }
+
+    .header-center {
+      text-align: center;
+      padding-top: 4px;
+    }
+
+    .header-center h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 900;
+      color: #065f46;
+    }
+
+    .header-center .sub-meta {
+      margin-top: 4px;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #047857;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 14px;
+      align-items: stretch;
+      flex: 1;
+    }
+
+    .col-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      justify-content: space-between;
+    }
+
+    .card {
+      border-radius: 12px;
+      border: 1.5px solid #cbd5e1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-title {
+      padding: 6px 12px;
+      font-weight: 800;
+      font-size: 13.5px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .card-body {
+      padding: 10px 12px;
+      font-size: 11.7px;
+      line-height: 1.62;
+      flex: 1;
+    }
+
+    .card-body ul {
+      margin: 0;
+      padding-right: 16px;
+    }
+
+    .card-body li {
+      margin-bottom: 5px;
+    }
+
+    .c1 { background: var(--card-1-bg); border-color: #fcd34d; }
+    .c1 .card-title { background: var(--card-1-hd); color: var(--card-1-tx); }
+
+    .c2 { background: var(--card-2-bg); border-color: #6ee7b7; }
+    .c2 .card-title { background: var(--card-2-hd); color: var(--card-2-tx); }
+
+    .c3 { background: var(--card-3-bg); border-color: #93c5fd; }
+    .c3 .card-title { background: var(--card-3-hd); color: var(--card-3-tx); }
+
+    .c4 { background: var(--card-4-bg); border-color: #cbd5e1; }
+    .c4 .card-title { background: var(--card-4-hd); color: var(--card-4-tx); }
+
+    .c5 { background: var(--card-5-bg); border-color: #fda4af; }
+    .c5 .card-title { background: var(--card-5-hd); color: var(--card-5-tx); }
+
+    .c6 { background: var(--card-6-bg); border-color: #c4b5fd; }
+    .c6 .card-title { background: var(--card-6-hd); color: var(--card-6-tx); }
+
+    .center-hub {
+      border: 2px solid #047857;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+      padding: 10px 14px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.12);
+    }
+
+    .center-hub .lvl-tag {
+      font-size: 12px;
+      font-weight: 800;
+      color: #047857;
+    }
+
+    .center-hub .week-big {
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 2px 0;
+    }
+
+    .center-hub .lesson-line {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .center-hub .session-pill {
+      display: inline-block;
+      border: 1.5px solid #047857;
+      background: #d1fae5;
+      color: #064e3b;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 2px 16px;
+      border-radius: 999px;
+    }
+
+    .week-bar {
+      border: 1.5px solid #94a3b8;
+      border-radius: 14px;
+      padding: 6px 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 6px;
+      background: #f8fafc;
+      font-size: 10.5px;
+    }
+
+    .week-bar-title {
+      font-weight: 800;
+      color: #0f172a;
+      white-space: nowrap;
+      padding-left: 6px;
+      display: flex;
+      align-items: center;
+    }
+
+    .session-chip {
+      flex: 1 1 150px;
+      text-align: center;
+      padding: 5px 8px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      line-height: 1.35;
+      transition: all 0.15s ease;
+    }
+
+    .session-chip:hover {
+      border-color: #059669;
+      background: #f0fdf4;
+    }
+
+    .session-chip .chip-head {
+      font-weight: 800;
+      font-size: 10px;
+      opacity: 0.88;
+    }
+
+    .session-chip .chip-l1,
+    .session-chip .chip-l2 {
+      display: block;
+      font-size: 10px;
+    }
+
+    .session-chip.active {
+      background: #047857;
+      color: #ffffff;
+      border-color: #064e3b;
+      font-weight: 800;
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid #2563eb;
+      background: rgba(37, 99, 235, 0.06);
+      border-radius: 4px;
+    }
+
+    .drag-over {
+      border-color: #059669 !important;
+      background-color: #ecfdf5 !important;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 6mm;
+      }
+
+      body {
+        background: #ffffff;
+        padding: 0;
+      }
+
+      .topbar,
+      .status-strip {
+        display: none !important;
+      }
+
+      .sheet-scroll {
+        padding: 0;
+        overflow: visible;
+      }
+
+      .mindmap-page {
+        width: 100%;
+        max-width: none;
+        min-height: auto;
+        box-shadow: none;
+        border: 1px solid #94a3b8;
+        page-break-inside: avoid;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. MATHEMATICS UPLOAD SCREEN (cartes maths) -->
+  <section id="uploadMathView" class="min-h-screen auth-canvas px-4 py-6 sm:px-8 flex flex-col justify-center">
+    <div class="max-w-2xl w-full mx-auto space-y-6">
+      <!-- Top Header Bar -->
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <button
+          type="button"
+          id="homeBackToIndexBtn"
+          aria-label="رجوع إلى صفحة index.html"
+          class="back-action-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-black cursor-pointer transition flex items-center gap-1.5"
+        >
+          <span>←</span>
+          <span>رجوع</span>
+        </button>
+
+        <span
+          id="accountBadgeText"
+          class="px-4 py-2 rounded-2xl bg-white text-slate-700 text-xs font-extrabold border border-slate-200 shadow-sm"
+        >
+          cartes maths
+        </span>
+      </div>
+
+      <!-- Page Header -->
+      <div class="text-center space-y-1">
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">cartes maths</h1>
+        <h2 class="text-xl sm:text-2xl font-black text-orange-600">الخطاطة الذهنية للرياضيات</h2>
+      </div>
+
+      <!-- Drag & Drop / File Picker Zone -->
+      <label
+        for="fileInputMath"
+        data-drop-zone="math"
+        class="block w-full rounded-3xl border-2 border-dashed border-orange-300 hover:border-orange-500 bg-white/95 p-8 sm:p-11 text-center shadow-sm cursor-pointer transition space-y-3"
+      >
+        <div class="text-5xl text-orange-500 font-black">⬆</div>
+        <div class="text-xl sm:text-2xl font-black text-slate-800">رفع ملف العرض أو الدرس</div>
+        <div class="text-xs font-bold text-slate-400">.pptx, .pdf, .txt, .md</div>
+        <div class="upload-status-text text-sm font-extrabold text-orange-600 min-h-[22px]"></div>
+      </label>
+      <input type="file" id="fileInputMath" accept=".pptx,.pdf,.txt,.md" class="hidden" />
+
+      <!-- Direct Text / Paste Box -->
+      <div class="bg-white/90 rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <label for="rawLessonTextarea" class="text-xs font-extrabold text-slate-700">
+            أو الصق نص الشرائح مباشرة للمعاينة والتحليل الفوري:
+          </label>
+          <span class="text-[11px] font-bold text-slate-400">تنظيم المحتوى تلقائياً حسب الحصة والمستوى</span>
+        </div>
+        <textarea
+          id="rawLessonTextarea"
+          rows="4"
+          placeholder="[شريحة 1] المستويان 5 و 6 - الأسبوع الأول - الحصة 1..."
+          class="w-full rounded-xl border border-slate-300 p-2.5 text-xs leading-relaxed focus:outline-none focus:border-emerald-600"
+        ></textarea>
+      </div>
+
+      <!-- Generate Button -->
+      <button
+        type="button"
+        data-generate-subject="math"
+        class="w-full py-4 px-6 rounded-2xl text-base sm:text-lg font-black btn-grad-primary cursor-pointer transition"
+      >
+        إنشاء خريطة ذهنية ومعاينة مباشرة
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. DEDICATED MIND MAP RESULT VIEW -->
+  <section id="resultView" class="hidden min-h-screen bg-slate-100 pb-10">
+    <header class="topbar">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            id="resultBackUploadBtn"
+            aria-label="رجوع إلى شاشة الرفع"
+            class="back-action-btn px-5 py-2 rounded-lg text-xs sm:text-sm font-black cursor-pointer transition flex items-center gap-1.5"
+          >
+            <span>←</span>
+            <span>رجوع</span>
+          </button>
+          <span class="text-sm font-black text-amber-400 tracking-tight px-2">
+            cartes maths
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            id="printMindmapBtn"
+            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white cursor-pointer transition"
+          >
+            طباعة
+          </button>
+          <button
+            type="button"
+            id="downloadMindmapBtn"
+            class="px-5 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-amber-400 hover:bg-amber-300 text-amber-950 cursor-pointer transition"
+          >
+            تنزيل
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <div id="resultStatusText" class="max-w-6xl mx-auto"></div>
+    </div>
+
+    <main class="sheet-scroll">
+      <div id="resultContainer"></div>
+    </main>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    (function () {
+      "use strict";
+
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+
+      var FIREBASE_CONFIG = {
+        apiKey: "AlzaSyCN7JURPMrCLBGLRTUKwewnZ_kGe_qvR58",
+        authDomain: "catre-montale.firebaseapp.com",
+        projectId: "catre-montale",
+        storageBucket: "catre-montale.firebasestorage.app",
+        messagingSenderId: "1063326176863",
+        appId: "1:1063326176863:web:32d54a37318e166e74edea",
+        measurementId: "G-PDD7TRWEYX"
+      };
+
+      var LOCAL_SHARED_KEY = "cartes_mentales_shared_api_key_v1";
+      var LEGACY_SHARED_KEY = "gemini_khatata_api_key";
+
+      var GEMINI_FLASH_3_MODELS = [
+        "gemini-3-flash-preview",
+        "gemini-3-flash",
+        "gemini-2.5-flash"
+      ];
+
+      var HIDDEN_SYSTEM_INSTRUCTION = [
+        "أنت مساعد تربوي متخصص في استخراج وتنظيم محتوى حصص الدرس في خطاطة ذهنية عربية واضحة ودقيقة، مع الالتزام الصارم بحدود الشرائح من شريحة العنوان إلى شريحة البطاقة التالية.",
+        "اقرأ نص الدرس المرفق واستخرج المعلومات المرتبطة بالحصة المحددة من 1 إلى 5 (S1 إلى S5) بدقة.",
+        "في شريحة «برمجة الأسبوع» / «برمجة الأسبوع الأول»: استخرج عناوين الحصص (S1 إلى S5) من عناوين المستطيلات أو الأسطر المخصصة لكل مستوى بدقة.",
+        "في بطاقة اختتام الحصة: نحافظ على العناصر المنفصلة (مراجعة ما تم تعلمه والخطوات + نشاط التناوب اللغوي فرنسية + التكليف بالواجب المنزلي) دون حشو مكرر أو إضافات خارج حدود الاختتام.",
+        "أعد النتيجة بصيغة JSON صالحة فقط بالمفاتيح التالية:",
+        '{ "levels_label": "المستويان ... و ...", "period_label": "الفترة ...", "week_label": "الأسبوع الأول", "session_number": "1", "current_lesson_title": "...", "week_sessions": { "1": { "l1": "...", "l2": "..." }, "2": { "l1": "...", "l2": "..." }, "3": { "l1": "...", "l2": "..." }, "4": { "l1": "...", "l2": "..." }, "5": { "l1": "...", "l2": "..." } }, "opening_duration": "...", "opening_topics": "...", "mental_math_page": "...", "today_announcement": "...", "goal_level_5": "...", "goal_level_6": "...", "modeling_level_5": { "tool": "...", "question": "...", "steps": "..." }, "modeling_level_6": { "tool": "...", "question": "...", "steps": "..." }, "guided_level_5_boards": "...", "guided_level_5_workbook": "...", "guided_level_6_boards": "...", "guided_level_6_workbook": "...", "independent_level_5": "...", "independent_level_6": "...", "closing_review": "...", "closing_language_alt": "...", "closing_homework": "...", "bilingual_terms": "..." }'
+      ].join("\n");
+
+      var db = null;
+      var firestoreReady = false;
+      var activeSessionNum = "1";
+      var extractedLessonContent = "";
+      var extractedFileName = "";
+      var lastAiResponseObj = null;
+      var cachedSharedKey = "";
+      var detectedLevels = { firstNum: "5", secondNum: "6", pairLabel: "المستويان 5 و 6" };
+
+      var ALL_VIEWS = ["uploadMathView", "resultView"];
+
+      function initFirebase() {
+        try {
+          var app = initializeApp(FIREBASE_CONFIG);
+          db = getFirestore(app);
+          firestoreReady = true;
+        } catch (e) {
+          firestoreReady = false;
+        }
+      }
+
+      function showView(viewId) {
+        for (var i = 0; i < ALL_VIEWS.length; i++) {
+          var id = ALL_VIEWS[i];
+          var el = document.getElementById(id);
+          if (!el) continue;
+          if (id === viewId) {
+            el.classList.remove("hidden");
+            el.style.display = id === "uploadMathView" ? "flex" : "block";
+          } else {
+            el.classList.add("hidden");
+            el.style.display = "none";
+          }
+        }
+        window.scrollTo(0, 0);
+      }
+
+      function setUploadStatus(msg) {
+        var els = document.querySelectorAll(".upload-status-text");
+        for (var i = 0; i < els.length; i++) {
+          els[i].textContent = msg || "";
+        }
+      }
+
+      function setResultStatus(msg) {
+        var el = document.getElementById("resultStatusText");
+        if (!el) return;
+        el.textContent =
+          msg ||
+          "S" +
+            activeSessionNum +
+            " (" +
+            getSessionOrdinalArabic(activeSessionNum) +
+            ") — يمكنك تعديل أي خانة مباشرة ثم الضغط على «تنزيل» أو «طباعة».";
+      }
+
+      function updateAccountBadgeFromStorage() {
+        var badgeEl = document.getElementById("accountBadgeText");
+        if (!badgeEl) return;
+        try {
+          var possibleKeys = [
+            "cartes_mentales_current_user",
+            "cartes_mentales_active_user",
+            "currentUser",
+            "username"
+          ];
+          var foundName = "";
+          for (var i = 0; i < possibleKeys.length; i++) {
+            var raw =
+              sessionStorage.getItem(possibleKeys[i]) ||
+              localStorage.getItem(possibleKeys[i]) ||
+              "";
+            if (raw) {
+              if (raw.charAt(0) === "{") {
+                try {
+                  var parsed = JSON.parse(raw);
+                  if (parsed && parsed.username) {
+                    foundName = String(parsed.username).trim();
+                    break;
+                  }
+                } catch (e) {}
+              } else {
+                foundName = raw.trim();
+                break;
+              }
+            }
+          }
+          badgeEl.textContent = foundName ? "الحساب: " + foundName : "cartes maths";
+        } catch (e) {
+          badgeEl.textContent = "cartes maths";
+        }
+      }
+
+      function withTimeout(promise, ms) {
+        return new Promise(function (resolve) {
+          var settled = false;
+          var timer = setTimeout(function () {
+            if (!settled) {
+              settled = true;
+              resolve(null);
+            }
+          }, ms || 1200);
+
+          Promise.resolve(promise)
+            .then(function (val) {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(val);
+              }
+            })
+            .catch(function () {
+              if (!settled) {
+                settled = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            });
+        });
+      }
+
+      function readStoredSharedKey() {
+        if (cachedSharedKey) return cachedSharedKey;
+        try {
+          var s1 = (sessionStorage.getItem(LOCAL_SHARED_KEY) || "").trim();
+          if (s1) return s1;
+          var s2 = (sessionStorage.getItem(LEGACY_SHARED_KEY) || "").trim();
+          if (s2) return s2;
+        } catch (e) {}
+        try {
+          var l1 = (localStorage.getItem(LOCAL_SHARED_KEY) || "").trim();
+          if (l1) return l1;
+          var l2 = (localStorage.getItem(LEGACY_SHARED_KEY) || "").trim();
+          if (l2) return l2;
+        } catch (e) {}
+        return "";
+      }
+
+      function writeStoredSharedKey(keyVal) {
+        var trimmed = String(keyVal || "").trim();
+        if (!trimmed) return;
+        cachedSharedKey = trimmed;
+        try {
+          localStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+          localStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+        } catch (e) {}
+        try {
+          sessionStorage.setItem(LOCAL_SHARED_KEY, trimmed);
+          sessionStorage.setItem(LEGACY_SHARED_KEY, trimmed);
+        } catch (e) {}
+      }
+
+      function getSharedApiKeySilently() {
+        var storedKey = readStoredSharedKey();
+        if (storedKey) {
+          cachedSharedKey = storedKey;
+          return Promise.resolve(storedKey);
+        }
+        if (!firestoreReady || !db) {
+          return Promise.resolve("");
+        }
+        return withTimeout(getDoc(doc(db, "settings", "geminiConfig")), 1500).then(function (snap) {
+          if (snap && typeof snap.exists === "function" && snap.exists()) {
+            var data = snap.data() || {};
+            var remoteKey = String(data.apiKey || "").trim();
+            if (remoteKey) {
+              writeStoredSharedKey(remoteKey);
+              return remoteKey;
+            }
+          }
+          return "";
+        });
+      }
+
+      function readFileAsArrayBufferSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.arrayBuffer === "function") {
+              file
+                .arrayBuffer()
+                .then(resolve)
+                .catch(function () {
+                  readViaFileReader(file, "arrayBuffer").then(resolve).catch(reject);
+                });
+              return;
+            }
+            readViaFileReader(file, "arrayBuffer").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readFileAsTextSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.text === "function") {
+              file
+                .text()
+                .then(resolve)
+                .catch(function () {
+                  readViaFileReader(file, "text").then(resolve).catch(reject);
+                });
+              return;
+            }
+            readViaFileReader(file, "text").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readViaFileReader(file, mode) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (typeof FileReader === "undefined") {
+              reject(new Error("NO_FILEREADER"));
+              return;
+            }
+            var reader = new FileReader();
+            reader.onload = function () {
+              resolve(reader.result);
+            };
+            reader.onerror = function () {
+              reject(reader.error || new Error("FILEREADER_ERROR"));
+            };
+            reader.onabort = function () {
+              reject(new Error("FILEREADER_ABORT"));
+            };
+            if (mode === "arrayBuffer") {
+              reader.readAsArrayBuffer(file);
+            } else {
+              reader.readAsText(file, "UTF-8");
+            }
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function buildFilenameFallbackText(fileName) {
+        var cleanTitle = String(fileName || "درس")
+          .replace(/\.(pptx|pdf|txt|md)$/i, "")
+          .replace(/[_-]+/g, " ")
+          .trim();
+        return "[شريحة 1] " + (cleanTitle || "درس");
+      }
+
+      function readPdfFile(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (!window.pdfjsLib || typeof window.pdfjsLib.getDocument !== "function") {
+              reject(new Error("PDF"));
+              return;
+            }
+            readFileAsArrayBufferSafe(file)
+              .then(function (buf) {
+                return window.pdfjsLib.getDocument({ data: buf }).promise;
+              })
+              .then(function (pdf) {
+                var pages = [];
+                function step(p) {
+                  if (p > pdf.numPages) {
+                    resolve(pages.join("\n\n"));
+                    return;
+                  }
+                  pdf
+                    .getPage(p)
+                    .then(function (pg) {
+                      return pg.getTextContent();
+                    })
+                    .then(function (cnt) {
+                      var items = cnt && Array.isArray(cnt.items) ? cnt.items : [];
+                      pages.push(
+                        "[شريحة " +
+                          p +
+                          "] " +
+                          items
+                            .map(function (it) {
+                              return it && it.str ? it.str : "";
+                            })
+                            .join(" ")
+                      );
+                      step(p + 1);
+                    })
+                    .catch(function () {
+                      step(p + 1);
+                    });
+                }
+                step(1);
+              })
+              .catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readPptxFile(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (!window.JSZip || typeof window.JSZip.loadAsync !== "function") {
+              reject(new Error("PPTX"));
+              return;
+            }
+            readFileAsArrayBufferSafe(file)
+              .then(function (buf) {
+                return window.JSZip.loadAsync(buf);
+              })
+              .then(function (zip) {
+                var slideNames = Object.keys(zip.files || {})
+                  .filter(function (n) {
+                    return /^ppt\/slides\/slide\d+\.xml$/.test(n);
+                  })
+                  .sort(function (a, b) {
+                    return parseInt(a.match(/\d+/)[0], 10) - parseInt(b.match(/\d+/)[0], 10);
+                  });
+                var slides = [];
+                function step(idx) {
+                  if (idx >= slideNames.length) {
+                    resolve(slides.join("\n\n"));
+                    return;
+                  }
+                  zip.files[slideNames[idx]]
+                    .async("string")
+                    .then(function (xml) {
+                      var docXml = new DOMParser().parseFromString(xml, "text/xml");
+                      var paras = docXml.getElementsByTagName("a:p");
+                      var parts = [];
+                      for (var i = 0; i < paras.length; i++) {
+                        var ts = paras[i].getElementsByTagName("a:t");
+                        var line = "";
+                        for (var j = 0; j < ts.length; j++) {
+                          line += ts[j].textContent || "";
+                        }
+                        if (line.trim()) parts.push(line.trim());
+                      }
+                      slides.push("[شريحة " + (idx + 1) + "] " + parts.join("\n"));
+                      step(idx + 1);
+                    })
+                    .catch(function () {
+                      step(idx + 1);
+                    });
+                }
+                step(0);
+              })
+              .catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function toLatinDigit(tok) {
+        var ar = "٠١٢٣٤٥٦٧٨٩";
+        return String(tok || "").replace(/[٠-٩]/g, function (c) {
+          return String(ar.indexOf(c));
+        });
+      }
+
+      function normalizeSessionDigit(raw) {
+        if (!raw) return null;
+        var t = String(raw).trim().toLowerCase();
+        var map = {
+          "1": "1", "١": "1", "s1": "1",
+          "الأولى": "1", "الاولى": "1", "الأول": "1", "الاول": "1",
+          "premiere": "1", "première": "1", "premier": "1", "1ere": "1", "1ère": "1", "1re": "1", "1e": "1",
+          "2": "2", "٢": "2", "s2": "2",
+          "الثانية": "2", "الثاني": "2",
+          "deuxieme": "2", "deuxième": "2", "deux": "2", "2eme": "2", "2ème": "2", "2e": "2",
+          "3": "3", "٣": "3", "s3": "3",
+          "الثالثة": "3", "الثالث": "3",
+          "troisieme": "3", "troisième": "3", "trois": "3", "3eme": "3", "3ème": "3", "3e": "3",
+          "4": "4", "٤": "4", "s4": "4",
+          "الرابعة": "4", "الرابع": "4",
+          "quatrieme": "4", "quatrième": "4", "quatre": "4", "4eme": "4", "4ème": "4", "4e": "4",
+          "5": "5", "٥": "5", "s5": "5",
+          "الخامسة": "5", "الخامس": "5",
+          "cinquieme": "5", "cinquième": "5", "cinq": "5", "5eme": "5", "5ème": "5", "5e": "5"
+        };
+        if (map[t]) return map[t];
+        var d = toLatinDigit(t);
+        return /^[1-5]$/.test(d) ? d : null;
+      }
+
+      function getSessionOrdinalArabic(numStr) {
+        var ordinals = {
+          "1": "الحصة الأولى",
+          "2": "الحصة الثانية",
+          "3": "الحصة الثالثة",
+          "4": "الحصة الرابعة",
+          "5": "الحصة الخامسة"
+        };
+        return ordinals[String(numStr || "")] || "الحصة الأولى";
+      }
+
+      var CARD_BOUNDARY_PATTERNS = {
+        goal: /(?:بطاقة\s*)?(?:الهدف|أهداف\s*(?:الحصة|الدرس)|هدف\s*(?:الحصة|الدرس)|الأهداف)/i,
+        opening: /(?:بطاقة\s*)?(?:افتتاح\s*(?:الدرس|الحصة)|افتتاحية\s*(?:الدرس|الحصة)|الافتتاح|تمهيد\s*(?:الدرس|الحصة))/i,
+        modeling: /(?:بطاقة\s*)?(?:النمذجة|نمذجة)/i,
+        guided: /(?:بطاقة\s*)?(?:الممارسة\s*الموجهة|ممارسة\s*موجهة)/i,
+        independent: /(?:بطاقة\s*)?(?:الممارسة\s*المستقلة|ممارسة\s*مستقلة)/i,
+        closing: /(?:بطاقة\s*)?(?:اختتام\s*(?:الدرس|الحصة)|اختتام|خاتمة\s*(?:الدرس|الحصة)|حوصلة)/i,
+        programming: /برمجة\s*(?:الأسبوع|الاسبوع)/i
+      };
+
+      function parseIntoSlides(rawText) {
+        var src = String(rawText || "").trim();
+        if (!src) return [];
+
+        var markerRe = /(?=\[\s*(?:شريحة|صفحة)\s*\d+\s*[:\]|]|(?:\n|^)\s*(?:شريحة|صفحة)\s*\d+\s*[:\-–—])/gi;
+        var chunks = src.split(markerRe).map(function (c) {
+          return c.trim();
+        }).filter(Boolean);
+
+        if (chunks.length <= 1 && !/^(?:\[\s*(?:شريحة|صفحة)\s*\d+|(?:شريحة|صفحة)\s*\d+)/i.test(src)) {
+          var blocks = src.split(/\n{2,}/).map(function (b) { return b.trim(); }).filter(Boolean);
+          return blocks.map(function (blk, i) {
+            var lines = blk.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+            return {
+              index: i + 1,
+              title: lines[0] || ("شريحة " + (i + 1)),
+              body: lines.slice(1).join("\n"),
+              fullText: blk
+            };
+          });
+        }
+
+        return chunks.map(function (chunk, idx) {
+          var numMatch = chunk.match(/^(?:\[\s*(?:شريحة|صفحة)\s*(\d+|[٠-٩]+)\s*[:\]|]|(?:شريحة|صفحة)\s*(\d+|[٠-٩]+)\s*[:\-–—]?)\s*(.*)$/is);
+          var slideNum = numMatch ? parseInt(toLatinDigit(numMatch[1] || numMatch[2]), 10) : idx + 1;
+          var remainder = numMatch ? String(numMatch[3] || "").trim() : chunk;
+          var lines = remainder.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+          return {
+            index: isNaN(slideNum) ? idx + 1 : slideNum,
+            title: lines[0] || ("شريحة " + (idx + 1)),
+            body: lines.slice(1).join("\n"),
+            fullText: remainder
+          };
+        });
+      }
+
+      function classifySlideCardType(slideText) {
+        var headAndText = String(slideText || "");
+        var keys = Object.keys(CARD_BOUNDARY_PATTERNS);
+        for (var i = 0; i < keys.length; i++) {
+          var k = keys[i];
+          if (CARD_BOUNDARY_PATTERNS[k].test(headAndText)) {
+            return k;
+          }
+        }
+        return "other";
+      }
+
+      function extractCardSlideRange(slides, targetCardKey, stopAtEnd) {
+        if (!Array.isArray(slides) || slides.length === 0) {
+          return { startSlide: null, endSlide: null, slides: [], combinedText: "" };
+        }
+
+        var startIdx = -1;
+        for (var i = 0; i < slides.length; i++) {
+          if (classifySlideCardType(slides[i].title + " " + slides[i].fullText) === targetCardKey) {
+            startIdx = i;
+            break;
+          }
+        }
+
+        if (startIdx === -1) {
+          return { startSlide: null, endSlide: null, slides: [], combinedText: "" };
+        }
+
+        var endIdx = slides.length - 1;
+        if (!stopAtEnd) {
+          for (var j = startIdx + 1; j < slides.length; j++) {
+            var nextType = classifySlideCardType(slides[j].title + " " + slides[j].fullText);
+            if (nextType !== "other" && nextType !== targetCardKey) {
+              endIdx = j - 1;
+              break;
+            }
+          }
+        }
+
+        var slice = slides.slice(startIdx, endIdx + 1);
+        return {
+          startSlide: slides[startIdx].index,
+          endSlide: slides[endIdx].index,
+          slides: slice,
+          combinedText: slice.map(function (s) { return s.fullText; }).join("\n")
+        };
+      }
+
+      function extractSlideOrPageSlice(text, targetNum) {
+        var slides = parseIntoSlides(text);
+        var found = slides.find(function (s) {
+          return String(s.index) === String(targetNum);
+        });
+        if (found) return found.fullText;
+
+        var src = String(text || "");
+        var numPattern = String(targetNum).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        var reStart = new RegExp(
+          "(?:\\[\\s*(?:شريحة|صفحة)\\s*" + numPattern + "\\s*[:\\]|]|(?:^|\\n)\\s*(?:شريحة|صفحة)\\s*" + numPattern + "\\s*[:\\-–—])",
+          "i"
+        );
+        var matchStart = src.match(reStart);
+        if (!matchStart || matchStart.index === undefined) return "";
+
+        var startPos = matchStart.index + matchStart[0].length;
+        var rest = src.slice(startPos);
+        var matchNext = rest.match(
+          /(?:\[\s*(?:شريحة|صفحة)\s*\d+\s*[:\]|]|(?:\n|^)\s*(?:شريحة|صفحة)\s*\d+\s*[:\-–—])/i
+        );
+        var endPos = matchNext && matchNext.index !== undefined ? matchNext.index : Math.min(rest.length, 2600);
+        return rest.slice(0, endPos).trim();
+      }
+
+      function extractProgrammingSlideText(text) {
+        var slides = parseIntoSlides(text);
+        var progRange = extractCardSlideRange(slides, "programming", false);
+        if (progRange.combinedText) {
+          return progRange.combinedText;
+        }
+        return extractSlideOrPageSlice(text, 2) || extractSlideOrPageSlice(text, 4) || "";
+      }
+
+      function cleanRectangleItem(rawItem) {
+        return String(rawItem || "")
+          .replace(/^\[\s*(?:مستطيل|مربع|بطاقة|خانة)\s*(?:\d+|[١-٥])\s*\]\s*/i, "")
+          .replace(/^(?:مستطيل|مربع|خانة)\s*(?:\d+|[١-٥])\s*[:\-\–—.]?\s*/i, "")
+          .replace(/^(?:S\s*[1-5١-٥]|الحصة\s*(?:رقم\s*)?(?:[1-5١-٥]|الأولى|الاولى|الثانية|الثالثة|الرابعة|الخامسة))\s*[\-\–—:.)/]\s*/i, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function sanitizeAnnouncementTitle(rawTitle, levelNum) {
+        var t = String(rawTitle || "").trim();
+        if (!t) return "";
+        var lvlEsc = levelNum ? String(levelNum).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : "[1-6١-٦]";
+        t = t.replace(
+          new RegExp(
+            "^(?:المستوى|المستوي|م)\\s*(?:" +
+              lvlEsc +
+              "|[1-6١-٦]|الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس)\\s*[:\\-–—/]?\\s*",
+            "i"
+          ),
+          ""
+        );
+        t = t.replace(
+          new RegExp(
+            "\\s*[:\\-–—/]?\\s*(?:المستوى|المستوي|م)\\s*(?:" +
+              lvlEsc +
+              "|[1-6١-٦]|الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس).*$",
+            "i"
+          ),
+          ""
+        );
+        t = t.replace(/\s+(?:و|أو|او|من|في|إلى|الى|عن|على|مع|بـ|الـ)\s*$/i, "");
+        t = t.replace(/^[\s\-–—:|/،؛.]+|[\s\-–—:|/،؛.]+$/g, "");
+        t = t.replace(/\s+/g, " ").trim();
+        return t;
+      }
+
+      function parseProgrammingByColumnRectangles(progText, lvls) {
+        var result = {
+          "1": { l1: "......", l2: "......" },
+          "2": { l1: "......", l2: "......" },
+          "3": { l1: "......", l2: "......" },
+          "4": { l1: "......", l2: "......" },
+          "5": { l1: "......", l2: "......" }
+        };
+        if (!progText) return result;
+
+        var lines = String(progText)
+          .split(/\r?\n/)
+          .map(function (l) { return l.trim(); })
+          .filter(function (l) {
+            return l && !/^برمجة\s*(?:الأسبوع|الاسبوع)/i.test(l);
+          });
+
+        var col1Items = [];
+        var col2Items = [];
+        var activeCol = null;
+
+        var reCol1 = new RegExp("(?:عمود|مستوى|مستوي)\\s*(?:المستوى|المستوي)?\\s*" + lvls.firstNum, "i");
+        var reCol2 = new RegExp("(?:عمود|مستوى|مستوي)\\s*(?:المستوى|المستوي)?\\s*" + lvls.secondNum, "i");
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i];
+          if (reCol1.test(line) && !reCol2.test(line)) {
+            activeCol = 1;
+            var after1 = cleanRectangleItem(line.replace(reCol1, "").replace(/^[:\-\–—\s]+/, ""));
+            if (after1) col1Items.push(after1);
+            continue;
+          }
+          if (reCol2.test(line) && !reCol1.test(line)) {
+            activeCol = 2;
+            var after2 = cleanRectangleItem(line.replace(reCol2, "").replace(/^[:\-\–—\s]+/, ""));
+            if (after2) col2Items.push(after2);
+            continue;
+          }
+
+          var sPrefixMatch = line.match(/^(?:S\s*([1-5١-٥])|الحصة\s*([1-5١-٥])|مستطيل\s*([1-5١-٥])|\[مستطيل\s*([1-5١-٥])\])\s*[:\-\–—.\]\s]*(.*)$/i);
+          if (sPrefixMatch) {
+            var sIdx = parseInt(toLatinDigit(sPrefixMatch[1] || sPrefixMatch[2] || sPrefixMatch[3] || sPrefixMatch[4]), 10);
+            var payload = String(sPrefixMatch[5] || "").trim();
+            var splitPair = payload.split(/\s*(?:—|–|\|)\s*(?:المستوى|المستوي|م)\s*[1-6١-٦]\s*[:\-–—]?\s*/i);
+            if (splitPair.length >= 2 && sIdx >= 1 && sIdx <= 5) {
+              col1Items[sIdx - 1] = cleanRectangleItem(splitPair[0]);
+              col2Items[sIdx - 1] = cleanRectangleItem(splitPair[1]);
+              continue;
+            }
+          }
+
+          var cleaned = cleanRectangleItem(line);
+          if (!cleaned) continue;
+          if (activeCol === 1) {
+            col1Items.push(cleaned);
+          } else if (activeCol === 2) {
+            col2Items.push(cleaned);
+          } else {
+            if (col1Items.length <= col2Items.length) col1Items.push(cleaned);
+            else col2Items.push(cleaned);
+          }
+        }
+
+        if (col1Items[0]) result["1"].l1 = col1Items[0];
+        if (col2Items[0]) result["1"].l2 = col2Items[0];
+
+        for (var s = 2; s <= 5; s++) {
+          if (col1Items[s - 1]) result[String(s)].l1 = col1Items[s - 1];
+          if (col2Items[s - 1]) result[String(s)].l2 = col2Items[s - 1];
+        }
+
+        return result;
+      }
+
+      function detectSessionNumber(text, fileName) {
+        var titleSrc = String(fileName || extractedFileName || "");
+        var fullSrc = String(text || "");
+        var sessionRe =
+          /(?:^|[^a-zA-Z0-9])S\s*([1-5١-٥])(?=$|[^a-zA-Z0-9])|الحصة\s*(?:رقم\s*)?([1-5١-٥]|الأولى|الاولى|الثانية|الثالثة|الرابعة|الخامسة|الأول|الاول|الثاني|الثالث|الرابع|الخامس)|s[ée]ance\s*(?:n[°o]?\s*)?([1-5١-٥]|premi[eè]re|deuxi[eè]me|troisi[eè]me|quatri[eè]me|cinqui[eè]me|1re|1e|2e|3e|4e|5e)/i;
+
+        var titleMatch = titleSrc.match(sessionRe);
+        if (titleMatch) {
+          var tNorm = normalizeSessionDigit(titleMatch[1] || titleMatch[2] || titleMatch[3]);
+          if (tNorm) return tNorm;
+        }
+
+        var slide1Block = extractSlideOrPageSlice(fullSrc, 1);
+        var headerBlock = slide1Block || fullSrc.slice(0, 700);
+        var hdrMatch = headerBlock.match(sessionRe);
+        if (hdrMatch) {
+          var hNorm = normalizeSessionDigit(hdrMatch[1] || hdrMatch[2] || hdrMatch[3]);
+          if (hNorm) return hNorm;
+        }
+
+        var bodyMatch = fullSrc.match(sessionRe);
+        if (bodyMatch) {
+          var bNorm = normalizeSessionDigit(bodyMatch[1] || bodyMatch[2] || bodyMatch[3]);
+          if (bNorm) return bNorm;
+        }
+
+        return "1";
+      }
+
+      function extractLevelsFromTitleSource(sourceText) {
+        var src = String(sourceText || "");
+        if (!src) return null;
+
+        var pairPatterns = [
+          /([1-6١-٦])\s*(?:و|أو|او|&|\/|-|–|—)\s*([1-6١-٦])\s*(?:المستويان|المستويين|مستويان|مستويين)/i,
+          /(?:المستويان|المستويين|مستويان|مستويين)\s*([1-6١-٦])\s*(?:و|أو|او|&|\/|-|–|—)\s*([1-6١-٦])/i,
+          /(?:niveaux?|niv\.?)\s*([1-6١-٦])\s*(?:et|&|\/|-)\s*([1-6١-٦])/i,
+          /(?:^|[^0-9١-٦])([1-6١-٦])\s*(?:&|\/|-)\s*([1-6١-٦])(?=$|[^0-9١-٦])/i
+        ];
+
+        for (var p = 0; p < pairPatterns.length; p++) {
+          var pm = src.match(pairPatterns[p]);
+          if (pm && pm[1] && pm[2]) {
+            var d1 = toLatinDigit(pm[1]);
+            var d2 = toLatinDigit(pm[2]);
+            if (/^[1-6]$/.test(d1) && /^[1-6]$/.test(d2) && d1 !== d2) {
+              return [d1, d2].sort(function (a, b) {
+                return parseInt(a, 10) - parseInt(b, 10);
+              });
+            }
+          }
+        }
+
+        var found = [];
+        var singlePatterns = [
+          /(?:المستوى|المستوي)\s*(?:الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس|[1-6١-٦])/gi,
+          /(?:niveau|niv\.?)\s*([1-6١-٦])/gi
+        ];
+
+        for (var s = 0; s < singlePatterns.length; s++) {
+          var re = singlePatterns[s];
+          var m;
+          while ((m = re.exec(src)) !== null) {
+            var token = m[1]
+              ? m[1]
+              : m[0].replace(/^(?:المستوى|المستوي)\s*/i, "").trim();
+            var norm = normalizeSessionDigit(token) || toLatinDigit(token);
+            if (/^[1-6]$/.test(norm) && found.indexOf(norm) === -1) {
+              found.push(norm);
+            }
+          }
+        }
+
+        if (found.length >= 2) {
+          found.sort(function (a, b) {
+            return parseInt(a, 10) - parseInt(b, 10);
+          });
+          return [found[0], found[1]];
+        }
+
+        return null;
+      }
+
+      function detectTwoLevels(text, fileName) {
+        var nameArg = typeof fileName === "string" ? fileName : extractedFileName;
+        var src = String(text || "");
+
+        var fromFileName = extractLevelsFromTitleSource(nameArg);
+        if (fromFileName) {
+          return {
+            firstNum: fromFileName[0],
+            secondNum: fromFileName[1],
+            pairLabel: "المستويان " + fromFileName[0] + " و " + fromFileName[1]
+          };
+        }
+
+        var slide1Block = extractSlideOrPageSlice(src, 1);
+        var titleHeader = slide1Block || src.slice(0, 700);
+        var fromTitleSlide = extractLevelsFromTitleSource(titleHeader);
+        if (fromTitleSlide) {
+          return {
+            firstNum: fromTitleSlide[0],
+            secondNum: fromTitleSlide[1],
+            pairLabel: "المستويان " + fromTitleSlide[0] + " و " + fromTitleSlide[1]
+          };
+        }
+
+        var progBlock = extractProgrammingSlideText(src);
+        var fromProg = extractLevelsFromTitleSource(progBlock);
+        if (fromProg) {
+          return {
+            firstNum: fromProg[0],
+            secondNum: fromProg[1],
+            pairLabel: "المستويان " + fromProg[0] + " و " + fromProg[1]
+          };
+        }
+
+        var fromFull = extractLevelsFromTitleSource(src);
+        if (fromFull) {
+          return {
+            firstNum: fromFull[0],
+            secondNum: fromFull[1],
+            pairLabel: "المستويان " + fromFull[0] + " و " + fromFull[1]
+          };
+        }
+
+        return {
+          firstNum: "5",
+          secondNum: "6",
+          pairLabel: "المستويان 5 و 6"
+        };
+      }
+
+      function extractLevelSpecificLine(blockText, levelNum, fallbackText) {
+        var lines = String(blockText || "")
+          .split(/\r?\n/)
+          .map(function (l) { return l.trim(); })
+          .filter(Boolean);
+        var lvlRe = new RegExp("(?:المستوى|المستوي|م)\\s*" + String(levelNum), "i");
+        for (var i = 0; i < lines.length; i++) {
+          if (lvlRe.test(lines[i])) {
+            return lines[i].replace(lvlRe, "").replace(/^[:\-\–—\s]+/, "").trim() || lines[i];
+          }
+        }
+        var nonTitleLines = lines.filter(function (l, idx) {
+          return idx > 0 || classifySlideCardType(l) === "other";
+        });
+        if (String(levelNum) === detectedLevels.firstNum && nonTitleLines[0]) return nonTitleLines[0];
+        if (String(levelNum) === detectedLevels.secondNum && nonTitleLines[1]) return nonTitleLines[1];
+        return fallbackText;
+      }
+
+      function parseClosingParts(closingText) {
+        var lines = String(closingText || "")
+          .split(/\r?\n/)
+          .map(function (l) { return l.trim(); })
+          .filter(function (l) {
+            return l && !CARD_BOUNDARY_PATTERNS.closing.test(l);
+          });
+
+        var reviewPart = "";
+        var langPart = "";
+        var homeworkPart = "";
+
+        for (var i = 0; i < lines.length; i++) {
+          var ln = lines[i];
+          if (/التناوب\s*اللغوي|فرنسية|الفرنسية/i.test(ln)) {
+            langPart = ln.replace(/^(?:نشاط\s*)?التناوب\s*اللغوي\s*(?:\(فرنسية\))?\s*[:\-–—]?\s*/i, "").trim() || ln;
+          } else if (/واجب\s*منزلي|الواجب\s*المنزلي|التكليف\s*بالواجب|في\s*المنزل/i.test(ln)) {
+            homeworkPart = ln.replace(/^(?:التكليف\s*بالواجب\s*المنزلي|الواجب\s*المنزلي|الواجب)\s*[:\-–—]?\s*/i, "").trim() || ln;
+          } else {
+            reviewPart = (reviewPart ? reviewPart + " — " : "") + ln;
+          }
+        }
+
+        return {
+          review: reviewPart || "مراجعة ما تم تعلمه والخطوات الأساسية للدرس.",
+          languageAlt: langPart || "نقل المصطلحات ومقابلها بالفرنسية.",
+          homework: homeworkPart || "إنجاز باقي الأنشطة في المنزل."
+        };
+      }
+
+      function buildLocalMindmap(text, sessionNum) {
+        var src = String(text || "").trim();
+        var slides = parseIntoSlides(src);
+        var lvls = detectTwoLevels(src, extractedFileName);
+
+        var goalRange = extractCardSlideRange(slides, "goal", false);
+        var openingRange = extractCardSlideRange(slides, "opening", false);
+        var modelingRange = extractCardSlideRange(slides, "modeling", false);
+        var guidedRange = extractCardSlideRange(slides, "guided", false);
+        var independentRange = extractCardSlideRange(slides, "independent", false);
+        var closingRange = extractCardSlideRange(slides, "closing", true);
+
+        var progBlock = extractProgrammingSlideText(src);
+        var progSessions = parseProgrammingByColumnRectangles(progBlock, lvls);
+
+        var weekMatch = src.match(/(?:الأسبوع|الاسبوع)\s*(الأول|الاول|الثاني|الثالث|الرابع|الخامس|[1-5١-٥])/i);
+        var weekLabel = "الأسبوع الأول";
+        if (weekMatch) {
+          var wTok = String(weekMatch[1]).trim();
+          var wMap = {
+            "1": "الأسبوع الأول", "١": "الأسبوع الأول", "الأول": "الأسبوع الأول", "الاول": "الأسبوع الأول",
+            "2": "الأسبوع الثاني", "٢": "الأسبوع الثاني", "الثاني": "الأسبوع الثاني",
+            "3": "الأسبوع الثالث", "٣": "الأسبوع الثالث", "الثالث": "الأسبوع الثالث",
+            "4": "الأسبوع الرابع", "٤": "الأسبوع الرابع", "الرابع": "الأسبوع الرابع",
+            "5": "الأسبوع الخامس", "٥": "الأسبوع الخامس", "الخامس": "الأسبوع الخامس"
+          };
+          weekLabel = wMap[wTok] || "الأسبوع الأول";
+        }
+
+        var chosen = progSessions[String(sessionNum)] || { l1: "......", l2: "......" };
+        var fallbackS1 = progSessions["1"] || { l1: "......", l2: "......" };
+        var l1Title =
+          chosen.l1 !== "......"
+            ? chosen.l1
+            : (fallbackS1.l1 !== "......" ? fallbackS1.l1 : ("الحصة " + sessionNum + " (المستوى " + lvls.firstNum + ")"));
+        var l2Title =
+          chosen.l2 !== "......"
+            ? chosen.l2
+            : (fallbackS1.l2 !== "......" ? fallbackS1.l2 : ("الحصة " + sessionNum + " (المستوى " + lvls.secondNum + ")"));
+
+        var cleanAnnL1 = sanitizeAnnouncementTitle(l1Title, lvls.firstNum) || l1Title;
+        var cleanAnnL2 = sanitizeAnnouncementTitle(l2Title, lvls.secondNum) || l2Title;
+
+        var durMatch = (openingRange.combinedText || src).match(/(\d+\s*(?:د|دقائق|دقيقة|min))/i);
+        var pageMatch = (openingRange.combinedText || src).match(/(?:ص|صفحة|p\.?)\s*(\d+|[٠-٩]+)/i);
+
+        var goal1 = extractLevelSpecificLine(goalRange.combinedText, lvls.firstNum, cleanAnnL1);
+        var goal2 = extractLevelSpecificLine(goalRange.combinedText, lvls.secondNum, cleanAnnL2);
+
+        var mod1 = extractLevelSpecificLine(modelingRange.combinedText, lvls.firstNum, cleanAnnL1);
+        var mod2 = extractLevelSpecificLine(modelingRange.combinedText, lvls.secondNum, cleanAnnL2);
+
+        var guided1Text = extractLevelSpecificLine(guidedRange.combinedText, lvls.firstNum, "");
+        var guided2Text = extractLevelSpecificLine(guidedRange.combinedText, lvls.secondNum, "");
+
+        var g1Parts = guided1Text.split(/(?:نشاط\s*الكراسة|الكراسة)/i);
+        var g2Parts = guided2Text.split(/(?:نشاط\s*الكراسة|الكراسة)/i);
+
+        var guided1Boards = (g1Parts[0] || cleanAnnL1).replace(/^[\s\-–—:]+/, "").trim();
+        var guided1Workbook = g1Parts[1]
+          ? ("الكراسة: " + g1Parts[1].replace(/^[:\-\–—\s]+/, "").trim())
+          : (pageMatch ? "الأنشطة التطبيقية : ص " + toLatinDigit(pageMatch[1]) + " (......)" : "الأنشطة : ص ...... (......)");
+
+        var guided2Boards = (g2Parts[0] || cleanAnnL2).replace(/^[\s\-–—:]+/, "").trim();
+        var guided2Workbook = g2Parts[1]
+          ? ("الكراسة: " + g2Parts[1].replace(/^[:\-\–—\s]+/, "").trim())
+          : (pageMatch ? "الأنشطة التطبيقية : ص " + toLatinDigit(pageMatch[1]) + " (......)" : "الأنشطة : ص ...... (......)");
+
+        var indep1 = extractLevelSpecificLine(independentRange.combinedText, lvls.firstNum, cleanAnnL1);
+        var indep2 = extractLevelSpecificLine(independentRange.combinedText, lvls.secondNum, cleanAnnL2);
+
+        var closingParts = parseClosingParts(closingRange.combinedText);
+
+        return {
+          levels: lvls,
+          weekLabel: weekLabel,
+          sessionNumber: String(sessionNum),
+          currentLessonTitle:
+            "S" + sessionNum + " (" + getSessionOrdinalArabic(sessionNum) + ") : " + cleanAnnL1 + " | " + cleanAnnL2,
+          weekSessions: progSessions,
+          openingDuration: durMatch ? durMatch[1] : ".....",
+          openingTopics: openingRange.slides.length
+            ? openingRange.slides.map(function (s) { return s.title; }).join(" — ")
+            : "تمهيد الحصة والإعلان عن درس اليوم",
+          mentalMathPage: pageMatch ? toLatinDigit(pageMatch[1]) : "....",
+          announcementL1: cleanAnnL1,
+          announcementL2: cleanAnnL2,
+          goal1: goal1,
+          goal2: goal2,
+          mod1: mod1,
+          mod2: mod2,
+          guided1Boards: guided1Boards,
+          guided1Workbook: guided1Workbook,
+          guided2Boards: guided2Boards,
+          guided2Workbook: guided2Workbook,
+          indep1: indep1,
+          indep2: indep2,
+          closingReview: closingParts.review,
+          closingLanguageAlt: closingParts.languageAlt,
+          closingHomework: closingParts.homework,
+          bilingualTerms: "........."
+        };
+      }
+
+      function callFlash3ModelWithKey(apiKey, userPromptText, idx, lastErr) {
+        if (idx >= GEMINI_FLASH_3_MODELS.length) {
+          return Promise.reject(new Error(lastErr || "ERROR"));
+        }
+        var modelName = GEMINI_FLASH_3_MODELS[idx];
+        var url =
+          "https://generativelanguage.googleapis.com/v1beta/models/" +
+          encodeURIComponent(modelName) +
+          ":generateContent?key=" +
+          encodeURIComponent(apiKey);
+
+        var bodyPayload = {
+          systemInstruction: { parts: [{ text: HIDDEN_SYSTEM_INSTRUCTION }] },
+          contents: [{ role: "user", parts: [{ text: userPromptText }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        };
+
+        return fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyPayload)
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) {
+                throw new Error(
+                  (data && data.error && data.error.message) || "HTTP " + res.status
+                );
+              }
+              return data;
+            });
+          })
+          .then(function (data) {
+            var raw = "";
+            try {
+              raw = data.candidates[0].content.parts[0].text || "";
+            } catch (e) {
+              throw new Error("EMPTY");
+            }
+            var cleanJson = raw
+              .replace(/^```json\s*/i, "")
+              .replace(/```\s*$/i, "")
+              .trim();
+            return JSON.parse(cleanJson);
+          })
+          .catch(function (err) {
+            return callFlash3ModelWithKey(
+              apiKey,
+              userPromptText,
+              idx + 1,
+              (err && err.message) || "ERR"
+            );
+          });
+      }
+
+      function normalizeModelOutput(aiObj, sessionNum, preserveRequestedSession) {
+        var base = buildLocalMindmap(extractedLessonContent, sessionNum);
+        if (!aiObj || typeof aiObj !== "object") return base;
+
+        var sNum = preserveRequestedSession
+          ? String(sessionNum)
+          : normalizeSessionDigit(aiObj.session_number) || String(sessionNum);
+        var lvls = detectTwoLevels(
+          (extractedLessonContent || "") + " " + (aiObj.levels_label || ""),
+          extractedFileName
+        );
+
+        var mergedWeek = {
+          "1": { l1: base.weekSessions["1"].l1, l2: base.weekSessions["1"].l2 },
+          "2": { l1: "......", l2: "......" },
+          "3": { l1: "......", l2: "......" },
+          "4": { l1: "......", l2: "......" },
+          "5": { l1: "......", l2: "......" }
+        };
+
+        if (aiObj.week_sessions && typeof aiObj.week_sessions === "object") {
+          for (var k = 1; k <= 5; k++) {
+            var val = aiObj.week_sessions[String(k)];
+            if (typeof val === "string" && val.trim()) {
+              var parts = val
+                .split(/\s*\|\s*|\n/)
+                .map(function (p) {
+                  return cleanRectangleItem(p);
+                })
+                .filter(Boolean);
+              if (parts[0] && parts[0] !== "......") mergedWeek[String(k)].l1 = parts[0];
+              if (parts[1] && parts[1] !== "......") mergedWeek[String(k)].l2 = parts[1];
+            } else if (val && typeof val === "object") {
+              var v1 = cleanRectangleItem(val.l1 || "");
+              var v2 = cleanRectangleItem(val.l2 || "");
+              if (v1 && v1 !== "......") mergedWeek[String(k)].l1 = v1;
+              if (v2 && v2 !== "......") mergedWeek[String(k)].l2 = v2;
+            }
+          }
+        }
+
+        var sessionRow = mergedWeek[String(sNum)] || { l1: "......", l2: "......" };
+        var l1Ann = sanitizeAnnouncementTitle(
+          sessionRow.l1 !== "......" ? sessionRow.l1 : base.announcementL1,
+          lvls.firstNum
+        ) || base.announcementL1;
+        var l2Ann = sanitizeAnnouncementTitle(
+          sessionRow.l2 !== "......" ? sessionRow.l2 : base.announcementL2,
+          lvls.secondNum
+        ) || base.announcementL2;
+
+        var m5 = aiObj.modeling_level_5 || {};
+        var m6 = aiObj.modeling_level_6 || {};
+        var mod5Combined = [m5.question, m5.steps, m5.tool]
+          .map(function (x) { return String(x || "").trim(); })
+          .filter(Boolean)
+          .join(" | ");
+        var mod6Combined = [m6.question, m6.steps, m6.tool]
+          .map(function (x) { return String(x || "").trim(); })
+          .filter(Boolean)
+          .join(" | ");
+
+        return {
+          levels: lvls,
+          weekLabel: aiObj.week_label ? String(aiObj.week_label).trim() : base.weekLabel,
+          sessionNumber: sNum,
+          currentLessonTitle:
+            "S" + sNum + " (" + getSessionOrdinalArabic(sNum) + ") : " + l1Ann + " | " + l2Ann,
+          weekSessions: mergedWeek,
+          openingDuration: aiObj.opening_duration ? String(aiObj.opening_duration).trim() : base.openingDuration,
+          openingTopics: aiObj.opening_topics ? String(aiObj.opening_topics).trim() : base.openingTopics,
+          mentalMathPage: aiObj.mental_math_page ? String(aiObj.mental_math_page).trim() : base.mentalMathPage,
+          announcementL1: l1Ann,
+          announcementL2: l2Ann,
+          goal1: aiObj.goal_level_5 ? String(aiObj.goal_level_5).trim() : base.goal1,
+          goal2: aiObj.goal_level_6 ? String(aiObj.goal_level_6).trim() : base.goal2,
+          mod1: mod5Combined || base.mod1,
+          mod2: mod6Combined || base.mod2,
+          guided1Boards: aiObj.guided_level_5_boards ? String(aiObj.guided_level_5_boards).trim() : base.guided1Boards,
+          guided1Workbook: aiObj.guided_level_5_workbook ? String(aiObj.guided_level_5_workbook).trim() : base.guided1Workbook,
+          guided2Boards: aiObj.guided_level_6_boards ? String(aiObj.guided_level_6_boards).trim() : base.guided2Boards,
+          guided2Workbook: aiObj.guided_level_6_workbook ? String(aiObj.guided_level_6_workbook).trim() : base.guided2Workbook,
+          indep1: aiObj.independent_level_5 ? String(aiObj.independent_level_5).trim() : base.indep1,
+          indep2: aiObj.independent_level_6 ? String(aiObj.independent_level_6).trim() : base.indep2,
+          closingReview: aiObj.closing_review ? String(aiObj.closing_review).trim() : base.closingReview,
+          closingLanguageAlt: aiObj.closing_language_alt ? String(aiObj.closing_language_alt).trim() : base.closingLanguageAlt,
+          closingHomework: aiObj.closing_homework ? String(aiObj.closing_homework).trim() : base.closingHomework,
+          bilingualTerms: aiObj.bilingual_terms ? String(aiObj.bilingual_terms).trim() : base.bilingualTerms
+        };
+      }
+
+      function renderMathSheet(data) {
+        var n1 = data.levels.firstNum;
+        var n2 = data.levels.secondNum;
+        var pair = data.levels.pairLabel;
+        var s = data.sessionNumber;
+        var ord = getSessionOrdinalArabic(s);
+
+        var chipsHtml = "";
+        for (var k = 1; k <= 5; k++) {
+          var row = data.weekSessions[String(k)] || { l1: "......", l2: "......" };
+          var activeCls =
+            String(k) === String(s) ? "session-chip active" : "session-chip";
+          if (String(k) === "1") {
+            chipsHtml +=
+              '<div class="' +
+              activeCls +
+              '" data-select-session="1" contenteditable="true">' +
+              '<span class="chip-head">(الحصة الأولى)</span>' +
+              '<div class="chip-l1">' +
+              n1 +
+              ": " +
+              row.l1 +
+              "</div>" +
+              '<div class="chip-l2">' +
+              n2 +
+              ": " +
+              row.l2 +
+              "</div>" +
+              "</div>";
+          } else {
+            chipsHtml +=
+              '<div class="' +
+              activeCls +
+              '" data-select-session="' +
+              k +
+              '" contenteditable="true">' +
+              '<span class="chip-head">S' +
+              k +
+              " (" +
+              getSessionOrdinalArabic(String(k)) +
+              ")</span>" +
+              '<div class="chip-l1">' +
+              n1 +
+              ": " +
+              row.l1 +
+              "</div>" +
+              '<div class="chip-l2">' +
+              n2 +
+              ": " +
+              row.l2 +
+              "</div>" +
+              "</div>";
+          }
+        }
+
+        return (
+          '<article class="mindmap-page" id="mindmapPage" aria-label="الخطاطة الذهنية للدرس">' +
+          '<header class="top-header">' +
+          '<div class="header-box">' +
+          '<div>الأستاذ(ة) : <span contenteditable="true">.................</span></div>' +
+          '<div>المادة : <span contenteditable="true">الرياضيات</span></div>' +
+          '<div>الحصة : <span contenteditable="true">S' +
+          s +
+          " - " +
+          ord +
+          "</span></div>" +
+          '<div>السنة الدراسية : <span contenteditable="true">2026/2027</span></div>' +
+          "</div>" +
+          '<div class="header-center">' +
+          '<h2 contenteditable="true">الخطاطة الذهنية للدرس</h2>' +
+          '<div class="sub-meta" contenteditable="true">' +
+          pair +
+          " - " +
+          data.weekLabel +
+          " - S" +
+          s +
+          " (" +
+          ord +
+          ")" +
+          " - الفترة 1" +
+          "</div>" +
+          "</div>" +
+          '<div class="header-box">' +
+          '<div>الأكاديمية الجهوية : <span contenteditable="true">.................</span></div>' +
+          '<div>المديرية الإقليمية : <span contenteditable="true">.................</span></div>' +
+          '<div>المؤسسة : <span contenteditable="true">.................</span></div>' +
+          "</div>" +
+          "</header>" +
+          '<section class="main-grid">' +
+          '<div class="col-stack">' +
+          '<div class="card c1">' +
+          '<div class="card-title" contenteditable="true">أ) افتتاح الحصة (' +
+          data.openingDuration +
+          ")</div>" +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li><strong>محتوى افتتاح الحصة:</strong> " + data.openingTopics + "</li>" +
+          "<li><strong>الإعلان عن درس اليوم:</strong> المستوى " +
+          n1 +
+          ": " +
+          data.announcementL1 +
+          " | المستوى " +
+          n2 +
+          ": " +
+          data.announcementL2 +
+          "</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          '<div class="card c5">' +
+          '<div class="card-title" contenteditable="true">هـ) الممارسة المستقلة</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li><strong>المستوى " +
+          n1 +
+          " :</strong> " +
+          data.indep1 +
+          "</li>" +
+          "<li><strong>المستوى " +
+          n2 +
+          " :</strong> " +
+          data.indep2 +
+          "</li>" +
+          "<li>الأستاذ(ة) يمر بين الصفوف لمساعدة المتعثرين ويدوّن ملاحظاته في كراسات التلاميذ.</li>" +
+          "<li>تصحيح تفاعلي لكل مستوى، ثم تقدير نسبة تحصيل هدف الحصة من قبل التلاميذ.</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="col-stack">' +
+          '<div class="card c2">' +
+          '<div class="card-title" contenteditable="true">ب) أهداف الحصة</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li>عند نهاية الحصة 80% على الأقل من المتعلمين قادرون على:</li>" +
+          "<li><strong>المستوى " +
+          n1 +
+          " :</strong> " +
+          data.goal1 +
+          "</li>" +
+          "<li><strong>المستوى " +
+          n2 +
+          " :</strong> " +
+          data.goal2 +
+          "</li>" +
+          "<li><strong>الوسائل:</strong> العرض والفيديوهات، الألواح، الكراسة ودفتر الحساب الذهني.</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          '<div class="center-hub">' +
+          '<div class="lvl-tag" contenteditable="true">الرياضيات - ' +
+          pair +
+          "</div>" +
+          '<div class="week-big" contenteditable="true">' +
+          data.weekLabel +
+          "</div>" +
+          '<div class="lesson-line" contenteditable="true">' +
+          data.currentLessonTitle +
+          "</div>" +
+          '<div class="session-pill" contenteditable="true">S' +
+          s +
+          " : " +
+          ord +
+          "</div>" +
+          "</div>" +
+          '<div class="card c6">' +
+          '<div class="card-title" contenteditable="true">و) اختتام الحصة والواجب</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li><strong>مراجعة ما تم تعلمه والخطوات:</strong> " + data.closingReview + "</li>" +
+          "<li><strong>نشاط التناوب اللغوي (فرنسية):</strong> " + data.closingLanguageAlt + " (" + data.bilingualTerms + ")</li>" +
+          "<li><strong>التكليف بالواجب المنزلي:</strong> " + data.closingHomework + "</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="col-stack">' +
+          '<div class="card c3">' +
+          '<div class="card-title" contenteditable="true">ج) النمذجة</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li><strong>المستوى " +
+          n1 +
+          " :</strong> " +
+          data.mod1 +
+          " (الوسيلة: العرض والفيديوهات، عرض الخطوات ومناقشتها).</li>" +
+          "<li><strong>المستوى " +
+          n2 +
+          " :</strong> " +
+          data.mod2 +
+          " (الوسيلة: العرض والفيديوهات، عرض الخطوات ومناقشتها).</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          '<div class="card c4">' +
+          '<div class="card-title" contenteditable="true">د) الممارسة الموجهة</div>' +
+          '<div class="card-body" contenteditable="true">' +
+          "<ul>" +
+          "<li><strong>المستوى " +
+          n1 +
+          " — نشاط الألواح:</strong> " +
+          data.guided1Boards +
+          " — يتم رفع الألواح بعد كل خطوة ثم شرح التصحيح.</li>" +
+          "<li><strong>المستوى " +
+          n1 +
+          " — نشاط الكراسة:</strong> " +
+          data.guided1Workbook +
+          " ثم مقارنة الإنجاز وتصحيح تفاعلي.</li>" +
+          "<li><strong>المستوى " +
+          n2 +
+          " — نشاط الألواح:</strong> " +
+          data.guided2Boards +
+          " — يتم رفع الألواح بعد كل خطوة ثم شرح التصحيح.</li>" +
+          "<li><strong>المستوى " +
+          n2 +
+          " — نشاط الكراسة:</strong> " +
+          data.guided2Workbook +
+          " ثم مقارنة الإنجاز وتصحيح تفاعلي.</li>" +
+          "</ul>" +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          "</section>" +
+          '<footer class="week-bar" id="weekBar">' +
+          '<span class="week-bar-title">برمجة الأسبوع الأول</span>' +
+          chipsHtml +
+          "</footer>" +
+          "</article>"
+        );
+      }
+
+      function renderResultSheet(data) {
+        var container = document.getElementById("resultContainer");
+        if (!container) return;
+        var safeMathData = data && data.levels ? data : buildLocalMindmap("", "1");
+        container.innerHTML = renderMathSheet(safeMathData);
+      }
+
+      function syncSourceTextFromTextarea() {
+        var ta = document.getElementById("rawLessonTextarea");
+        if (!ta) return;
+        var val = String(ta.value || "").trim();
+        if (val) {
+          extractedLessonContent = val;
+        }
+      }
+
+      function generateMathMindmap() {
+        syncSourceTextFromTextarea();
+        detectedLevels = detectTwoLevels(extractedLessonContent, extractedFileName);
+        activeSessionNum = detectSessionNumber(extractedLessonContent, extractedFileName);
+        setUploadStatus("جاري التحليل حسب حدود الشرائح...");
+
+        var buttons = document.querySelectorAll("[data-generate-subject]");
+        for (var i = 0; i < buttons.length; i++) buttons[i].disabled = true;
+
+        getSharedApiKeySilently()
+          .then(function (apiKey) {
+            if (!extractedLessonContent) {
+              lastAiResponseObj = null;
+              var emptyData = buildLocalMindmap("", activeSessionNum);
+              renderResultSheet(emptyData);
+              showView("resultView");
+              setResultStatus("");
+              return null;
+            }
+            if (!apiKey) {
+              lastAiResponseObj = null;
+              var localData = buildLocalMindmap(extractedLessonContent, activeSessionNum);
+              renderResultSheet(localData);
+              showView("resultView");
+              setResultStatus("");
+              return null;
+            }
+
+            var promptText =
+              "اسم الملف / العنوان: " +
+              extractedFileName +
+              "\nالمستويان المؤكدان من العنوان: " +
+              detectedLevels.pairLabel +
+              " (المستوى " +
+              detectedLevels.firstNum +
+              " والمستوى " +
+              detectedLevels.secondNum +
+              ")" +
+              "\nالمادة: math" +
+              "\nالحصة المكتشفة: S" +
+              activeSessionNum +
+              " (" +
+              getSessionOrdinalArabic(activeSessionNum) +
+              ")" +
+              "\nنص الدرس:\n" +
+              extractedLessonContent;
+
+            return callFlash3ModelWithKey(apiKey, promptText, 0, "").then(function (aiObj) {
+              lastAiResponseObj = aiObj;
+              var normalized = normalizeModelOutput(aiObj, activeSessionNum, false);
+              activeSessionNum = normalized.sessionNumber;
+              renderResultSheet(normalized);
+              showView("resultView");
+              setResultStatus("");
+            });
+          })
+          .catch(function () {
+            lastAiResponseObj = null;
+            var fallbackData = buildLocalMindmap(extractedLessonContent, activeSessionNum);
+            renderResultSheet(fallbackData);
+            showView("resultView");
+            setResultStatus("");
+          })
+          .finally(function () {
+            setUploadStatus("");
+            for (var j = 0; j < buttons.length; j++) buttons[j].disabled = false;
+          });
+      }
+
+      function handleFileSelected(inputEl) {
+        var file = null;
+        try {
+          file = inputEl && inputEl.files && inputEl.files[0] ? inputEl.files[0] : null;
+        } catch (e) {
+          file = null;
+        }
+        if (!file) {
+          setUploadStatus("");
+          return;
+        }
+
+        lastAiResponseObj = null;
+        extractedFileName = file.name || "lesson";
+        detectedLevels = detectTwoLevels("", extractedFileName);
+        activeSessionNum = detectSessionNumber("", extractedFileName);
+        setUploadStatus("جاري التحميل...");
+
+        var settled = false;
+        function finalizeRead(rawText) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(safetyTimer);
+          var trimmed = String(rawText || "").trim();
+          extractedLessonContent = trimmed || buildFilenameFallbackText(extractedFileName);
+          var ta = document.getElementById("rawLessonTextarea");
+          if (ta) ta.value = extractedLessonContent;
+          detectedLevels = detectTwoLevels(extractedLessonContent, extractedFileName);
+          activeSessionNum = detectSessionNumber(extractedLessonContent, extractedFileName);
+          setUploadStatus("تم تحميل الملف: " + extractedFileName);
+        }
+
+        var safetyTimer = setTimeout(function () {
+          finalizeRead(extractedLessonContent || buildFilenameFallbackText(extractedFileName));
+        }, 12000);
+
+        var lower = extractedFileName.toLowerCase();
+        var prom;
+        try {
+          if (lower.endsWith(".pdf")) {
+            prom = readPdfFile(file);
+          } else if (lower.endsWith(".pptx")) {
+            prom = readPptxFile(file);
+          } else {
+            prom = readFileAsTextSafe(file);
+          }
+        } catch (e) {
+          finalizeRead(buildFilenameFallbackText(extractedFileName));
+          return;
+        }
+
+        Promise.resolve(prom)
+          .then(function (txt) {
+            finalizeRead(txt);
+          })
+          .catch(function () {
+            finalizeRead(buildFilenameFallbackText(extractedFileName));
+          });
+      }
+
+      function downloadResultMindmap() {
+        var pageEl = document.getElementById("mindmapPage");
+        if (!pageEl) return;
+
+        var docHtml =
+          '<!DOCTYPE html>\n<html lang="ar" dir="rtl">\n<head>\n' +
+          '<meta charset="UTF-8" />\n' +
+          "<title>cartes maths - الحصة " +
+          activeSessionNum +
+          "</title>\n" +
+          '<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />\n' +
+          "<style>\n" +
+          "body { margin: 0; padding: 14px; font-family: 'Cairo', system-ui, sans-serif; background: #ffffff; color: #0f172a; }\n" +
+          ".mindmap-page { width: 100%; max-width: 1120px; margin: 0 auto; padding: 18px 22px; border-radius: 12px; border: 1.5px solid #cbd5e1; display: flex; flex-direction: column; gap: 12px; }\n" +
+          ".top-header { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; align-items: start; }\n" +
+          ".header-box { border: 1.5px solid #94a3b8; border-radius: 10px; padding: 8px 12px; font-size: 12px; line-height: 1.7; background: #f8fafc; }\n" +
+          ".header-center { text-align: center; padding-top: 4px; }\n" +
+          ".header-center h2 { margin: 0; font-size: 24px; font-weight: 900; color: #065f46; }\n" +
+          ".header-center .sub-meta { margin-top: 4px; font-size: 13.5px; font-weight: 700; color: #047857; }\n" +
+          ".main-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; align-items: stretch; }\n" +
+          ".col-stack { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }\n" +
+          ".card { border-radius: 12px; border: 1.5px solid #cbd5e1; overflow: hidden; display: flex; flex-direction: column; flex: 1; }\n" +
+          ".card-title { padding: 6px 12px; font-weight: 800; font-size: 13.5px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.08); }\n" +
+          ".card-body { padding: 10px 12px; font-size: 11.7px; line-height: 1.62; flex: 1; }\n" +
+          ".card-body ul { margin: 0; padding-right: 16px; }\n" +
+          ".card-body li { margin-bottom: 5px; }\n" +
+          ".c1 { background: #fffbeb; border-color: #fcd34d; } .c1 .card-title { background: #fde68a; color: #92400e; }\n" +
+          ".c2 { background: #ecfdf5; border-color: #6ee7b7; } .c2 .card-title { background: #a7f3d0; color: #065f46; }\n" +
+          ".c3 { background: #eff6ff; border-color: #93c5fd; } .c3 .card-title { background: #bfdbfe; color: #1e3a8a; }\n" +
+          ".c4 { background: #f8fafc; border-color: #cbd5e1; } .c4 .card-title { background: #e2e8f0; color: #1e293b; }\n" +
+          ".c5 { background: #fff1f2; border-color: #fda4af; } .c5 .card-title { background: #fecdd3; color: #9f1239; }\n" +
+          ".c6 { background: #f5f3ff; border-color: #c4b5fd; } .c6 .card-title { background: #ddd6fe; color: #5b21b6; }\n" +
+          ".center-hub { border: 2px solid #047857; border-radius: 14px; background: #ecfdf5; padding: 10px 14px; text-align: center; }\n" +
+          ".center-hub .lvl-tag { font-size: 12px; font-weight: 800; color: #047857; }\n" +
+          ".center-hub .week-big { font-size: 20px; font-weight: 900; color: #0f172a; margin: 2px 0; }\n" +
+          ".center-hub .lesson-line { font-size: 11.5px; font-weight: 700; color: #334155; margin-bottom: 6px; }\n" +
+          ".center-hub .session-pill { display: inline-block; border: 1.5px solid #047857; background: #d1fae5; color: #064e3b; font-weight: 800; font-size: 12px; padding: 2px 16px; border-radius: 999px; }\n" +
+          ".week-bar { border: 1.5px solid #94a3b8; border-radius: 14px; padding: 6px 12px; display: flex; flex-wrap: wrap; align-items: stretch; justify-content: space-between; gap: 6px; background: #f8fafc; font-size: 10.5px; }\n" +
+          ".week-bar-title { font-weight: 800; color: #0f172a; white-space: nowrap; display: flex; align-items: center; }\n" +
+          ".session-chip { flex: 1 1 150px; text-align: center; padding: 5px 8px; border-radius: 10px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155; font-weight: 600; display: flex; flex-direction: column; gap: 2px; }\n" +
+          ".session-chip .chip-head { font-weight: 800; font-size: 10px; }\n" +
+          ".session-chip .chip-l1, .session-chip .chip-l2 { display: block; font-size: 10px; }\n" +
+          ".session-chip.active { background: #047857; color: #ffffff; border-color: #064e3b; font-weight: 800; }\n" +
+          "@media print { @page { size: A4 landscape; margin: 6mm; } body { padding: 0; } .mindmap-page { width: 100%; max-width: none; border: 1px solid #94a3b8; } }\n" +
+          "</style>\n</head>\n<body>\n" +
+          pageEl.outerHTML +
+          "\n</body>\n</html>";
+
+        try {
+          var blob = new Blob([docHtml], { type: "text/html;charset=utf-8" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = "cartes_maths_S" + activeSessionNum + ".html";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 1000);
+        } catch (e) {}
+      }
+
+      function bindDropZones() {
+        var zones = document.querySelectorAll("[data-drop-zone]");
+        var inp = document.getElementById("fileInputMath");
+        if (!inp) return;
+
+        for (var i = 0; i < zones.length; i++) {
+          (function (zone) {
+            ["dragenter", "dragover"].forEach(function (evtName) {
+              zone.addEventListener(evtName, function (ev) {
+                ev.preventDefault();
+                zone.classList.add("drag-over");
+              });
+            });
+
+            ["dragleave", "drop"].forEach(function (evtName) {
+              zone.addEventListener(evtName, function (ev) {
+                ev.preventDefault();
+                zone.classList.remove("drag-over");
+              });
+            });
+
+            zone.addEventListener("drop", function (ev) {
+              var dt = ev.dataTransfer;
+              if (dt && dt.files && dt.files.length > 0) {
+                try {
+                  inp.files = dt.files;
+                } catch (e) {}
+                handleFileSelected({ files: [dt.files[0]] });
+              }
+            });
+          })(zones[i]);
+        }
+      }
+
+      function bindEvents() {
+        var homeBackBtn = document.getElementById("homeBackToIndexBtn");
+        var backUploadBtn = document.getElementById("resultBackUploadBtn");
+        var downloadBtn = document.getElementById("downloadMindmapBtn");
+        var printBtn = document.getElementById("printMindmapBtn");
+        var fileMath = document.getElementById("fileInputMath");
+        var ta = document.getElementById("rawLessonTextarea");
+
+        if (homeBackBtn) {
+          homeBackBtn.addEventListener("click", function () {
+            try {
+              window.location.href = "index.html";
+            } catch (err) {
+              setUploadStatus("تعذر الانتقال إلى index.html في بيئة المعاينة الحالية.");
+            }
+          });
+        }
+
+        if (fileMath) {
+          fileMath.addEventListener("change", function () {
+            handleFileSelected(fileMath);
+          });
+        }
+
+        if (ta) {
+          ta.addEventListener("input", function () {
+            extractedLessonContent = String(ta.value || "").trim();
+          });
+        }
+
+        bindDropZones();
+
+        if (backUploadBtn) {
+          backUploadBtn.addEventListener("click", function () {
+            showView("uploadMathView");
+          });
+        }
+
+        if (printBtn) {
+          printBtn.addEventListener("click", function () {
+            window.print();
+          });
+        }
+
+        if (downloadBtn) {
+          downloadBtn.addEventListener("click", downloadResultMindmap);
+        }
+
+        document.addEventListener("click", function (ev) {
+          var target = ev.target;
+          if (!target || !target.closest) return;
+
+          var genEl = target.closest("[data-generate-subject]");
+          if (genEl) {
+            generateMathMindmap();
+            return;
+          }
+
+          var chipEl = target.closest("[data-select-session]");
+          if (chipEl) {
+            var picked = chipEl.getAttribute("data-select-session");
+            if (picked && picked !== activeSessionNum) {
+              activeSessionNum = picked;
+              var updated = lastAiResponseObj
+                ? normalizeModelOutput(lastAiResponseObj, activeSessionNum, true)
+                : buildLocalMindmap(extractedLessonContent, activeSessionNum);
+              renderResultSheet(updated);
+              setResultStatus("");
+            }
+          }
+        });
+      }
+
+      function initApp() {
+        initFirebase();
+        updateAccountBadgeFromStorage();
+        showView("uploadMathView");
+        getSharedApiKeySilently();
+        bindEvents();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
