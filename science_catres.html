@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>النشاط العلمي Sciences - الخطاطة الذهنية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Cairo', 'Tajawal', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Cairo', 'Tajawal', sans-serif;
+      margin: 0;
+      color: #0f172a;
+      background-color: #e8f8ef;
+    }
+
+    /* ==================== الصفحة 1: واجهة التحميل ==================== */
+    .upload-view-bg {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #e8f8ef 0%, #d4f2e1 100%);
+    }
+
+    .pill-nav-btn {
+      background-color: #ffffff;
+      color: #0d5c2f;
+      border: 1.5px solid #b5e4c8;
+      border-radius: 9999px;
+      box-shadow: 0 4px 12px -4px rgba(13, 92, 47, 0.15);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+
+    .pill-nav-btn:hover {
+      background-color: #f6fdf9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px -4px rgba(13, 92, 47, 0.22);
+    }
+
+    .dropzone-box {
+      background-color: rgba(255, 255, 255, 0.92);
+      border: 2.5px dashed #2e8b57;
+      border-radius: 26px;
+      transition: all 0.2s ease;
+    }
+
+    .dropzone-box:hover,
+    .dropzone-box.drag-active {
+      background-color: #ffffff;
+      border-color: #0d8a3e;
+      box-shadow: 0 14px 30px -12px rgba(13, 138, 62, 0.25);
+    }
+
+    .primary-generate-btn {
+      background-color: #0d8a3e;
+      color: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 10px 24px -8px rgba(13, 138, 62, 0.55);
+      transition: transform 0.18s ease, background-color 0.18s ease;
+    }
+
+    .primary-generate-btn:hover:not(:disabled) {
+      background-color: #0a7333;
+      transform: translateY(-1px);
+    }
+
+    .primary-generate-btn:disabled {
+      opacity: 0.72;
+      cursor: not-allowed;
+    }
+
+    /* ==================== الصفحة 2: الخطاطة الذهنية ==================== */
+    .mindmap-view-bg {
+      min-height: 100vh;
+      background-color: #edf2f6;
+    }
+
+    .mindmap-board {
+      position: relative;
+      width: 100%;
+      background:
+        radial-gradient(circle at 8% 16%, rgba(213, 230, 251, 0.52) 0%, transparent 25%),
+        radial-gradient(circle at 92% 16%, rgba(253, 226, 210, 0.52) 0%, transparent 25%),
+        radial-gradient(circle at 8% 85%, rgba(212, 240, 216, 0.5) 0%, transparent 25%),
+        radial-gradient(circle at 92% 85%, rgba(234, 220, 251, 0.52) 0%, transparent 25%),
+        #ffffff;
+      border: 2.5px solid #567387;
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .admin-header-box {
+      background-color: rgba(255, 255, 255, 0.96);
+      border: 2px solid #567387;
+      border-radius: 20px;
+    }
+
+    .center-banner-box {
+      background: linear-gradient(135deg, #275372 0%, #376d94 100%);
+      border: 2px solid #1d4059;
+      border-radius: 20px;
+      color: #ffffff;
+    }
+
+    .central-lesson-circle {
+      background: radial-gradient(circle at 30% 25%, #e6f2fc 0%, #c7e0f4 70%, #b1d2ed 100%);
+      border: 3.5px solid #162b40;
+      box-shadow: 0 14px 28px -12px rgba(22, 43, 64, 0.32);
+    }
+
+    /* البطاقات الأربع بألوانها المحددة */
+    .card-opening {
+      background-color: #fde2d2;
+      border: 2px solid #f0b592;
+      border-radius: 20px;
+    }
+
+    .card-closing {
+      background-color: #eadcfb;
+      border: 2px solid #c3a4ea;
+      border-radius: 20px;
+    }
+
+    .card-main {
+      background-color: #d5e6fb;
+      border: 2px solid #9ec2f2;
+      border-radius: 20px;
+    }
+
+    .card-practice {
+      background-color: #d4f0d8;
+      border: 2px solid #9cd6a4;
+      border-radius: 20px;
+    }
+
+    .editable-field {
+      outline: none;
+      border-radius: 8px;
+      transition: background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .editable-field:hover {
+      background-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .editable-field:focus {
+      background-color: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 0 0 2px rgba(39, 83, 114, 0.45);
+    }
+
+    .edit-mode-active .editable-field {
+      background-color: rgba(255, 255, 255, 0.65);
+      box-shadow: inset 0 0 0 1.5px rgba(39, 83, 114, 0.35);
+    }
+
+    /* كل عنصر في سطر مستقل واضح */
+    .line-items > div {
+      display: block;
+      padding: 2.5px 2px;
+      border-bottom: 1px dashed rgba(15, 23, 42, 0.15);
+      white-space: pre-line;
+      word-break: break-word;
+    }
+
+    .line-items > div:last-child {
+      border-bottom: none;
+    }
+
+    /* حاويات التحجيم التلقائي الذكي للنص (Auto-Fit) */
+    .autofit-card-box {
+      height: 185px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .autofit-circle-box {
+      max-height: 152px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* ==================== إعدادات الطباعة في صفحة واحدة أفقية ==================== */
+    @page {
+      size: A4 landscape;
+      margin: 5mm;
+    }
+
+    @media print {
+      html,
+      body {
+        width: 287mm !important;
+        height: 200mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        overflow: hidden !important;
+      }
+
+      #upload-view,
+      .no-print {
+        display: none !important;
+      }
+
+      #mindmap-view {
+        display: block !important;
+        width: 287mm !important;
+        height: 200mm !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #ffffff !important;
+      }
+
+      #mindmap-view > div {
+        max-width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+
+      .mindmap-board {
+        width: 287mm !important;
+        height: 198mm !important;
+        padding: 8px 12px !important;
+        box-shadow: none !important;
+        border-radius: 16px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        gap: 6px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .print-three-cols {
+        display: grid !important;
+        grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        flex: 1 !important;
+        align-items: stretch !important;
+      }
+
+      .print-col-4 {
+        grid-column: span 4 / span 4 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+      }
+
+      .print-col-4 > div {
+        flex: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .autofit-card-box {
+        height: 158px !important;
+        flex: 1 !important;
+      }
+
+      .print-arrows-svg {
+        display: block !important;
+      }
+
+      .editable-field:focus {
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- رسالة تنبيهية (Toast) بديلة عن alert -->
+  <div id="toast-container" class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden">
+    <div id="toast-box" class="px-5 py-3 rounded-2xl shadow-xl text-white text-sm font-bold flex items-center gap-2 bg-slate-900">
+      <span id="toast-icon">•</span>
+      <span id="toast-text"></span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- الصفحة 1: واجهة التحميل (#upload-view)                                -->
+  <!-- ===================================================================== -->
+  <section id="upload-view" class="upload-view-bg py-6 px-4 flex flex-col items-center">
+    <div class="w-full max-w-2xl space-y-6">
+
+      <!-- الشريط العلوي: شارة "النشاط العلمي" وزر "الرجوع" إلى index.html -->
+      <div class="flex items-center justify-between gap-3">
+        <span class="pill-nav-btn px-5 py-2 text-xs sm:text-sm font-black select-none">
+          النشاط العلمي
+        </span>
+        <button
+          id="btn-back-index"
+          type="button"
+          class="pill-nav-btn px-5 py-2 text-xs sm:text-sm font-extrabold cursor-pointer"
+        >
+          الرجوع
+        </button>
+      </div>
+
+      <!-- العنوان الرئيسي والعنوان الفرعي -->
+      <div class="text-center space-y-1.5 pt-1">
+        <h1 class="text-2xl sm:text-4xl font-black text-[#094724] tracking-tight">
+          النشاط العلمي <span class="font-extrabold">Sciences</span>
+        </h1>
+        <p class="text-xs sm:text-sm font-bold text-[#1d663c]">
+          الخطاطة الذهنية للنشاط العلمي - <span dir="ltr">Fiche mentale des sciences</span>
+        </p>
+      </div>
+
+      <!-- مربع رفع الملفات بإطار منقط أخضر (#2e8b57) -->
+      <div
+        id="drop-zone"
+        role="button"
+        tabindex="0"
+        class="dropzone-box cursor-pointer p-8 sm:p-10 text-center"
+      >
+        <div class="mx-auto w-14 h-14 rounded-2xl border-2 border-[#7ad19f] bg-[#e8f8ef] text-[#0d8a3e] flex items-center justify-center mb-4">
+          <svg class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <line x1="12" y1="19" x2="12" y2="5" stroke-linecap="round" />
+            <polyline points="6 11 12 5 18 11" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="text-lg sm:text-xl font-black text-[#0a4a26]">
+          ارفع ملف العرض التقديمي أو الوثيقة
+        </div>
+        <div class="text-xs sm:text-sm font-bold text-[#3f7556] mt-1.5" dir="ltr">
+          .pptx, .pdf, .txt, .md, .png, .jpg
+        </div>
+        <div class="text-xs text-[#2e8b57] font-semibold mt-2">
+          اضغط هنا لاختيار الملف أو اسحبه وأفلته داخل الإطار
+        </div>
+        <input
+          id="file-input"
+          type="file"
+          accept=".pptx,.pdf,.txt,.md,image/*"
+          class="hidden"
+        />
+      </div>
+
+      <!-- شريط عرض اسم الملف المختار -->
+      <div
+        id="selected-file-banner"
+        class="hidden bg-white border border-[#84d4a6] text-[#0a4a26] rounded-2xl px-4 py-3 text-xs sm:text-sm font-extrabold flex items-center justify-between gap-3 shadow-sm"
+      >
+        <div class="flex items-center gap-2 truncate">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-[#0d8a3e] shrink-0"></span>
+          <span id="selected-file-name" class="truncate"></span>
+        </div>
+        <button
+          id="btn-remove-file"
+          type="button"
+          class="text-rose-700 hover:text-rose-900 font-black text-xs shrink-0 underline cursor-pointer"
+        >
+          حذف الملف
+        </button>
+      </div>
+
+      <!-- زر أخضر عريض بارز: "إنشاء خريطة ذهنية" (#0d8a3e) -->
+      <button
+        id="btn-generate-mindmap"
+        type="button"
+        class="primary-generate-btn w-full py-4 text-base sm:text-lg font-black flex items-center justify-center gap-2.5 cursor-pointer"
+      >
+        <svg id="generate-spinner" class="hidden w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span id="generate-btn-label">إنشاء خريطة ذهنية</span>
+      </button>
+
+      <textarea id="slides-raw-text" class="hidden"></textarea>
+
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- الصفحة 2: صفحة الخطاطة الذهنية الأفقية (#mindmap-view)               -->
+  <!-- ===================================================================== -->
+  <section id="mindmap-view" class="mindmap-view-bg hidden py-4 px-3 sm:px-6">
+    <div class="max-w-[1440px] mx-auto space-y-3">
+
+      <!-- شريط الأدوات العلوي (مخفي عند الطباعة) -->
+      <div class="no-print bg-white border border-slate-200 rounded-2xl px-4 py-2.5 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            id="btn-back-upload"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-extrabold text-xs sm:text-sm border border-slate-300 transition cursor-pointer"
+          >
+            ← العودة لصفحة التحميل
+          </button>
+          <button
+            id="btn-toggle-edit-mode"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-[#275372] font-extrabold text-xs sm:text-sm border border-sky-200 transition cursor-pointer"
+          >
+            تعديل مباشر للنصوص
+          </button>
+          <button
+            id="btn-recalculate-autofit"
+            type="button"
+            class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs sm:text-sm border border-emerald-200 transition cursor-pointer"
+          >
+            ضبط حجم الخط تلقائياً
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            id="btn-print-pdf"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-extrabold text-xs sm:text-sm shadow transition cursor-pointer"
+          >
+            طباعة (صفحة أفقية واحدة)
+          </button>
+        </div>
+      </div>
+
+      <!-- لوحة الخطاطة الذهنية الأفقية -->
+      <div id="mindmap-board-capture" class="mindmap-board p-3.5 sm:p-5 shadow-xl space-y-3">
+
+        <!-- 1. الترويسة الإدارية العلوية -->
+        <div class="admin-header-box px-5 py-2.5 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-right space-y-0.5 text-xs sm:text-sm font-black text-slate-900">
+            <div>
+              الأستاذ :
+              <span id="field-teacher" contenteditable="true" class="editable-field font-extrabold px-1.5"></span>
+            </div>
+            <div>
+              السنة الدراسية :
+              <span id="field-year" contenteditable="true" class="editable-field font-extrabold px-1.5">2026/2027</span>
+            </div>
+          </div>
+
+          <div class="text-left space-y-0.5 text-xs sm:text-sm font-black text-slate-900">
+            <div>
+              <span id="field-region" contenteditable="true" class="editable-field font-extrabold px-1">جهة طنجة تطوان الحسيمة</span>
+            </div>
+            <div>
+              مديرية :
+              <span id="field-directorate" contenteditable="true" class="editable-field font-extrabold px-1">وزان</span>
+            </div>
+            <div>
+              مؤسسة :
+              <span id="field-school" contenteditable="true" class="editable-field font-extrabold px-1">وحدة الخيص</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. الشريط الأزرق المركزي (المستوى : الأسبوع : المرحلة فقط - بدون الوحدة) -->
+        <div class="flex justify-center">
+          <div class="center-banner-box w-full max-w-xl px-5 py-2.5 text-center shadow-md">
+            <div class="text-base sm:text-lg font-black tracking-wide">
+              خطاطة ذهنية - <span id="field-subject" contenteditable="true" class="editable-field px-1">النشاط العلمي</span>
+            </div>
+            <div class="mt-0.5 text-xs sm:text-sm font-bold text-white/95">
+              • المستوى : <span id="field-level" contenteditable="true" class="editable-field font-black text-amber-200 px-1">4</span>
+              : الأسبوع : <span id="field-week" contenteditable="true" class="editable-field font-black text-amber-200 px-1">1</span>
+              : المرحلة : <span id="field-stage" contenteditable="true" class="editable-field font-black text-amber-200 px-1">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. الشبكة ثلاثية الأعمدة في المنتصف -->
+        <div class="print-three-cols grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-center">
+
+          <!-- العمود الأيمن: افتتاح الحصة وتحتها اختتام الحصة -->
+          <div class="print-col-4 lg:col-span-4 space-y-3.5">
+            <!-- بطاقة افتتاح الحصة -->
+            <div class="card-opening p-3.5 shadow-sm">
+              <div class="flex items-center justify-between bg-[#f7c9ae] border border-[#e69e75] rounded-2xl px-3.5 py-1.5 mb-2">
+                <span class="text-sm sm:text-base font-black text-slate-900">افتتاح الحصة</span>
+                <svg class="w-5 h-5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <circle cx="11" cy="11" r="7" />
+                  <line x1="16.5" y1="16.5" x2="21" y2="21" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div
+                id="card-opening-content"
+                contenteditable="true"
+                class="editable-field autofit-card-box line-items font-bold text-slate-900 p-1"
+              ></div>
+            </div>
+
+            <!-- بطاقة اختتام الحصة -->
+            <div class="card-closing p-3.5 shadow-sm">
+              <div class="flex items-center justify-between bg-[#d5bcf2] border border-[#b48ee3] rounded-2xl px-3.5 py-1.5 mb-2">
+                <span class="text-sm sm:text-base font-black text-slate-900">اختتام الحصة</span>
+                <svg class="w-5 h-5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-linecap="round" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" stroke-linecap="round" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div
+                id="card-closing-content"
+                contenteditable="true"
+                class="editable-field autofit-card-box line-items font-bold text-slate-900 p-1"
+              ></div>
+            </div>
+          </div>
+
+          <!-- العمود الأوسط: الدائرة المركزية + 4 أسهم منحنية ملونة SVG تخرج نحو كل بطاقة -->
+          <div class="print-col-4 lg:col-span-4 flex flex-col items-center justify-center relative py-2">
+            <svg class="print-arrows-svg hidden lg:block absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 260 380" fill="none">
+              <path d="M174 138 C206 104, 224 90, 252 84" stroke="#e89668" stroke-width="4.5" stroke-linecap="round" />
+              <polygon points="257,83 245,77 247,90" fill="#e89668" />
+
+              <path d="M174 242 C206 276, 224 290, 252 296" stroke="#a87ee0" stroke-width="4.5" stroke-linecap="round" />
+              <polygon points="257,297 247,290 245,303" fill="#a87ee0" />
+
+              <path d="M86 138 C54 104, 36 90, 8 84" stroke="#75a6e8" stroke-width="4.5" stroke-linecap="round" />
+              <polygon points="3,83 15,77 13,90" fill="#75a6e8" />
+
+              <path d="M86 242 C54 276, 36 290, 8 296" stroke="#74c280" stroke-width="4.5" stroke-linecap="round" />
+              <polygon points="3,297 13,290 15,303" fill="#74c280" />
+            </svg>
+
+            <div class="central-lesson-circle relative z-10 w-64 h-64 sm:w-72 sm:h-72 rounded-full p-5 flex flex-col items-center justify-center text-center">
+              <div class="text-xs font-black text-slate-900 bg-white/90 px-3 py-1 rounded-full border border-slate-800/25 mb-1.5 max-w-full">
+                الدرس: <span id="field-lesson-title" contenteditable="true" class="editable-field px-1"></span>
+              </div>
+              <div class="text-sm sm:text-base font-black text-slate-900 mb-1 flex items-center gap-1">
+                <span>أهداف التعلم ✦</span>
+              </div>
+              <div
+                id="field-objectives"
+                contenteditable="true"
+                class="editable-field autofit-circle-box line-items font-bold text-slate-900 px-1"
+              ></div>
+            </div>
+          </div>
+
+          <!-- العمود الأيسر: النشاط الرئيسي وتحتها التدرب و الإغناء -->
+          <div class="print-col-4 lg:col-span-4 space-y-3.5">
+            <!-- بطاقة النشاط الرئيسي -->
+            <div class="card-main p-3.5 shadow-sm">
+              <div class="flex items-center justify-between bg-[#b8d4f8] border border-[#85b2ed] rounded-2xl px-3.5 py-1.5 mb-2">
+                <span class="text-sm sm:text-base font-black text-slate-900">النشاط الرئيسي</span>
+                <svg class="w-5 h-5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="M2 6.5C2 5.67 2.67 5 3.5 5H9.5C10.88 5 12 6.12 12 7.5V20C12 19.17 11.33 18.5 10.5 18.5H3.5C2.67 18.5 2 17.83 2 17V6.5Z" />
+                  <path d="M22 6.5C22 5.67 21.33 5 20.5 5H14.5C13.12 5 12 6.12 12 7.5V20C12 19.17 12.67 18.5 13.5 18.5H20.5C21.33 18.5 22 17.83 22 17V6.5Z" />
+                </svg>
+              </div>
+              <div
+                id="card-main-content"
+                contenteditable="true"
+                class="editable-field autofit-card-box line-items font-bold text-slate-900 p-1"
+              ></div>
+            </div>
+
+            <!-- بطاقة التدرب و الإغناء -->
+            <div class="card-practice p-3.5 shadow-sm">
+              <div class="flex items-center justify-between bg-[#b5e3bc] border border-[#83c98d] rounded-2xl px-3.5 py-1.5 mb-2">
+                <span class="text-sm sm:text-base font-black text-slate-900">التدرب و الإغناء</span>
+                <svg class="w-5 h-5 text-slate-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.8 10.6c.7.6 1.3 1.5 1.5 2.4h4.6c.2-.9.8-1.8 1.5-2.4A6 6 0 0 0 12 3Z" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <div
+                id="card-practice-content"
+                contenteditable="true"
+                class="editable-field autofit-card-box line-items font-bold text-slate-900 p-1"
+              ></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+
+    const API_STORAGE_KEYS = [
+      'science_mindmap_gemini_3_flash_preview_key',
+      'gemini_api_key',
+      'GEMINI_API_KEY',
+      'apiKey',
+      'api_key',
+    ];
+    const GEMINI_MODEL = 'gemini-3-flash-preview';
+
+    /**
+     * حفظ واسترجاع API Key تلقائياً من localStorage / sessionStorage / URL / postMessage
+     */
+    function persistApiKey(key) {
+      const clean = String(key || '').trim();
+      if (!clean) return '';
+      try {
+        for (const storageKey of API_STORAGE_KEYS) {
+          window.localStorage.setItem(storageKey, clean);
+          window.sessionStorage.setItem(storageKey, clean);
+        }
+      } catch (_e) {
+        // تجاهل قيود التخزين في حال تعذر الوصول
+      }
+      return clean;
+    }
+
+    function resolveAndSaveApiKey() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlKey =
+          params.get('apiKey') ||
+          params.get('api_key') ||
+          params.get('key') ||
+          params.get('geminiKey') ||
+          '';
+        if (urlKey.trim()) {
+          return persistApiKey(urlKey);
+        }
+
+        const hashStr = String(window.location.hash || '').replace(/^#/, '');
+        if (hashStr.includes('=')) {
+          const hashParams = new URLSearchParams(hashStr);
+          const hashKey = hashParams.get('apiKey') || hashParams.get('api_key') || hashParams.get('key') || '';
+          if (hashKey.trim()) {
+            return persistApiKey(hashKey);
+          }
+        }
+
+        for (const storageKey of API_STORAGE_KEYS) {
+          const fromSession = window.sessionStorage.getItem(storageKey);
+          if (fromSession && fromSession.trim()) {
+            return persistApiKey(fromSession);
+          }
+          const fromLocal = window.localStorage.getItem(storageKey);
+          if (fromLocal && fromLocal.trim()) {
+            return persistApiKey(fromLocal);
+          }
+        }
+      } catch (_e) {
+        // معالجة آمنة في حال قيود المتصفح
+      }
+      return '';
+    }
+
+    let activeGeminiApiKey = resolveAndSaveApiKey();
+
+    // استقبال المفتاح في حال إرساله عبر postMessage من index.html أو نافذة أب
+    window.addEventListener('message', (event) => {
+      const payload = event && event.data;
+      if (!payload) return;
+      if (typeof payload === 'string' && payload.startsWith('AIza')) {
+        activeGeminiApiKey = persistApiKey(payload);
+      } else if (typeof payload === 'object') {
+        const incomingKey =
+          payload.apiKey || payload.api_key || payload.geminiApiKey || payload.key || '';
+        if (String(incomingKey).trim()) {
+          activeGeminiApiKey = persistApiKey(incomingKey);
+        }
+      }
+    });
+
+    const appState = {
+      fileName: '',
+      imageBase64: '',
+      imageMimeType: '',
+      editMode: false,
+    };
+
+    /**
+     * رسالة تنبيهية بديلة عن alert
+     */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const box = document.getElementById('toast-box');
+      const icon = document.getElementById('toast-icon');
+      const text = document.getElementById('toast-text');
+      if (!container || !box || !icon || !text) return;
+
+      text.textContent = message;
+      box.className = 'px-5 py-3 rounded-2xl shadow-xl text-white text-sm font-bold flex items-center gap-2 ';
+      if (type === 'error') {
+        box.className += 'bg-rose-700';
+        icon.textContent = '!';
+      } else if (type === 'success') {
+        box.className += 'bg-emerald-700';
+        icon.textContent = '✓';
+      } else {
+        box.className += 'bg-slate-900';
+        icon.textContent = '•';
+      }
+
+      container.classList.remove('hidden');
+      clearTimeout(showToast._timer);
+      showToast._timer = setTimeout(() => {
+        container.classList.add('hidden');
+      }, 3400);
+    }
+
+    /**
+     * التحجيم التلقائي الذكي للنص (Auto-Fit Font Size)
+     */
+    function autoFitContainerText(container, minPx = 9.0, maxPx = 15.5) {
+      if (!container) return maxPx;
+      let currentSize = maxPx;
+      container.style.fontSize = `${currentSize}px`;
+      container.style.lineHeight = '1.36';
+
+      while (container.scrollHeight > container.clientHeight && currentSize > minPx) {
+        currentSize = +(currentSize - 0.35).toFixed(2);
+        container.style.fontSize = `${currentSize}px`;
+        if (currentSize <= 11.5) {
+          container.style.lineHeight = '1.25';
+        }
+      }
+      return currentSize;
+    }
+
+    /**
+     * توحيد حجم الخط عبر جميع البطاقات الأربع بناءً على البطاقة الأكثر ازدحاماً
+     */
+    function applyAllAutoFit() {
+      const cardIds = [
+        'card-opening-content',
+        'card-closing-content',
+        'card-main-content',
+        'card-practice-content',
+      ];
+      const cardElements = cardIds
+        .map((id) => document.getElementById(id))
+        .filter(Boolean);
+
+      let unifiedCardSize = 15.5;
+      for (const el of cardElements) {
+        const fittedSize = autoFitContainerText(el, 9.0, 15.5);
+        if (fittedSize < unifiedCardSize) {
+          unifiedCardSize = fittedSize;
+        }
+      }
+
+      const unifiedLineHeight = unifiedCardSize <= 11.5 ? '1.25' : '1.36';
+      for (const el of cardElements) {
+        el.style.fontSize = `${unifiedCardSize}px`;
+        el.style.lineHeight = unifiedLineHeight;
+      }
+
+      autoFitContainerText(document.getElementById('field-objectives'), 9.0, 14.0);
+    }
+
+    /**
+     * التنقل بين صفحة التحميل وصفحة الخطاطة الذهنية
+     */
+    function navigateToView(viewId) {
+      const uploadView = document.getElementById('upload-view');
+      const mindmapView = document.getElementById('mindmap-view');
+      if (!uploadView || !mindmapView) return;
+
+      if (viewId === 'mindmap-view') {
+        uploadView.classList.add('hidden');
+        mindmapView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        requestAnimationFrame(() => {
+          applyAllAutoFit();
+        });
+      } else {
+        mindmapView.classList.add('hidden');
+        uploadView.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    /**
+     * تقسيم النص إلى أسطر مستقلة نظيفة
+     */
+    function splitToCleanLines(input) {
+      return String(input || '')
+        .split(/\r?\n+/)
+        .map((line) => line.replace(/^[•\-\*▪▸►●]+\s*/, '').trim())
+        .filter(Boolean);
+    }
+
+    /**
+     * عرض كل عنصر في سطر مستقل داخل العنصر
+     */
+    function renderLinesInElement(element, lines) {
+      if (!element) return;
+      const items = Array.isArray(lines) ? lines : splitToCleanLines(lines);
+      element.innerHTML = '';
+
+      if (items.length === 0) {
+        const emptyLine = document.createElement('div');
+        emptyLine.textContent = '—';
+        element.appendChild(emptyLine);
+        return;
+      }
+
+      for (const item of items) {
+        const row = document.createElement('div');
+        row.textContent = String(item).trim();
+        element.appendChild(row);
+      }
+    }
+
+    /**
+     * استخراج المستوى، الأسبوع، والمرحلة فقط من الرمز (مثل P...) أو النص
+     */
+    function extractMetadataFromText(sourceText) {
+      const text = String(sourceText || '');
+
+      const pMatch = text.match(/\bP\s*(\d+)/i);
+      const semMatch = text.match(/\bsem\s*(\d+)/i);
+      const explicitLevel = text.match(/المستوى\s*[:：\-]?\s*(\d+)/i);
+      const explicitWeek = text.match(/الأسبوع\s*[:：\-]?\s*(\d+)/i);
+      const explicitStage = text.match(/المرحلة\s*[:：\-]?\s*(\d+)/i);
+
+      let remainingLevel = '';
+      if (explicitLevel) {
+        remainingLevel = explicitLevel[1];
+      } else {
+        const cleaned = text
+          .replace(/\bP\s*\d+/gi, ' ')
+          .replace(/\bsem\s*\d+/gi, ' ')
+          .replace(/\bS\s*\d+/gi, ' ')
+          .replace(/20\d{2}\s*\/\s*20\d{2}/g, ' ');
+        const standaloneNum = cleaned.match(/(?:^|[^\d])([1-6])(?:[^\d]|$)/);
+        remainingLevel = standaloneNum ? standaloneNum[1] : '4';
+      }
+
+      return {
+        level: remainingLevel || '4',
+        week: explicitWeek ? explicitWeek[1] : (semMatch ? semMatch[1] : '1'),
+        stage: explicitStage ? explicitStage[1] : (pMatch ? pMatch[1] : '1'),
+      };
+    }
+
+    /**
+     * صياغة هدف التعلم بصيغة تقريرية واضحة (وليس سؤالاً)
+     */
+    function formatObjectiveDeclarative(rawTitle) {
+      let clean = String(rawTitle || '')
+        .replace(/^(?:تقديم\s*هدف\s*الدرس|هدف\s*الدرس|أهداف\s*التعلم|الدرس)\s*[:：\-]\s*/i, '')
+        .replace(/[؟?]+/g, '')
+        .trim();
+
+      if (!clean) {
+        return 'تعرّف أعضاء الجهاز التنفسي ومسار الهواء في الشهيق والزفير';
+      }
+
+      clean = clean
+        .replace(/^كيف\s+يعمل\s+/i, 'تعرّف كيفية عمل ')
+        .replace(/^كيف\s+تعمل\s+/i, 'تعرّف كيفية عمل ')
+        .replace(/^كيف\s+يتنفس\s+/i, 'تعرّف كيفية تنفس ')
+        .replace(/^كيف\s+تتنفس\s+/i, 'تعرّف كيفية تنفس ')
+        .replace(/^كيف\s+/i, 'تفسير كيفية ')
+        .replace(/^ما\s+هي\s+/i, 'تحديد ')
+        .replace(/^ما\s+هو\s+/i, 'تحديد ')
+        .replace(/^لماذا\s+/i, 'تفسير سبب ')
+        .replace(/^أين\s+/i, 'تحديد مكان ')
+        .replace(/^هل\s+/i, 'التحقق من ');
+
+      if (!/^(?:تعرّف|تعرف|تحديد|تفسير|تسمية|تصنيف|استكشاف|فهم|إبراز|مقارنة|التحقق)/i.test(clean)) {
+        clean = `تعرّف ${clean}`;
+      }
+
+      return clean;
+    }
+
+    /**
+     * بناء نموذج تربوي افتراضي مطابق لجميع القواعد
+     */
+    function buildDefaultStructuredData(meta) {
+      const lessonTitle = 'كيف يعمل جهازي التنفسي؟';
+      const objectiveText = formatObjectiveDeclarative(lessonTitle);
+
+      return {
+        level: meta.level || '4',
+        week: meta.week || '1',
+        stage: meta.stage || '1',
+        lessonTitle,
+        objectivesLines: [
+          objectiveText,
+          'توظيف الملاحظة و التطبيق',
+        ],
+        openingLines: [
+          'تصحيح الأنشطة المنزلية: النشاط رقم 2 صفحة 10.',
+          'المرور بين الصفوف لمراقبة إنجازات المتعلمين.',
+          `تقديم هدف الدرس: ${objectiveText}.`,
+          'نشاط تمهيدي: ملاحظة صورة عدّاء بعد الجري — أسئلة الأستاذ: بماذا يحس العدّاء؟ وما الأعضاء المسؤولة عن التنفس؟',
+        ],
+        mainLines: [
+          'تقديم فيديو النمذجة عمر وندى: أعضاء الجهاز التنفسي ومسار الهواء.',
+          'ممارسة موجهة: النشاط رقم 3 صفحة 11 والمطلوب تسمية أعضاء الجهاز التنفسي وتحديد مسار الهواء.',
+          'تصحيح النشاط 3 (رئة يمنى، رئة يسرى، قصبة هوائية، حجاب حاجز، قصيبات هوائية، أسناخ رئوية).',
+        ],
+        practiceLines: [
+          'نشاط رقم 4 صفحة 12: إتمام خطاطة مسار الهواء أثناء الشهيق والزفير.',
+          'تصحيح النشاط 4 ومطالبة المتعلمين بكتابة الأجوبة على الكراسة.',
+          'نشاط رقم 5 صفحة 12: التمييز بين حركتي الشهيق والزفير.',
+          'تصحيح النشاط 5 كممارسة مستقلة لإغناء التعلمات.',
+        ],
+        closingLines: [
+          'ماذا تعلمنا اليوم؟: أعضاء الجهاز التنفسي ومسار الهواء في الشهيق (من الأنف إلى الأسناخ) وفي الزفير (الاتجاه المعاكس).',
+          'الأنشطة المنزلية الجديدة: إنجاز التمرين رقم 6 صفحة 13 في المنزل.',
+        ],
+      };
+    }
+
+    /**
+     * محرك التحليل المحلي الفوري للنص المستخرج
+     */
+    function analyzeTextLocally(rawText, fileName) {
+      const combinedHeader = `${fileName || ''} ${(rawText || '').slice(0, 450)}`;
+      const meta = extractMetadataFromText(combinedHeader);
+
+      if (!rawText || !rawText.trim()) {
+        return buildDefaultStructuredData(meta);
+      }
+
+      const slides = rawText
+        .split(/\n\s*-{3,}\s*\n|(?=\n\s*(?:شريحة|slide)\s*\d*)/gi)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const scheduleSlide =
+        slides.find((s) => /برمجة\s*(الأسبوع|الاسبوع)|عنوان\s*الدرس/i.test(s)) || slides[0] || '';
+
+      const lessonMatch =
+        scheduleSlide.match(/عنوان\s*الدرس\s*[:：\-]\s*(.+)/i) ||
+        scheduleSlide.match(/الدرس\s*[:：\-]\s*(.+)/i);
+
+      const lessonTitle = lessonMatch
+        ? lessonMatch[1].split('\n')[0].replace(/\([Pp]\d+.*?\)/g, '').trim()
+        : 'كيف يعمل جهازي التنفسي؟';
+
+      const declarativeGoal = formatObjectiveDeclarative(lessonTitle);
+
+      const sections = {
+        opening: [],
+        main: [],
+        practice: [],
+        closing: [],
+      };
+
+      let currentSection = null;
+      for (const slide of slides) {
+        if (/اختتام\s*(الدرس|درس|الحصة)?/i.test(slide)) {
+          currentSection = 'closing';
+        } else if (/التدرب\s*و\s*(الإغناء|الاغناء)|الإغناء\s*و\s*(التدرب|التدرب)/i.test(slide)) {
+          currentSection = 'practice';
+        } else if (/النشاط\s*(الرئيسي|رئيسي)/i.test(slide)) {
+          currentSection = 'main';
+        } else if (/افتتاح\s*(الدرس|درس|الحصة)?/i.test(slide)) {
+          currentSection = 'opening';
+        }
+        if (currentSection) {
+          sections[currentSection].push(slide);
+        }
+      }
+
+      // 1. بطاقة افتتاح الحصة بالترتيب الصارم
+      const openingRawLines = splitToCleanLines(
+        sections.opening
+          .join('\n')
+          .split('\n')
+          .filter((l) => l.trim() && !/^شريحة\s*\d*/i.test(l.trim()) && !/^افتتاح\s*(الدرس|درس|الحصة)?$/i.test(l.trim()))
+          .join('\n')
+      );
+
+      const hwLines = [];
+      const passLines = [];
+      const goalLines = [];
+      const introLines = [];
+
+      for (const line of openingRawLines) {
+        if (/^(?:تقديم\s*هدف\s*الدرس|هدف\s*الدرس|الهدف)\s*[:：]\s*/i.test(line)) {
+          const cleanG = formatObjectiveDeclarative(
+            line.replace(/^(?:تقديم\s*هدف\s*الدرس|هدف\s*الدرس|الهدف)\s*[:：]\s*/i, '').trim()
+          );
+          goalLines.push(`تقديم هدف الدرس: ${cleanG}`);
+        } else if (/تصحيح.*منزل|أنشطة\s*منزلية|نشاط\s*منزلي/i.test(line)) {
+          hwLines.push(line);
+        } else if (/مرور\s*بين\s*(الصفوف|صفوف)|بين\s*(الصفوف|صفوف)/i.test(line)) {
+          passLines.push(line);
+        } else {
+          introLines.push(line);
+        }
+      }
+
+      if (passLines.length === 0) {
+        passLines.push('المرور بين الصفوف لمراقبة إنجازات المتعلمين وتوجيههم.');
+      }
+      if (goalLines.length === 0) {
+        goalLines.push(`تقديم هدف الدرس: ${declarativeGoal}`);
+      }
+      if (introLines.length === 0) {
+        introLines.push('نشاط تمهيدي: ملاحظة وضعية الانطلاق ومناقشة أسئلة الأستاذ التمهيدية.');
+      }
+
+      const openingLines = [...hwLines, ...passLines, ...goalLines, ...introLines];
+
+      // 2. بطاقة النشاط الرئيسي
+      const mainRawLines = splitToCleanLines(
+        sections.main
+          .join('\n')
+          .split('\n')
+          .filter((l) => l.trim() && !/^شريحة\s*\d*/i.test(l.trim()) && !/^النشاط\s*(الرئيسي|رئيسي)?$/i.test(l.trim()))
+          .join('\n')
+      );
+
+      const mainLines = mainRawLines.map((line) => {
+        if (/^(?:وسيلة\s*(?:الفيديو|فيديو)|فيديو(?:\s*النمذجة)?|تقديم\s*فيديو)\s*[:：]?\s*/i.test(line)) {
+          const videoTitle = line
+            .replace(/^(?:تقديم\s*فيديو(?:\s*النمذجة)?\s*[:：]?\s*)/i, '')
+            .replace(/^(?:وسيلة\s*(?:الفيديو|فيديو)\s*[:：]?\s*)/i, '')
+            .replace(/^فيديو\s*النمذجة\s*[:：]?\s*/i, '')
+            .replace(/^فيديو\s*بعنوان\s*/i, '')
+            .replace(/^["«]|["»]$/g, '')
+            .trim();
+          return `تقديم فيديو النمذجة ${videoTitle}`;
+        }
+
+        const corrMatch = line.match(/^تصحيح\s*(?:النشاط|نشاط)\s*(\d+)\s*[:：\-]?\s*(.+)$/i);
+        if (corrMatch) {
+          const actNum = corrMatch[1];
+          let summary = corrMatch[2].trim();
+          const parenMatch = summary.match(/\(([^)]+)\)/);
+          summary = parenMatch
+            ? parenMatch[1].trim()
+            : summary.replace(/^(?:كتابة\s*البيانات|الأجوبة\s*باختصار|التصحيح)\s*[:：]?\s*/i, '').replace(/\.$/, '').trim();
+          return `تصحيح النشاط ${actNum} (${summary})`;
+        }
+
+        return line;
+      });
+
+      if (mainLines.length === 0) {
+        mainLines.push(
+          `تقديم فيديو النمذجة: ${lessonTitle}.`,
+          'ممارسة موجهة: إنجاز النشاط التطبيقي بالكراسة وتحديد المطلوب.',
+          'تصحيح النشاط بشكل جماعي وتدوين الخلاصات الأساسية.'
+        );
+      }
+
+      // 3. بطاقة التدرب و الإغناء (كل نشاط في سطر ويليه في السطر الموالي مباشرة: تصحيح النشاط ... بدون كلمة ثم)
+      const practiceRawLines = splitToCleanLines(
+        sections.practice
+          .join('\n')
+          .split('\n')
+          .filter((l) => l.trim() && !/^شريحة\s*\d*/i.test(l.trim()) && !/^(?:التدرب\s*و\s*(?:الإغناء|الاغناء)|الإغناء\s*و\s*(?:التدرب|التدرب))$/.test(l.trim()))
+          .join('\n')
+      );
+
+      const practiceLines = [];
+      for (const line of practiceRawLines) {
+        const cleanNoThen = line.replace(/^ثم\s+/i, '').trim();
+        const actMatch = cleanNoThen.match(/^(?:نشاط|تمرين)\s*(?:رقم\s*)?(\d+)\s*(?:صفحة\s*(\d+))?\s*[:：\-—]?\s*(.*)$/i);
+        if (actMatch) {
+          const num = actMatch[1];
+          const page = actMatch[2] ? ` صفحة ${actMatch[2]}` : '';
+          const desc = (actMatch[3] || '').replace(/^(?:تم\s*)?تصحيح(?:ه|\s*النشاط\s*\d+)?\s*[.،-]?\s*/i, '').trim();
+          practiceLines.push(desc ? `نشاط رقم ${num}${page}: ${desc}` : `نشاط رقم ${num}${page}`);
+          practiceLines.push(`تصحيح النشاط ${num} ومطالبة المتعلمين بكتابة الأجوبة على الكراسة.`);
+        } else if (/^(?:تم\s*)?تصحيح/i.test(cleanNoThen)) {
+          practiceLines.push(cleanNoThen.replace(/^تم\s+تصحيح/i, 'تصحيح'));
+        } else {
+          practiceLines.push(cleanNoThen);
+          practiceLines.push('تصحيح النشاط ومطالبة المتعلمين بتدوين الأجوبة.');
+        }
+      }
+
+      if (practiceLines.length === 0) {
+        practiceLines.push(
+          'نشاط التدرب والإغناء بالكراسة: تطبيق المكتسبات الجديدة.',
+          'تصحيح النشاط ومطالبة المتعلمين بتدوين الأجوبة على الكراسة.'
+        );
+      }
+
+      // 4. بطاقة اختتام الحصة
+      const closingRawLines = splitToCleanLines(
+        sections.closing
+          .join('\n')
+          .split('\n')
+          .filter((l) => l.trim() && !/^شريحة\s*\d*/i.test(l.trim()) && !/^اختتام\s*(الدرس|درس|الحصة)?$/i.test(l.trim()))
+          .join('\n')
+      );
+
+      const closingLines = [];
+      let pendingQuestion = null;
+
+      for (const line of closingRawLines) {
+        const qMatch = line.match(/^(?:السؤال\s*المطروح|السؤال)\s*[:：]\s*(.+)$/i);
+        const aMatch = line.match(/^(?:الإجابة|الاجابة|الجواب)\s*[:：]\s*(.+)$/i);
+
+        if (qMatch) {
+          pendingQuestion = qMatch[1].trim();
+        } else if (aMatch && pendingQuestion) {
+          closingLines.push(`${pendingQuestion}: ${aMatch[1].trim()}`);
+          pendingQuestion = null;
+        } else if (aMatch && !pendingQuestion) {
+          closingLines.push(aMatch[1].trim());
+        } else {
+          if (pendingQuestion) {
+            closingLines.push(pendingQuestion);
+            pendingQuestion = null;
+          }
+          closingLines.push(line);
+        }
+      }
+      if (pendingQuestion) closingLines.push(pendingQuestion);
+
+      if (closingLines.length === 0) {
+        closingLines.push(
+          `ماذا تعلمنا اليوم؟: ${declarativeGoal}.`,
+          'الأنشطة المنزلية الجديدة: إنجاز التمرين التطبيقي في الكراسة.'
+        );
+      }
+
+      return {
+        level: meta.level,
+        week: meta.week,
+        stage: meta.stage,
+        lessonTitle,
+        objectivesLines: [declarativeGoal, 'توظيف الملاحظة و التطبيق'],
+        openingLines,
+        mainLines,
+        practiceLines,
+        closingLines,
+      };
+    }
+
+    /**
+     * استدعاء نموذج gemini-3-flash-preview عبر REST API
+     */
+    async function analyzeWithGeminiApi(rawText, fileName, apiKey) {
+      const systemPrompt = `أنت خبير بيداغوجي في مادة النشاط العلمي بالتعليم الابتدائي المغربي.
+استخرج معطيات الخطاطة الذهنية من العرض التقديمي وأعد كائن JSON فقط، مع وضع كل عنصر في سطر مستقل داخل المصفوفات:
+1) استخرج level (المستوى)، week (الأسبوع من sem)، stage (المرحلة من P) من اسم الملف أو النص (بدون الوحدة).
+2) lessonTitle: عنوان الدرس من شريحة برمجة الأسبوع.
+3) objectivesLines: مصفوفة من سطرين:
+   - السطر 1: صياغة هدف التعلم بصيغة تقريرية واضحة تبدأ بفعل مصدر (مثل: تعرّف... / تحديد... / تفسير...) وليس سؤالاً أبداً.
+   - السطر 2: "توظيف الملاحظة و التطبيق" كما هي.
+4) openingLines (افتتاح الحصة): بالترتيب الدقيق، كل عنصر في سطر مستقل:
+   - تصحيح الأنشطة المنزلية (إن وجدت مع ذكر الصفحة ورقم النشاط)
+   - المرور بين الصفوف (ماذا يفعل الأستاذ)
+   - تقديم هدف الدرس: [الهدف بصيغة تقريرية]
+   - نشاط تمهيدي: [المطلوب وأسئلة الأستاذ]
+5) mainLines (النشاط الرئيسي): كل عنصر في سطر مستقل:
+   - تقديم فيديو النمذجة [عنوانه]: [مضمونه]
+   - ممارسة موجهة: النشاط [رقمه وصفحته والمطلوب فيه]
+   - تصحيح النشاط [رقمه] ([الأجوبة باختصار])
+6) practiceLines (التدرب و الإغناء): كل نشاط في سطر مستقل مع رقمه وصفحته، وفي السطر الموالي مباشرة: تصحيح النشاط [رقمه] ... (بدون كلمة ثم).
+7) closingLines (اختتام الحصة): كل عنصر في سطر مستقل:
+   - [السؤال المطروح]؟: [الإجابة باختصار]
+   - الأنشطة المنزلية الجديدة: ذكر رقمها وصفحتها`;
+
+      const parts = [
+        {
+          text: `اسم الملف: ${fileName || 'عرض تقديمي'}\n\nمحتوى العرض التقديمي:\n${rawText || 'يرجى بناء خطاطة نموذجية كاملة للنشاط العلمي.'}`,
+        },
+      ];
+
+      if (appState.imageBase64 && appState.imageMimeType) {
+        parts.push({
+          inlineData: {
+            mimeType: appState.imageMimeType,
+            data: appState.imageBase64,
+          },
+        });
+      }
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            generationConfig: {
+              responseMimeType: 'application/json',
+              responseSchema: {
+                type: 'OBJECT',
+                properties: {
+                  level: { type: 'STRING' },
+                  week: { type: 'STRING' },
+                  stage: { type: 'STRING' },
+                  lessonTitle: { type: 'STRING' },
+                  objectivesLines: { type: 'ARRAY', items: { type: 'STRING' } },
+                  openingLines: { type: 'ARRAY', items: { type: 'STRING' } },
+                  mainLines: { type: 'ARRAY', items: { type: 'STRING' } },
+                  practiceLines: { type: 'ARRAY', items: { type: 'STRING' } },
+                  closingLines: { type: 'ARRAY', items: { type: 'STRING' } },
+                },
+                required: [
+                  'level',
+                  'week',
+                  'stage',
+                  'lessonTitle',
+                  'objectivesLines',
+                  'openingLines',
+                  'mainLines',
+                  'practiceLines',
+                  'closingLines',
+                ],
+              },
+            },
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorDetail = await response.text();
+        throw new Error(`API ${response.status}: ${errorDetail.slice(0, 100)}`);
+      }
+
+      const json = await response.json();
+      const textOutput = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textOutput) {
+        throw new Error('استجابة فارغة من Gemini');
+      }
+      return JSON.parse(textOutput);
+    }
+
+    /**
+     * تعبئة حقول الخطاطة الذهنية وتطبيق التحجيم التلقائي الموحّد
+     */
+    function renderMindmapData(data) {
+      document.getElementById('field-level').textContent = data.level || '4';
+      document.getElementById('field-week').textContent = data.week || '1';
+      document.getElementById('field-stage').textContent = data.stage || '1';
+      document.getElementById('field-lesson-title').textContent = data.lessonTitle || 'النشاط العلمي';
+
+      const rawObjectives = splitToCleanLines((data.objectivesLines || []).join('\n'));
+      const cleanObjectives = [];
+      for (const item of rawObjectives) {
+        if (item.includes('توظيف الملاحظة و التطبيق')) {
+          cleanObjectives.push('توظيف الملاحظة و التطبيق');
+        } else {
+          cleanObjectives.push(formatObjectiveDeclarative(item));
+        }
+      }
+      if (!cleanObjectives.some((line) => line.includes('توظيف الملاحظة و التطبيق'))) {
+        cleanObjectives.push('توظيف الملاحظة و التطبيق');
+      }
+
+      const cleanPractice = (data.practiceLines || []).map((line) =>
+        String(line).replace(/^ثم\s+/i, '').trim()
+      );
+
+      renderLinesInElement(document.getElementById('field-objectives'), cleanObjectives);
+      renderLinesInElement(document.getElementById('card-opening-content'), data.openingLines || []);
+      renderLinesInElement(document.getElementById('card-closing-content'), data.closingLines || []);
+      renderLinesInElement(document.getElementById('card-main-content'), data.mainLines || []);
+      renderLinesInElement(document.getElementById('card-practice-content'), cleanPractice);
+
+      applyAllAutoFit();
+    }
+
+    /**
+     * قراءة ملف PPTX عبر JSZip
+     */
+    async function extractTextFromPptx(file) {
+      if (!window.JSZip) {
+        throw new Error('مكتبة JSZip غير متوفرة');
+      }
+      const arrayBuffer = await file.arrayBuffer();
+      const zip = await window.JSZip.loadAsync(arrayBuffer);
+
+      const slidePaths = Object.keys(zip.files)
+        .filter((path) => /^ppt\/slides\/slide\d+\.xml$/i.test(path))
+        .sort((a, b) => {
+          const numA = parseInt(a.match(/slide(\d+)\.xml/i)[1], 10);
+          const numB = parseInt(b.match(/slide(\d+)\.xml/i)[1], 10);
+          return numA - numB;
+        });
+
+      const parser = new DOMParser();
+      const slidesOutput = [];
+
+      for (let idx = 0; idx < slidePaths.length; idx++) {
+        const xmlString = await zip.files[slidePaths[idx]].async('string');
+        const xmlDoc = parser.parseFromString(xmlString, 'application/xml');
+        const paragraphs = Array.from(xmlDoc.getElementsByTagNameNS('*', 'p'));
+        const paraTexts = [];
+
+        for (const p of paragraphs) {
+          const runs = Array.from(p.getElementsByTagNameNS('*', 't'))
+            .map((tNode) => tNode.textContent || '')
+            .join('');
+          const cleanLine = runs.replace(/\s+/g, ' ').trim();
+          if (cleanLine) paraTexts.push(cleanLine);
+        }
+
+        if (paraTexts.length > 0) {
+          slidesOutput.push(`شريحة ${idx + 1}:\n${paraTexts.join('\n')}`);
+        }
+      }
+
+      return slidesOutput.join('\n\n---\n\n');
+    }
+
+    /**
+     * قراءة ملف PDF عبر pdf.js
+     */
+    async function extractTextFromPdf(file) {
+      if (!window.pdfjsLib) {
+        throw new Error('مكتبة قراءة PDF غير متوفرة');
+      }
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const pagesOutput = [];
+
+      for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+        const page = await pdfDoc.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item) => item.str)
+          .join(' ')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (pageText) {
+          pagesOutput.push(`شريحة ${pageNum}:\n${pageText}`);
+        }
+      }
+
+      return pagesOutput.join('\n\n---\n\n');
+    }
+
+    /**
+     * قراءة صورة كـ Base64
+     */
+    function readImageAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = String(reader.result || '');
+          const base64Part = result.split(',')[1] || '';
+          resolve(base64Part);
+        };
+        reader.onerror = () => reject(new Error('تعذر قراءة الصورة'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /**
+     * معالجة الملف المرفوع
+     */
+    async function processSelectedFile(file) {
+      if (!file) return;
+
+      const banner = document.getElementById('selected-file-banner');
+      const fileNameEl = document.getElementById('selected-file-name');
+      const textarea = document.getElementById('slides-raw-text');
+
+      appState.fileName = file.name;
+      appState.imageBase64 = '';
+      appState.imageMimeType = '';
+
+      banner.classList.remove('hidden');
+      fileNameEl.textContent = `جاري استخراج محتوى الملف: ${file.name}...`;
+
+      try {
+        const lowerName = file.name.toLowerCase();
+        if (lowerName.endsWith('.pptx')) {
+          const text = await extractTextFromPptx(file);
+          textarea.value = text;
+          fileNameEl.textContent = `الملف الجاهز: ${file.name}`;
+          showToast('تم استخراج نصوص شرائح PPTX بنجاح', 'success');
+        } else if (lowerName.endsWith('.pdf')) {
+          const text = await extractTextFromPdf(file);
+          textarea.value = text;
+          fileNameEl.textContent = `الملف الجاهز: ${file.name}`;
+          showToast('تم استخراج نصوص ملف PDF بنجاح', 'success');
+        } else if (file.type && file.type.startsWith('image/')) {
+          appState.imageBase64 = await readImageAsBase64(file);
+          appState.imageMimeType = file.type;
+          fileNameEl.textContent = `الصورة الجاهزة: ${file.name}`;
+          showToast('تم إرفاق الصورة بنجاح', 'success');
+        } else {
+          const text = await file.text();
+          textarea.value = text;
+          fileNameEl.textContent = `الملف الجاهز: ${file.name}`;
+          showToast('تم قراءة الملف النصي بنجاح', 'success');
+        }
+      } catch (err) {
+        fileNameEl.textContent = `تم اختيار: ${file.name}`;
+        showToast(err.message || 'تعذر قراءة بعض أجزاء الملف، سيتم استخدام المعالج الذكي', 'error');
+      }
+    }
+
+    /**
+     * تشغيل التحليل والانتقال للصفحة الثانية
+     */
+    async function onGenerateMindmapClick() {
+      const btn = document.getElementById('btn-generate-mindmap');
+      const spinner = document.getElementById('generate-spinner');
+      const label = document.getElementById('generate-btn-label');
+      const rawText = document.getElementById('slides-raw-text').value.trim();
+      const apiKey = activeGeminiApiKey || resolveAndSaveApiKey();
+
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      label.textContent = 'جاري التحليل وتوليد الخطاطة...';
+
+      await new Promise((resolve) => setTimeout(resolve, 220));
+
+      let structuredResult;
+      try {
+        if (apiKey) {
+          structuredResult = await analyzeWithGeminiApi(rawText, appState.fileName, apiKey);
+          showToast(`تم التحليل الذكي عبر ${GEMINI_MODEL}`, 'success');
+        } else {
+          structuredResult = analyzeTextLocally(rawText, appState.fileName);
+          showToast('تم إنشاء الخطاطة الذهنية بنجاح', 'success');
+        }
+      } catch (_err) {
+        structuredResult = analyzeTextLocally(rawText, appState.fileName);
+        showToast('تم التحليل عبر المحرك المحلي الفوري', 'info');
+      }
+
+      try {
+        renderMindmapData(structuredResult);
+      } catch (_renderError) {
+        renderMindmapData(buildDefaultStructuredData(extractMetadataFromText(appState.fileName)));
+      }
+
+      navigateToView('mindmap-view');
+
+      btn.disabled = false;
+      spinner.classList.add('hidden');
+      label.textContent = 'إنشاء خريطة ذهنية';
+    }
+
+    /**
+     * ربط الأحداث عند اكتمال تحميل الصفحة
+     */
+    document.addEventListener('DOMContentLoaded', () => {
+      activeGeminiApiKey = resolveAndSaveApiKey();
+
+      document.getElementById('btn-back-index').addEventListener('click', () => {
+        window.location.href = 'index.html';
+      });
+
+      const dropZone = document.getElementById('drop-zone');
+      const fileInput = document.getElementById('file-input');
+
+      dropZone.addEventListener('click', () => {
+        fileInput.click();
+      });
+
+      dropZone.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fileInput.click();
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const selected = e.target.files && e.target.files[0];
+        if (selected) processSelectedFile(selected);
+      });
+
+      ['dragenter', 'dragover'].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('drag-active');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('drag-active');
+        });
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const dropped = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (dropped) processSelectedFile(dropped);
+      });
+
+      document.getElementById('btn-remove-file').addEventListener('click', () => {
+        fileInput.value = '';
+        appState.fileName = '';
+        appState.imageBase64 = '';
+        appState.imageMimeType = '';
+        document.getElementById('selected-file-banner').classList.add('hidden');
+        document.getElementById('selected-file-name').textContent = '';
+        showToast('تمت إزالة الملف', 'info');
+      });
+
+      document.getElementById('btn-generate-mindmap').addEventListener('click', onGenerateMindmapClick);
+
+      document.getElementById('btn-back-upload').addEventListener('click', () => {
+        navigateToView('upload-view');
+      });
+
+      document.getElementById('btn-toggle-edit-mode').addEventListener('click', (e) => {
+        appState.editMode = !appState.editMode;
+        const board = document.getElementById('mindmap-board-capture');
+        board.classList.toggle('edit-mode-active', appState.editMode);
+        e.currentTarget.textContent = appState.editMode ? 'إنهاء وضع التعديل' : 'تعديل مباشر للنصوص';
+        showToast(
+          appState.editMode ? 'انقر فوق أي نص لتعديله مباشرة' : 'تم حفظ التعديلات وتوحيد حجم الخط',
+          'info'
+        );
+        if (!appState.editMode) applyAllAutoFit();
+      });
+
+      document.getElementById('btn-recalculate-autofit').addEventListener('click', () => {
+        applyAllAutoFit();
+        showToast('تم ضبط وتوحيد حجم الخط تلقائياً عبر البطاقات الأربع', 'success');
+      });
+
+      document.getElementById('btn-print-pdf').addEventListener('click', () => {
+        applyAllAutoFit();
+        setTimeout(() => {
+          window.print();
+        }, 80);
+      });
+
+      ['card-opening-content', 'card-closing-content', 'card-main-content', 'card-practice-content', 'field-objectives'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', () => applyAllAutoFit());
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (!document.getElementById('mindmap-view').classList.contains('hidden')) {
+          applyAllAutoFit();
+        }
+      });
+
+      window.addEventListener('beforeprint', () => {
+        applyAllAutoFit();
+      });
+    });
+  </script>
+</body>
+</html>
