@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>النشاط العلمي — الخطاطة الذهنية</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Libraries for extracting text from PDF, PPTX, and DOCX lesson files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+
+  <!-- Cairo Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-app: #eef6f7;
+      --text-main: #0f172a;
+      --card-opening-bg: #fffbeb;
+      --card-opening-hd: #fde68a;
+      --card-opening-tx: #92400e;
+      --card-opening-bd: #f59e0b;
+
+      --card-main-bg: #ecfdf5;
+      --card-main-hd: #a7f3d0;
+      --card-main-tx: #065f46;
+      --card-main-bd: #10b981;
+
+      --card-practice-bg: #eff6ff;
+      --card-practice-hd: #bfdbfe;
+      --card-practice-tx: #1e3a8a;
+      --card-practice-bd: #3b82f6;
+
+      --card-closing-bg: #f5f3ff;
+      --card-closing-hd: #ddd6fe;
+      --card-closing-tx: #5b21b6;
+      --card-closing-bd: #8b5cf6;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .sci-canvas {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 14%, rgba(14, 165, 233, 0.14), transparent 36%),
+        radial-gradient(circle at 88% 18%, rgba(16, 185, 129, 0.14), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(139, 92, 246, 0.12), transparent 42%),
+        #f8fafc;
+    }
+
+    .btn-sci-primary {
+      background: linear-gradient(90deg, #0284c7 0%, #0d9488 100%);
+      color: #ffffff;
+      box-shadow: 0 8px 20px rgba(2, 132, 199, 0.24);
+    }
+
+    .btn-sci-primary:hover {
+      filter: brightness(1.05);
+    }
+
+    .topbar {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.22);
+    }
+
+    .back-action-btn {
+      background: #0284c7;
+      color: #ffffff;
+      border: 1px solid #38bdf8;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+    }
+
+    .back-action-btn:hover {
+      background: #0369a1;
+    }
+
+    .status-strip {
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 16px;
+      border-top: 1px solid #334155;
+    }
+
+    .sheet-scroll {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    /* Full landscape A4-proportioned mind map sheet */
+    .mindmap-page {
+      background: #ffffff;
+      width: 100%;
+      max-width: 1220px;
+      min-height: 760px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      border-radius: 14px;
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.08);
+      border: 1.5px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    /* Administrative header without الوحدة */
+    .admin-header {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      background: #f8fafc;
+      border: 1.5px solid #94a3b8;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
+    .admin-cell {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .admin-label {
+      font-weight: 800;
+      color: #334155;
+    }
+
+    .admin-val {
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px dotted #64748b;
+      min-width: 58px;
+      padding: 0 4px;
+      flex: 1;
+    }
+
+    /* Main Title Banner with N, P, SEM, and rectangular S box */
+    .title-banner {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      background: linear-gradient(90deg, #f0f9ff 0%, #f0fdfa 100%);
+      border: 1.5px solid #7dd3fc;
+      border-radius: 12px;
+      padding: 8px 14px;
+    }
+
+    .banner-main-title {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 900;
+      color: #0c4a6e;
+      line-height: 1.25;
+    }
+
+    .banner-meta-tags {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .meta-pill {
+      background: #ffffff;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 2px 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .session-rect-box {
+      border: 2px solid #0284c7;
+      background: #e0f2fe;
+      color: #0c4a6e;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 13px;
+      font-weight: 900;
+      text-align: center;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.14);
+    }
+
+    /* Central Hub + Curved Arrows + 4 Stage Cards Layout */
+    .mindmap-canvas-area {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(250px, 1fr) 236px minmax(250px, 1fr);
+      gap: 12px;
+      align-items: stretch;
+      flex: 1 1 auto;
+      min-height: 540px;
+    }
+
+    .side-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .center-hub-column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 3;
+      padding: 6px 4px;
+    }
+
+    .arrows-overlay-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .objective-circle {
+      width: 214px;
+      min-height: 214px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 25%, #ffffff 0%, #e0f2fe 65%, #bae6fd 100%);
+      border: 2.5px solid #0284c7;
+      box-shadow: 0 8px 22px rgba(2, 132, 199, 0.18);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 6px;
+    }
+
+    .objective-badge {
+      font-size: 11px;
+      font-weight: 900;
+      color: #0369a1;
+      background: #ffffff;
+      border: 1px solid #7dd3fc;
+      border-radius: 999px;
+      padding: 1px 10px;
+    }
+
+    .objective-heading {
+      font-size: 12.5px;
+      font-weight: 900;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+
+    .objective-statement {
+      font-size: 11.2px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.48;
+      max-height: 122px;
+      overflow: auto;
+      width: 100%;
+    }
+
+    .stage-card {
+      border-radius: 12px;
+      border: 1.5px solid #cbd5e1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      position: relative;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+    }
+
+    .stage-card.custom-height-set {
+      flex: 0 0 auto !important;
+    }
+
+    .stage-card-title {
+      padding: 6px 12px;
+      font-weight: 900;
+      font-size: 13px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      flex-shrink: 0;
+    }
+
+    .stage-card-body {
+      padding: 8px 12px;
+      font-size: 11.5px;
+      line-height: 1.52;
+      flex: 1 1 auto;
+      overflow: auto;
+      min-height: 0;
+    }
+
+    .stage-line {
+      margin-bottom: 4px;
+      word-break: break-word;
+    }
+
+    .stage-line:last-child {
+      margin-bottom: 0;
+    }
+
+    .correction-line {
+      color: #065f46;
+      font-weight: 700;
+      padding-right: 10px;
+      border-right: 2px solid #10b981;
+      margin-top: 2px;
+      margin-bottom: 5px;
+    }
+
+    /* Card resize bar + controls */
+    .card-resize-bar {
+      height: 19px;
+      min-height: 19px;
+      background: rgba(15, 23, 42, 0.05);
+      border-top: 1px dashed rgba(15, 23, 42, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      cursor: ns-resize;
+      user-select: none;
+      touch-action: none;
+      position: relative;
+      z-index: 5;
+      flex-shrink: 0;
+    }
+
+    .card-resize-bar:hover,
+    .stage-card.is-resizing .card-resize-bar {
+      background: rgba(15, 23, 42, 0.12);
+    }
+
+    .card-resize-grip {
+      width: 32px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.34);
+      margin: 0 auto;
+      pointer-events: none;
+    }
+
+    .card-height-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      cursor: default;
+      position: relative;
+      z-index: 10;
+    }
+
+    .card-height-btn {
+      width: 19px;
+      height: 15px;
+      line-height: 13px;
+      font-size: 11px;
+      font-weight: 900;
+      border-radius: 4px;
+      border: 1px solid rgba(15, 23, 42, 0.28);
+      background: rgba(255, 255, 255, 0.96);
+      color: #0f172a;
+      cursor: pointer;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
+    }
+
+    .card-height-readout {
+      min-width: 42px;
+      text-align: left;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: rgba(15, 23, 42, 0.72);
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+
+    .card-opening {
+      background: var(--card-opening-bg);
+      border-color: var(--card-opening-bd);
+    }
+    .card-opening .stage-card-title {
+      background: var(--card-opening-hd);
+      color: var(--card-opening-tx);
+    }
+
+    .card-main {
+      background: var(--card-main-bg);
+      border-color: var(--card-main-bd);
+    }
+    .card-main .stage-card-title {
+      background: var(--card-main-hd);
+      color: var(--card-main-tx);
+    }
+
+    .card-practice {
+      background: var(--card-practice-bg);
+      border-color: var(--card-practice-bd);
+    }
+    .card-practice .stage-card-title {
+      background: var(--card-practice-hd);
+      color: var(--card-practice-tx);
+    }
+
+    .card-closing {
+      background: var(--card-closing-bg);
+      border-color: var(--card-closing-bd);
+    }
+    .card-closing .stage-card-title {
+      background: var(--card-closing-hd);
+      color: var(--card-closing-tx);
+    }
+
+    .sessions-footer {
+      border: 1.5px solid #94a3b8;
+      border-radius: 12px;
+      padding: 6px 10px;
+      background: #f8fafc;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      font-size: 10.5px;
+    }
+
+    .session-tab-btn {
+      flex: 1 1 120px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-weight: 800;
+      font-size: 10.5px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .session-tab-btn:hover {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+
+    .session-tab-btn.active {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #0369a1;
+    }
+
+    [contenteditable="true"]:focus {
+      outline: 2px solid #0284c7;
+      background: rgba(2, 132, 199, 0.06);
+      border-radius: 4px;
+    }
+
+    .drag-over {
+      border-color: #0284c7 !important;
+      background-color: #f0f9ff !important;
+    }
+
+    @media (max-width: 960px) {
+      .admin-header {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .title-banner {
+        grid-template-columns: 1fr;
+      }
+      .mindmap-canvas-area {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .arrows-overlay-svg {
+        display: none;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 4mm;
+      }
+
+      html,
+      body,
+      #resultView {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      #uploadView,
+      .topbar,
+      .status-strip,
+      .card-resize-bar,
+      .sessions-footer {
+        display: none !important;
+      }
+
+      .sheet-scroll {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      .mindmap-page {
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 196mm !important;
+        height: auto !important;
+        margin: 0 auto !important;
+        padding: 6px 8px !important;
+        gap: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+        border: 1px solid #94a3b8 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        overflow: visible !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
+
+      .admin-header {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+        padding: 4px 8px !important;
+        font-size: 9.5px !important;
+      }
+
+      .title-banner {
+        grid-template-columns: 1fr auto auto !important;
+        gap: 8px !important;
+        padding: 5px 10px !important;
+      }
+
+      .banner-main-title {
+        font-size: 16px !important;
+      }
+
+      .banner-meta-tags {
+        font-size: 10px !important;
+      }
+
+      .session-rect-box {
+        font-size: 10.5px !important;
+        padding: 2px 9px !important;
+      }
+
+      .mindmap-canvas-area {
+        grid-template-columns: minmax(220px, 1fr) 184px minmax(220px, 1fr) !important;
+        gap: 8px !important;
+        min-height: 0 !important;
+        flex: 1 1 auto !important;
+      }
+
+      .side-column {
+        gap: 7px !important;
+      }
+
+      .objective-circle {
+        width: 166px !important;
+        min-height: 166px !important;
+        padding: 10px !important;
+        gap: 4px !important;
+      }
+
+      .objective-heading {
+        font-size: 10.5px !important;
+      }
+
+      .objective-statement {
+        font-size: 9.5px !important;
+        line-height: 1.35 !important;
+        max-height: 102px !important;
+        overflow: hidden !important;
+      }
+
+      .stage-card-title {
+        padding: 3px 8px !important;
+        font-size: 10.5px !important;
+      }
+
+      .stage-card-body {
+        padding: 5px 8px !important;
+        overflow: hidden !important;
+      }
+
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. SCIENCE UPLOAD / INPUT VIEW -->
+  <section id="uploadView" class="min-h-screen sci-canvas px-4 py-6 sm:px-8 flex flex-col justify-center">
+    <div class="max-w-2xl w-full mx-auto space-y-5">
+      <!-- Top Bar -->
+      <div class="flex items-center justify-between gap-2 flex-wrap">
+        <button
+          type="button"
+          id="backToIndexBtn"
+          aria-label="رجوع إلى index.html"
+          class="back-action-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-black cursor-pointer transition flex items-center gap-1.5"
+        >
+          <span>←</span>
+          <span>رجوع</span>
+        </button>
+
+        <span
+          id="accountBadgeText"
+          class="px-4 py-2 rounded-2xl bg-white text-slate-700 text-xs font-extrabold border border-slate-200 shadow-sm"
+        >
+          النشاط العلمي
+        </span>
+      </div>
+
+      <!-- Heading -->
+      <div class="text-center space-y-1">
+        <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">النشاط العلمي</h1>
+        <h2 class="text-lg sm:text-xl font-black text-sky-700">الخطاطة الذهنية للدرس</h2>
+      </div>
+
+      <!-- Drag & Drop / File Picker -->
+      <label
+        for="fileInputScience"
+        data-drop-zone="science"
+        class="block w-full rounded-3xl border-2 border-dashed border-sky-300 hover:border-sky-500 bg-white/95 p-8 sm:p-10 text-center shadow-sm cursor-pointer transition space-y-2.5"
+      >
+        <div class="text-5xl text-sky-600 font-black">⬆</div>
+        <div class="text-xl sm:text-2xl font-black text-slate-800">رفع ملف العرض أو الدرس</div>
+        <div class="text-xs font-bold text-slate-400">.pptx, .pdf, .txt, .md, .docx</div>
+        <div id="uploadStatusText" class="text-sm font-extrabold text-sky-700 min-h-[22px]"></div>
+      </label>
+      <input type="file" id="fileInputScience" accept=".pptx,.pdf,.txt,.md,.docx" class="hidden" />
+
+      <!-- Optional Pasted Text Box -->
+      <div class="bg-white/95 rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <label for="rawScienceTextarea" class="text-xs font-extrabold text-slate-700">
+            أو الصق نص الدرس / العرض مباشرة للمعاينة والتحليل:
+          </label>
+          <span class="text-[11px] font-bold text-slate-400">تحليل تلقائي حسب المراحل والحصص</span>
+        </div>
+        <textarea
+          id="rawScienceTextarea"
+          rows="4"
+          placeholder="المستوى N=... ، المرحلة P=... ، الأسبوع SEM=... ، الحصة S=...&#10;افتتاح الدرس...&#10;النشاط الرئيسي...&#10;أنشطة التدرب والإغناء...&#10;اختتام الدرس..."
+          class="w-full rounded-xl border border-slate-300 p-2.5 text-xs leading-relaxed focus:outline-none focus:border-sky-600"
+        ></textarea>
+      </div>
+
+      <!-- Primary Generate Button -->
+      <button
+        type="button"
+        id="generateMindmapBtn"
+        class="w-full py-4 px-6 rounded-2xl text-base sm:text-lg font-black btn-sci-primary cursor-pointer transition"
+      >
+        إنشاء خريطة ذهنية
+      </button>
+    </div>
+  </section>
+
+  <!-- 2. MIND MAP RESULT VIEW -->
+  <section id="resultView" class="hidden min-h-screen bg-slate-100 pb-8">
+    <header class="topbar">
+      <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            id="backToUploadBtn"
+            aria-label="رجوع إلى شاشة الرفع"
+            class="back-action-btn px-4 py-2 rounded-lg text-xs sm:text-sm font-black cursor-pointer transition flex items-center gap-1.5"
+          >
+            <span>←</span>
+            <span>رجوع</span>
+          </button>
+          <span class="text-sm font-black text-sky-300 tracking-tight px-1.5">
+            النشاط العلمي
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            id="autoFitFontBtn"
+            class="px-3.5 py-2 rounded-lg text-xs font-extrabold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer transition"
+          >
+            توحيد حجم الخط تلقائياً
+          </button>
+          <button
+            type="button"
+            id="printSheetBtn"
+            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white cursor-pointer transition"
+          >
+            طباعة
+          </button>
+          <button
+            type="button"
+            id="downloadHtmlBtn"
+            class="px-4 py-2 rounded-lg text-xs sm:text-sm font-extrabold bg-amber-400 hover:bg-amber-300 text-amber-950 cursor-pointer transition"
+          >
+            تنزيل
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <div id="resultStatusText" class="max-w-6xl mx-auto"></div>
+    </div>
+
+    <main class="sheet-scroll">
+      <div id="resultContainer"></div>
+    </main>
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    (function () {
+      "use strict";
+
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+
+      var FIREBASE_CONFIG = {
+        apiKey: "AIzaSyCN7JURPMrCLBGLRTUKwewnZ_kGe_qvR58",
+        authDomain: "catre-montale.firebaseapp.com",
+        projectId: "catre-montale",
+        storageBucket: "catre-montale.firebasestorage.app",
+        messagingSenderId: "1063326176863",
+        appId: "1:1063326176863:web:32d54a37318e166e74edea",
+        measurementId: "G-PDD7TRWEYX"
+      };
+
+      // Synchronized API key storage keys
+      var KEY_STORAGE_KEYS = [
+        "cartes_mentales_shared_api_key_v1",
+        "gemini_khatata_api_key",
+        "sci_mindmap_gemini_key_v2"
+      ];
+
+      var GEMINI_MODELS = [
+        "gemini-3-flash-preview",
+        "gemini-2.5-flash"
+      ];
+
+      var SCIENCE_SYSTEM_INSTRUCTION = [
+        "أنت مساعد تربوي متخصص في النشاط العلمي للتعليم الابتدائي، وتنظّم محتوى الدرس في خطاطة ذهنية عربية دقيقة وموجزة.",
+        "التزم بالقواعد الصارمة التالية:",
+        "1. لا تذكر أرقام الشرائح أو كلمة «شريحة» أبداً في أي حقل.",
+        "2. الترويسة الإدارية لا تحتوي على «الوحدة» (تقتصر على: السنة الدراسية، الأستاذ(ة)، الأكاديمية، المديرية، المؤسسة).",
+        "3. استخرج رموز N (المستوى)، P (المرحلة)، SEM (الأسبوع)، و S (الحصة).",
+        "4. الهدف التعلمي في الدائرة المركزية يجب أن يكون جملة خبرية تقريرية واضحة (وليس سؤالاً أو أداة استفهام).",
+        "5. قسّم المحتوى إلى أربع بطاقات: افتتاح الدرس، النشاط الرئيسي، أنشطة التدرب والإغناء، اختتام الدرس.",
+        "6. في «أنشطة التدرب والإغناء»: اجعل كل نشاط أو سؤال في سطر مستقل، وضع التصحيح في السطر الذي يليه مباشرة دون استخدام كلمة «ثم» للربط بين السؤال والتصحيح.",
+        "أعد JSON صالحاً فقط بالمفاتيح التالية:",
+        '{ "level_n": "...", "stage_p": "...", "week_sem": "...", "session_s": "...", "lesson_title": "...", "learning_objective": "...", "opening_lines": ["..."], "main_lines": ["..."], "practice_lines": ["..."], "closing_lines": ["..."] }'
+      ].join("\n");
+
+      var db = null;
+      var firestoreReady = false;
+      var cachedApiKey = "";
+      var extractedLessonText = "";
+      var extractedFileName = "";
+      var lastGeminiResult = null;
+      var activeSessionNum = "1";
+      var currentMindmapData = null;
+
+      // Custom vertical height map for the 4 colored stage cards
+      var customCardHeights = {};
+      var MIN_CARD_HEIGHT = 110;
+      var MAX_CARD_HEIGHT = 1100;
+      var STEP_CARD_HEIGHT = 24;
+      var activeDragState = null;
+
+      function initFirebase() {
+        try {
+          var app = initializeApp(FIREBASE_CONFIG);
+          db = getFirestore(app);
+          firestoreReady = true;
+        } catch (err) {
+          firestoreReady = false;
+        }
+      }
+
+      function showView(viewId) {
+        var uploadEl = document.getElementById("uploadView");
+        var resultEl = document.getElementById("resultView");
+
+        if (uploadEl) {
+          if (viewId === "uploadView") {
+            uploadEl.classList.remove("hidden");
+            uploadEl.style.display = "flex";
+          } else {
+            uploadEl.classList.add("hidden");
+            uploadEl.style.display = "none";
+          }
+        }
+
+        if (resultEl) {
+          if (viewId === "resultView") {
+            resultEl.classList.remove("hidden");
+            resultEl.style.display = "block";
+          } else {
+            resultEl.classList.add("hidden");
+            resultEl.style.display = "none";
+          }
+        }
+
+        window.scrollTo(0, 0);
+        if (viewId === "resultView") {
+          requestAnimationFrame(function () {
+            fitAllCardsUnified();
+            drawConnectingArrows();
+          });
+        }
+      }
+
+      function setUploadStatus(msg) {
+        var el = document.getElementById("uploadStatusText");
+        if (el) el.textContent = msg || "";
+      }
+
+      function setResultStatus(msg) {
+        var el = document.getElementById("resultStatusText");
+        if (!el) return;
+        el.textContent =
+          msg ||
+          "الحصة S" +
+            activeSessionNum +
+            " — جميع النصوص قابلة للتعديل المباشر. اسحب أسفل أي بطاقة لتغيير ارتفاعها أو اضغط «توحيد حجم الخط تلقائياً».";
+      }
+
+      function updateAccountBadge() {
+        var badge = document.getElementById("accountBadgeText");
+        if (!badge) return;
+        try {
+          var keys = [
+            "cartes_mentales_current_user",
+            "cartes_mentales_active_user",
+            "currentUser",
+            "username"
+          ];
+          for (var i = 0; i < keys.length; i++) {
+            var raw =
+              sessionStorage.getItem(keys[i]) ||
+              localStorage.getItem(keys[i]) ||
+              "";
+            if (!raw) continue;
+            if (raw.charAt(0) === "{") {
+              try {
+                var parsed = JSON.parse(raw);
+                if (parsed && parsed.username) {
+                  badge.textContent = "الحساب: " + String(parsed.username).trim();
+                  return;
+                }
+              } catch (e) {}
+            } else {
+              badge.textContent = "الحساب: " + raw.trim();
+              return;
+            }
+          }
+          badge.textContent = "النشاط العلمي";
+        } catch (e) {
+          badge.textContent = "النشاط العلمي";
+        }
+      }
+
+      // Synchronize API key across all storage keys and optional fallbacks
+      function syncApiKeyAcrossStores(keyVal) {
+        var trimmed = String(keyVal || "").trim();
+        if (!trimmed) return "";
+        cachedApiKey = trimmed;
+
+        for (var i = 0; i < KEY_STORAGE_KEYS.length; i++) {
+          var k = KEY_STORAGE_KEYS[i];
+          try {
+            localStorage.setItem(k, trimmed);
+          } catch (e) {}
+          try {
+            sessionStorage.setItem(k, trimmed);
+          } catch (e) {}
+        }
+
+        try {
+          if (typeof window.name === "string" && window.name.indexOf("GEMINI_KEY:") === 0) {
+            window.name = "GEMINI_KEY:" + trimmed;
+          }
+        } catch (e) {}
+
+        return trimmed;
+      }
+
+      function readKeyFromUrlQuery() {
+        try {
+          var params = new URLSearchParams(window.location.search || "");
+          var qKey =
+            params.get("apiKey") ||
+            params.get("key") ||
+            params.get("geminiKey") ||
+            "";
+          return String(qKey || "").trim();
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function readKeyFromWindowName() {
+        try {
+          if (typeof window.name === "string" && window.name.indexOf("GEMINI_KEY:") === 0) {
+            return window.name.slice("GEMINI_KEY:".length).trim();
+          }
+        } catch (e) {}
+        return "";
+      }
+
+      function readKeyFromStores() {
+        if (cachedApiKey) return syncApiKeyAcrossStores(cachedApiKey);
+
+        var urlKey = readKeyFromUrlQuery();
+        if (urlKey) return syncApiKeyAcrossStores(urlKey);
+
+        for (var i = 0; i < KEY_STORAGE_KEYS.length; i++) {
+          var k = KEY_STORAGE_KEYS[i];
+          try {
+            var sVal = (sessionStorage.getItem(k) || "").trim();
+            if (sVal) return syncApiKeyAcrossStores(sVal);
+          } catch (e) {}
+          try {
+            var lVal = (localStorage.getItem(k) || "").trim();
+            if (lVal) return syncApiKeyAcrossStores(lVal);
+          } catch (e) {}
+        }
+
+        var winNameKey = readKeyFromWindowName();
+        if (winNameKey) return syncApiKeyAcrossStores(winNameKey);
+
+        return "";
+      }
+
+      function withTimeout(promise, ms) {
+        return new Promise(function (resolve) {
+          var done = false;
+          var timer = setTimeout(function () {
+            if (!done) {
+              done = true;
+              resolve(null);
+            }
+          }, ms || 1600);
+
+          Promise.resolve(promise)
+            .then(function (res) {
+              if (!done) {
+                done = true;
+                clearTimeout(timer);
+                resolve(res);
+              }
+            })
+            .catch(function () {
+              if (!done) {
+                done = true;
+                clearTimeout(timer);
+                resolve(null);
+              }
+            });
+        });
+      }
+
+      function resolveApiKey() {
+        var immediate = readKeyFromStores();
+        if (immediate) return Promise.resolve(immediate);
+
+        if (!firestoreReady || !db) {
+          return Promise.resolve("");
+        }
+
+        return withTimeout(getDoc(doc(db, "settings", "geminiConfig")), 1600).then(function (snap) {
+          if (snap && typeof snap.exists === "function" && snap.exists()) {
+            var data = snap.data() || {};
+            var remoteKey = String(data.apiKey || "").trim();
+            if (remoteKey) {
+              return syncApiKeyAcrossStores(remoteKey);
+            }
+          }
+          return "";
+        });
+      }
+
+      // Strip any mention of slide numbers or the word "شريحة"
+      function sanitizeNoSlideWords(text) {
+        var out = String(text || "");
+        out = out.replace(/\[\s*(?:شريحة|صفحة)\s*\d+\s*[:\]|–—-]?/gi, "");
+        out = out.replace(/(?:^|\s)(?:شريحة|الشريحة)\s*(?:رقم\s*)?(?:\d+|[٠-٩]+)?\s*[:\-–—]?/gi, " ");
+        out = out.replace(/\bشريحة\b/gi, "");
+        out = out.replace(/[ \t]{2,}/g, " ");
+        return out.trim();
+      }
+
+      function toLatinDigits(str) {
+        var ar = "٠١٢٣٤٥٦٧٨٩";
+        return String(str || "").replace(/[٠-٩]/g, function (ch) {
+          return String(ar.indexOf(ch));
+        });
+      }
+
+      function normalizeSessionNum(raw) {
+        if (!raw) return null;
+        var clean = toLatinDigits(String(raw)).trim().toLowerCase();
+        var map = {
+          "1": "1", "s1": "1", "الأولى": "1", "الاولى": "1", "الأول": "1", "الاول": "1",
+          "2": "2", "s2": "2", "الثانية": "2", "الثاني": "2",
+          "3": "3", "s3": "3", "الثالثة": "3", "الثالث": "3",
+          "4": "4", "s4": "4", "الرابعة": "4", "الرابع": "4",
+          "5": "5", "s5": "5", "الخامسة": "5", "الخامس": "5",
+          "6": "6", "s6": "6", "السادسة": "6", "السادس": "6"
+        };
+        if (map[clean]) return map[clean];
+        var m = clean.match(/[1-6]/);
+        return m ? m[0] : null;
+      }
+
+      // Ensure learning objective is a declarative statement, never a question
+      function toDeclarativeObjective(rawObj, fallbackTitle) {
+        var cleaned = sanitizeNoSlideWords(rawObj || "");
+        cleaned = cleaned
+          .replace(/^(?:الهدف\s*(?:التعلمي|من\s*الدرس|الأساسي)?\s*[:\-–—]?\s*)/i, "")
+          .replace(/[؟?]+/g, "")
+          .trim();
+
+        if (/^(?:لماذا|كيف|ما\s+هي|ما\s+هو|ما\s+الفرق|هل|متى|أين|كم)\b/i.test(cleaned)) {
+          cleaned = "";
+        }
+
+        if (!cleaned) {
+          var base = sanitizeNoSlideWords(fallbackTitle || "")
+            .replace(/^(?:درس|موضوع|نشاط)\s*[:\-–—]?\s*/i, "")
+            .trim();
+          cleaned = base
+            ? "أن يتعرف المتعلم(ة) على " + base + " ويفسر ظواهره الأساسية بدقة."
+            : "أن يتعرف المتعلم(ة) على المفاهيم العلمية للدرس ويفسرها بدقة.";
+        }
+
+        if (!/[.。!]$/.test(cleaned)) {
+          cleaned += ".";
+        }
+        return cleaned;
+      }
+
+      // Format practice lines: each activity/question on its own line, correction on the next line without "ثم"
+      function formatPracticeLines(rawLines, fallbackText) {
+        var sourceItems = [];
+        if (Array.isArray(rawLines) && rawLines.length > 0) {
+          for (var i = 0; i < rawLines.length; i++) {
+            var piece = sanitizeNoSlideWords(rawLines[i] || "");
+            if (!piece) continue;
+            var subParts = piece.split(/\r?\n|\s*[•▪▸►]\s*|\s+(?:التصحيح|الجواب|الحل)\s*[:\-–—]\s*/i);
+            for (var j = 0; j < subParts.length; j++) {
+              var p = sanitizeNoSlideWords(subParts[j] || "");
+              if (p) sourceItems.push(p);
+            }
+          }
+        } else if (typeof rawLines === "string" && rawLines.trim()) {
+          var splitStr = sanitizeNoSlideWords(rawLines).split(/\r?\n|\s*[•▪▸►]\s*/);
+          for (var k = 0; k < splitStr.length; k++) {
+            var s = sanitizeNoSlideWords(splitStr[k] || "");
+            if (s) sourceItems.push(s);
+          }
+        }
+
+        if (sourceItems.length === 0 && fallbackText) {
+          sourceItems.push(sanitizeNoSlideWords(fallbackText));
+        }
+        if (sourceItems.length === 0) {
+          sourceItems.push("إنجاز التمارين التطبيقية المرتبطة بالدرس.");
+          sourceItems.push("تصحيح: مراجعة الإجابات وتصويب الأخطاء.");
+        }
+
+        var result = [];
+        for (var idx = 0; idx < sourceItems.length; idx++) {
+          var item = sourceItems[idx]
+            .replace(/\s+\bثم\b\s+/g, "\nتصحيح: ")
+            .trim();
+          var subLines = item.split(/\r?\n/);
+          for (var sl = 0; sl < subLines.length; sl++) {
+            var finalLine = sanitizeNoSlideWords(subLines[sl] || "");
+            if (!finalLine) continue;
+            if (sl > 0 && !/^(?:تصحيح|الجواب|الحل)\s*[:\-–—]/i.test(finalLine)) {
+              finalLine = "تصحيح: " + finalLine;
+            }
+            result.push({
+              text: finalLine,
+              isCorrection: /^(?:تصحيح|الجواب|الحل)\s*[:\-–—]/i.test(finalLine)
+            });
+          }
+        }
+        return result;
+      }
+
+      function normalizeLinesArray(rawVal, fallbackList) {
+        var list = [];
+        if (Array.isArray(rawVal)) {
+          for (var i = 0; i < rawVal.length; i++) {
+            var cleaned = sanitizeNoSlideWords(rawVal[i] || "");
+            if (cleaned) {
+              var parts = cleaned.split(/\r?\n/);
+              for (var j = 0; j < parts.length; j++) {
+                var p = sanitizeNoSlideWords(parts[j] || "");
+                if (p) list.push(p);
+              }
+            }
+          }
+        } else if (typeof rawVal === "string" && rawVal.trim()) {
+          var partsStr = sanitizeNoSlideWords(rawVal).split(/\r?\n|\s*[•▪▸►]\s*/);
+          for (var k = 0; k < partsStr.length; k++) {
+            var ps = sanitizeNoSlideWords(partsStr[k] || "");
+            if (ps) list.push(ps);
+          }
+        }
+        if (list.length === 0 && Array.isArray(fallbackList)) {
+          for (var f = 0; f < fallbackList.length; f++) {
+            var fl = sanitizeNoSlideWords(fallbackList[f] || "");
+            if (fl) list.push(fl);
+          }
+        }
+        if (list.length === 0) {
+          list.push("محتوى المرحلة حسب الدرس.");
+        }
+        return list;
+      }
+
+      // Local deterministic analyzer for science lessons
+      function analyzeLocally(rawText, fileName, forcedSessionNum) {
+        var cleanAll = sanitizeNoSlideWords(
+          (rawText || "") + "\n" + (fileName || "")
+        );
+        var lines = cleanAll
+          .split(/\r?\n/)
+          .map(function (l) {
+            return sanitizeNoSlideWords(l);
+          })
+          .filter(Boolean);
+
+        // Extract N (Level)
+        var nMatch =
+          cleanAll.match(/\bN\s*[:=\-]?\s*([1-6١-٦])\b/i) ||
+          cleanAll.match(/(?:المستوى|المستوي)\s*(?:السادس|الخامس|الرابع|الثالث|الثاني|الأول|الاول|[1-6١-٦])/i);
+        var levelN = "6";
+        if (nMatch) {
+          var nTok = nMatch[1] || nMatch[0];
+          levelN = normalizeSessionNum(nTok) || toLatinDigits(nTok).replace(/[^1-6]/g, "") || "6";
+        }
+
+        // Extract P (Stage)
+        var pMatch = cleanAll.match(/\bP\s*[:=\-]?\s*([1-6١-٦])\b/i) || cleanAll.match(/(?:المرحلة)\s*([1-6١-٦])/i);
+        var stageP = pMatch ? toLatinDigits(pMatch[1] || pMatch[0]).replace(/[^0-9]/g, "") || "1" : "1";
+
+        // Extract SEM (Week)
+        var semMatch =
+          cleanAll.match(/\bSEM\s*[:=\-]?\s*([1-6١-٦])\b/i) ||
+          cleanAll.match(/(?:الأسبوع|الاسبوع)\s*(?:الأول|الاول|الثاني|الثالث|الرابع|الخامس|السادس|[1-6١-٦])/i);
+        var weekSem = "1";
+        if (semMatch) {
+          var sTok = semMatch[1] || semMatch[0];
+          weekSem = normalizeSessionNum(sTok) || toLatinDigits(sTok).replace(/[^1-6]/g, "") || "1";
+        }
+
+        // Extract S (Session)
+        var sessMatch =
+          cleanAll.match(/\bS\s*[:=\-]?\s*([1-6١-٦])\b/i) ||
+          cleanAll.match(/(?:الحصة)\s*(?:الأولى|الاولى|الثانية|الثالثة|الرابعة|الخامسة|السادسة|[1-6١-٦])/i);
+        var detectedS =
+          normalizeSessionNum(forcedSessionNum) ||
+          (sessMatch ? normalizeSessionNum(sessMatch[1] || sessMatch[0]) || "1" : "1");
+
+        // Lesson title
+        var lessonTitle = "النشاط العلمي";
+        for (var i = 0; i < lines.length; i++) {
+          var cand = lines[i];
+          if (
+            cand.length >= 4 &&
+            cand.length <= 90 &&
+            !/^(?:المستوى|المرحلة|الأسبوع|الاسبوع|الحصة|افتتاح|النشاط الرئيسي|أنشطة التدرب|اختتام|الهدف)/i.test(cand)
+          ) {
+            lessonTitle = cand.replace(/\.(pptx|pdf|txt|md|docx)$/i, "").trim();
+            break;
+          }
+        }
+
+        var openingLines = [];
+        var mainLines = [];
+        var practiceLines = [];
+        var closingLines = [];
+        var objectiveCandidate = "";
+        var currentSection = "main";
+
+        for (var j = 0; j < lines.length; j++) {
+          var ln = lines[j];
+          if (/^(?:افتتاح\s*(?:الدرس|الحصة)|الافتتاح|تمهيد)/i.test(ln)) {
+            currentSection = "opening";
+            var afterOp = ln.replace(/^(?:افتتاح\s*(?:الدرس|الحصة)|الافتتاح|تمهيد)\s*[:\-–—]?\s*/i, "").trim();
+            if (afterOp) openingLines.push(afterOp);
+            continue;
+          }
+          if (/^(?:الهدف\s*(?:التعلمي|من\s*الدرس)?|أهداف\s*(?:الدرس|الحصة))/i.test(ln)) {
+            objectiveCandidate = ln.replace(/^(?:الهدف\s*(?:التعلمي|من\s*الدرس)?|أهداف\s*(?:الدرس|الحصة))\s*[:\-–—]?\s*/i, "").trim();
+            continue;
+          }
+          if (/^(?:النشاط\s*الرئيسي|بناء\s*المفهوم|الملاحظة\s*والتساؤل|الفرضيات)/i.test(ln)) {
+            currentSection = "main";
+            var afterMain = ln.replace(/^(?:النشاط\s*الرئيسي|بناء\s*المفهوم)\s*[:\-–—]?\s*/i, "").trim();
+            if (afterMain) mainLines.push(afterMain);
+            continue;
+          }
+          if (/^(?:أنشطة\s*التدرب|التدرب\s*والإغناء|أنشطة\s*التطبيق|التقويم\s*والدعم|تطبيقات)/i.test(ln)) {
+            currentSection = "practice";
+            var afterPr = ln.replace(/^(?:أنشطة\s*التدرب(?:\s*والإغناء)?|التدرب\s*والإغناء)\s*[:\-–—]?\s*/i, "").trim();
+            if (afterPr) practiceLines.push(afterPr);
+            continue;
+          }
+          if (/^(?:اختتام\s*(?:الدرس|الحصة)|الاختتام|الخلاصة|الاستنتاج|واجب\s*منزلي)/i.test(ln)) {
+            currentSection = "closing";
+            var afterCl = ln.replace(/^(?:اختتام\s*(?:الدرس|الحصة)|الاختتام|الخلاصة)\s*[:\-–—]?\s*/i, "").trim();
+            if (afterCl) closingLines.push(afterCl);
+            continue;
+          }
+
+          if (currentSection === "opening") {
+            openingLines.push(ln);
+          } else if (currentSection === "practice") {
+            practiceLines.push(ln);
+          } else if (currentSection === "closing") {
+            closingLines.push(ln);
+          } else {
+            mainLines.push(ln);
+          }
+        }
+
+        if (openingLines.length === 0) {
+          openingLines = [
+            "استحضار المكتسبات السابقة المرتبطة بموضوع الحصة.",
+            "طرح وضعية انطلاق محفزة للتفكير العلمي."
+          ];
+        }
+        if (mainLines.length === 0) {
+          mainLines = [
+            "ملاحظة الظاهرة أو الوثيقة العلمية وصياغة الفرضيات.",
+            "إجراء المناولة أو تحليل المعطيات للتحقق من الفرضيات."
+          ];
+        }
+        if (practiceLines.length === 0) {
+          practiceLines = [
+            "نشاط 1: تحديد العناصر الأساسية للمفهوم العلمي.",
+            "تصحيح: عرض الإجابة الصحيحة ومناقشتها مع المتعلمين."
+          ];
+        }
+        if (closingLines.length === 0) {
+          closingLines = [
+            "صياغة الخلاصة التركيبية للدرس بشكل جماعي.",
+            "تثبيت المصطلحات العلمية وتحديد مهمة منزلية بسيطة."
+          ];
+        }
+
+        return {
+          academicYear: "2026/2027",
+          teacherName: "................",
+          academyName: "................",
+          directorateName: "................",
+          schoolName: "................",
+          levelN: levelN,
+          stageP: stageP,
+          weekSem: weekSem,
+          sessionS: detectedS,
+          lessonTitle: lessonTitle,
+          learningObjective: toDeclarativeObjective(objectiveCandidate, lessonTitle),
+          openingLines: normalizeLinesArray(openingLines, []),
+          mainLines: normalizeLinesArray(mainLines, []),
+          practiceItems: formatPracticeLines(practiceLines, ""),
+          closingLines: normalizeLinesArray(closingLines, [])
+        };
+      }
+
+      function callGeminiWithFallback(apiKey, promptText, modelIdx) {
+        if (modelIdx >= GEMINI_MODELS.length) {
+          return Promise.reject(new Error("GEMINI_MODELS_EXHAUSTED"));
+        }
+        var modelName = GEMINI_MODELS[modelIdx];
+        var endpoint =
+          "https://generativelanguage.googleapis.com/v1beta/models/" +
+          encodeURIComponent(modelName) +
+          ":generateContent?key=" +
+          encodeURIComponent(apiKey);
+
+        var payload = {
+          systemInstruction: { parts: [{ text: SCIENCE_SYSTEM_INSTRUCTION }] },
+          contents: [{ role: "user", parts: [{ text: promptText }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
+        };
+
+        return fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+          .then(function (resp) {
+            return resp.json().then(function (jsonData) {
+              if (!resp.ok) {
+                throw new Error(
+                  (jsonData && jsonData.error && jsonData.error.message) ||
+                    "HTTP_" + resp.status
+                );
+              }
+              return jsonData;
+            });
+          })
+          .then(function (jsonData) {
+            var rawText = "";
+            try {
+              rawText = jsonData.candidates[0].content.parts[0].text || "";
+            } catch (e) {
+              throw new Error("EMPTY_GEMINI_RESPONSE");
+            }
+            var cleanedJson = rawText
+              .replace(/^```json\s*/i, "")
+              .replace(/```\s*$/i, "")
+              .trim();
+            return JSON.parse(cleanedJson);
+          })
+          .catch(function () {
+            return callGeminiWithFallback(apiKey, promptText, modelIdx + 1);
+          });
+      }
+
+      function mergeGeminiWithLocal(aiObj, rawText, fileName, forcedSessionNum) {
+        var localBase = analyzeLocally(rawText, fileName, forcedSessionNum);
+        if (!aiObj || typeof aiObj !== "object") {
+          return localBase;
+        }
+
+        var nVal = aiObj.level_n
+          ? toLatinDigits(String(aiObj.level_n)).replace(/[^1-6]/g, "") || localBase.levelN
+          : localBase.levelN;
+        var pVal = aiObj.stage_p
+          ? toLatinDigits(String(aiObj.stage_p)).replace(/[^0-9]/g, "") || localBase.stageP
+          : localBase.stageP;
+        var semVal = aiObj.week_sem
+          ? toLatinDigits(String(aiObj.week_sem)).replace(/[^1-6]/g, "") || localBase.weekSem
+          : localBase.weekSem;
+        var sVal =
+          normalizeSessionNum(forcedSessionNum) ||
+          normalizeSessionNum(aiObj.session_s) ||
+          localBase.sessionS;
+
+        var titleVal = aiObj.lesson_title
+          ? sanitizeNoSlideWords(aiObj.lesson_title) || localBase.lessonTitle
+          : localBase.lessonTitle;
+
+        return {
+          academicYear: localBase.academicYear,
+          teacherName: localBase.teacherName,
+          academyName: localBase.academyName,
+          directorateName: localBase.directorateName,
+          schoolName: localBase.schoolName,
+          levelN: nVal,
+          stageP: pVal,
+          weekSem: semVal,
+          sessionS: sVal,
+          lessonTitle: titleVal,
+          learningObjective: toDeclarativeObjective(aiObj.learning_objective, titleVal),
+          openingLines: normalizeLinesArray(aiObj.opening_lines, localBase.openingLines),
+          mainLines: normalizeLinesArray(aiObj.main_lines, localBase.mainLines),
+          practiceItems: formatPracticeLines(
+            aiObj.practice_lines,
+            localBase.practiceItems
+              .map(function (it) {
+                return it.text;
+              })
+              .join("\n")
+          ),
+          closingLines: normalizeLinesArray(aiObj.closing_lines, localBase.closingLines)
+        };
+      }
+
+      // File reading helpers (.txt, .md, .pdf, .pptx, .docx)
+      function readFileBufferSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.arrayBuffer === "function") {
+              file.arrayBuffer().then(resolve).catch(function () {
+                readViaReader(file, "arrayBuffer").then(resolve).catch(reject);
+              });
+              return;
+            }
+            readViaReader(file, "arrayBuffer").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readFileTextSafe(file) {
+        return new Promise(function (resolve, reject) {
+          try {
+            if (file && typeof file.text === "function") {
+              file.text().then(resolve).catch(function () {
+                readViaReader(file, "text").then(resolve).catch(reject);
+              });
+              return;
+            }
+            readViaReader(file, "text").then(resolve).catch(reject);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function readViaReader(file, mode) {
+        return new Promise(function (resolve, reject) {
+          try {
+            var reader = new FileReader();
+            reader.onload = function () {
+              resolve(reader.result);
+            };
+            reader.onerror = function () {
+              reject(reader.error || new Error("READ_ERR"));
+            };
+            if (mode === "arrayBuffer") reader.readAsArrayBuffer(file);
+            else reader.readAsText(file, "UTF-8");
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
+      function parsePdfText(file) {
+        if (!window.pdfjsLib || typeof window.pdfjsLib.getDocument !== "function") {
+          return Promise.resolve("");
+        }
+        return readFileBufferSafe(file)
+          .then(function (buf) {
+            return window.pdfjsLib.getDocument({ data: buf }).promise;
+          })
+          .then(function (pdf) {
+            var pages = [];
+            function loadPage(p) {
+              if (p > pdf.numPages) return Promise.resolve(pages.join("\n\n"));
+              return pdf
+                .getPage(p)
+                .then(function (pg) {
+                  return pg.getTextContent();
+                })
+                .then(function (cnt) {
+                  var items = cnt && Array.isArray(cnt.items) ? cnt.items : [];
+                  var line = items
+                    .map(function (it) {
+                      return it && it.str ? it.str : "";
+                    })
+                    .join(" ")
+                    .trim();
+                  if (line) pages.push(line);
+                  return loadPage(p + 1);
+                });
+            }
+            return loadPage(1);
+          })
+          .catch(function () {
+            return "";
+          });
+      }
+
+      function parsePptxText(file) {
+        if (!window.JSZip || typeof window.JSZip.loadAsync !== "function") {
+          return Promise.resolve("");
+        }
+        return readFileBufferSafe(file)
+          .then(function (buf) {
+            return window.JSZip.loadAsync(buf);
+          })
+          .then(function (zip) {
+            var slidePaths = Object.keys(zip.files || {})
+              .filter(function (name) {
+                return /^ppt\/slides\/slide\d+\.xml$/.test(name);
+              })
+              .sort(function (a, b) {
+                return parseInt(a.match(/\d+/)[0], 10) - parseInt(b.match(/\d+/)[0], 10);
+              });
+
+            var extractedSlides = [];
+            function readSlide(idx) {
+              if (idx >= slidePaths.length) return Promise.resolve(extractedSlides.join("\n\n"));
+              return zip.files[slidePaths[idx]]
+                .async("string")
+                .then(function (xmlStr) {
+                  var docXml = new DOMParser().parseFromString(xmlStr, "text/xml");
+                  var paras = docXml.getElementsByTagName("a:p");
+                  var slideLines = [];
+                  for (var i = 0; i < paras.length; i++) {
+                    var runs = paras[i].getElementsByTagName("a:t");
+                    var joined = "";
+                    for (var j = 0; j < runs.length; j++) {
+                      joined += runs[j].textContent || "";
+                    }
+                    var cleanLine = sanitizeNoSlideWords(joined);
+                    if (cleanLine) slideLines.push(cleanLine);
+                  }
+                  if (slideLines.length > 0) {
+                    extractedSlides.push(slideLines.join("\n"));
+                  }
+                  return readSlide(idx + 1);
+                });
+            }
+            return readSlide(0);
+          })
+          .catch(function () {
+            return "";
+          });
+      }
+
+      function parseDocxText(file) {
+        if (!window.mammoth || typeof window.mammoth.extractRawText !== "function") {
+          return Promise.resolve("");
+        }
+        return readFileBufferSafe(file)
+          .then(function (buf) {
+            return window.mammoth.extractRawText({ arrayBuffer: buf });
+          })
+          .then(function (res) {
+            return res && res.value ? sanitizeNoSlideWords(res.value) : "";
+          })
+          .catch(function () {
+            return "";
+          });
+      }
+
+      function handleFileChange(inputEl) {
+        var file = inputEl && inputEl.files && inputEl.files[0] ? inputEl.files[0] : null;
+        if (!file) {
+          setUploadStatus("");
+          return;
+        }
+
+        extractedFileName = file.name || "lesson";
+        lastGeminiResult = null;
+        setUploadStatus("جاري قراءة الملف: " + extractedFileName);
+
+        var lower = extractedFileName.toLowerCase();
+        var readerPromise;
+        if (lower.endsWith(".pdf")) {
+          readerPromise = parsePdfText(file);
+        } else if (lower.endsWith(".pptx")) {
+          readerPromise = parsePptxText(file);
+        } else if (lower.endsWith(".docx")) {
+          readerPromise = parseDocxText(file);
+        } else {
+          readerPromise = readFileTextSafe(file);
+        }
+
+        readerPromise
+          .then(function (txt) {
+            var clean = sanitizeNoSlideWords(txt || "");
+            if (!clean) {
+              clean = extractedFileName.replace(/\.(pptx|pdf|txt|md|docx)$/i, "").replace(/[_-]+/g, " ");
+            }
+            extractedLessonText = clean;
+            var ta = document.getElementById("rawScienceTextarea");
+            if (ta) ta.value = clean;
+            var detected = analyzeLocally(clean, extractedFileName, null);
+            activeSessionNum = detected.sessionS || "1";
+            setUploadStatus("تم تحميل الملف بنجاح: " + extractedFileName);
+          })
+          .catch(function () {
+            var fallback = extractedFileName.replace(/\.(pptx|pdf|txt|md|docx)$/i, "").replace(/[_-]+/g, " ");
+            extractedLessonText = fallback;
+            var ta = document.getElementById("rawScienceTextarea");
+            if (ta) ta.value = fallback;
+            setUploadStatus("تم تحميل اسم الملف: " + extractedFileName);
+          });
+      }
+
+      function renderLinesBlock(linesArr) {
+        var html = "";
+        for (var i = 0; i < linesArr.length; i++) {
+          var lineText = sanitizeNoSlideWords(linesArr[i] || "");
+          if (!lineText) continue;
+          html += '<div class="stage-line">' + escapeHtml(lineText) + "</div>";
+        }
+        return html || '<div class="stage-line">......</div>';
+      }
+
+      function renderPracticeBlock(itemsArr) {
+        var html = "";
+        for (var i = 0; i < itemsArr.length; i++) {
+          var item = itemsArr[i] || {};
+          var lineText = sanitizeNoSlideWords(item.text || "");
+          if (!lineText) continue;
+          if (item.isCorrection) {
+            html += '<div class="correction-line">' + escapeHtml(lineText) + "</div>";
+          } else {
+            html += '<div class="stage-line">' + escapeHtml(lineText) + "</div>";
+          }
+        }
+        return html || '<div class="stage-line">......</div>';
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function renderMindmapSheet(data) {
+        currentMindmapData = data;
+        var container = document.getElementById("resultContainer");
+        if (!container) return;
+
+        var sessionTabsHtml = "";
+        for (var s = 1; s <= 5; s++) {
+          var activeCls = String(s) === String(data.sessionS) ? "session-tab-btn active" : "session-tab-btn";
+          sessionTabsHtml +=
+            '<button type="button" class="' +
+            activeCls +
+            '" data-select-session="' +
+            s +
+            '">الحصة S' +
+            s +
+            "</button>";
+        }
+
+        // Administrative header without "الوحدة"
+        // Main banner with N, P, SEM, and rectangular box for S (الحصة)
+        // Central objective circle + 4 colored cards: افتتاح الدرس، النشاط الرئيسي، أنشطة التدرب والإغناء، اختتام الدرس
+        container.innerHTML =
+          '<article class="mindmap-page" id="mindmapPage" aria-label="الخطاطة الذهنية للنشاط العلمي">' +
+          '<header class="admin-header">' +
+          '<div class="admin-cell"><span class="admin-label">السنة الدراسية:</span><span class="admin-val" contenteditable="true">' +
+          escapeHtml(data.academicYear) +
+          "</span></div>" +
+          '<div class="admin-cell"><span class="admin-label">الأستاذ(ة):</span><span class="admin-val" contenteditable="true">' +
+          escapeHtml(data.teacherName) +
+          "</span></div>" +
+          '<div class="admin-cell"><span class="admin-label">الأكاديمية:</span><span class="admin-val" contenteditable="true">' +
+          escapeHtml(data.academyName) +
+          "</span></div>" +
+          '<div class="admin-cell"><span class="admin-label">المديرية:</span><span class="admin-val" contenteditable="true">' +
+          escapeHtml(data.directorateName) +
+          "</span></div>" +
+          '<div class="admin-cell"><span class="admin-label">المؤسسة:</span><span class="admin-val" contenteditable="true">' +
+          escapeHtml(data.schoolName) +
+          "</span></div>" +
+          "</header>" +
+          '<section class="title-banner">' +
+          '<h2 class="banner-main-title" contenteditable="true">خطاطة ذهنية - النشاط العلمي: ' +
+          escapeHtml(data.lessonTitle) +
+          "</h2>" +
+          '<div class="banner-meta-tags">' +
+          '<span class="meta-pill">N = <span contenteditable="true">' +
+          escapeHtml(data.levelN) +
+          "</span></span>" +
+          '<span class="meta-pill">P = <span contenteditable="true">' +
+          escapeHtml(data.stageP) +
+          "</span></span>" +
+          '<span class="meta-pill">SEM = <span contenteditable="true">' +
+          escapeHtml(data.weekSem) +
+          "</span></span>" +
+          "</div>" +
+          '<div class="session-rect-box" contenteditable="true">الحصة S' +
+          escapeHtml(data.sessionS) +
+          "</div>" +
+          "</section>" +
+          '<section class="mindmap-canvas-area" id="mindmapCanvasArea">' +
+          '<svg class="arrows-overlay-svg" id="arrowsOverlaySvg" aria-hidden="true"></svg>' +
+          '<div class="side-column">' +
+          '<div class="stage-card card-opening" id="cardOpening" data-card-key="opening">' +
+          '<div class="stage-card-title" contenteditable="true">افتتاح الدرس</div>' +
+          '<div class="stage-card-body" contenteditable="true">' +
+          renderLinesBlock(data.openingLines) +
+          "</div>" +
+          "</div>" +
+          '<div class="stage-card card-practice" id="cardPractice" data-card-key="practice">' +
+          '<div class="stage-card-title" contenteditable="true">أنشطة التدرب والإغناء</div>' +
+          '<div class="stage-card-body" contenteditable="true">' +
+          renderPracticeBlock(data.practiceItems) +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="center-hub-column">' +
+          '<div class="objective-circle" id="objectiveCircle">' +
+          '<span class="objective-badge">الهدف التعلمي</span>' +
+          '<div class="objective-heading" contenteditable="true">' +
+          escapeHtml(data.lessonTitle) +
+          "</div>" +
+          '<div class="objective-statement" id="objectiveStatement" contenteditable="true">' +
+          escapeHtml(data.learningObjective) +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          '<div class="side-column">' +
+          '<div class="stage-card card-main" id="cardMain" data-card-key="main">' +
+          '<div class="stage-card-title" contenteditable="true">النشاط الرئيسي</div>' +
+          '<div class="stage-card-body" contenteditable="true">' +
+          renderLinesBlock(data.mainLines) +
+          "</div>" +
+          "</div>" +
+          '<div class="stage-card card-closing" id="cardClosing" data-card-key="closing">' +
+          '<div class="stage-card-title" contenteditable="true">اختتام الدرس</div>' +
+          '<div class="stage-card-body" contenteditable="true">' +
+          renderLinesBlock(data.closingLines) +
+          "</div>" +
+          "</div>" +
+          "</div>" +
+          "</section>" +
+          '<footer class="sessions-footer">' +
+          '<span class="font-extrabold text-slate-700 px-1">التنقل بين الحصص:</span>' +
+          sessionTabsHtml +
+          "</footer>" +
+          "</article>";
+
+        attachResizeHandles();
+        applySavedCardHeights();
+        requestAnimationFrame(function () {
+          fitAllCardsUnified();
+          drawConnectingArrows();
+        });
+      }
+
+      // Draw curved colored SVG arrows from the central objective circle to each of the 4 colored cards
+      function drawConnectingArrows() {
+        var canvasEl = document.getElementById("mindmapCanvasArea");
+        var svgEl = document.getElementById("arrowsOverlaySvg");
+        var hubEl = document.getElementById("objectiveCircle");
+        if (!canvasEl || !svgEl || !hubEl) return;
+
+        var cRect = canvasEl.getBoundingClientRect();
+        if (cRect.width < 600 || cRect.height < 200) {
+          svgEl.innerHTML = "";
+          return;
+        }
+
+        var hRect = hubEl.getBoundingClientRect();
+        var centerX = hRect.left + hRect.width / 2 - cRect.left;
+        var centerY = hRect.top + hRect.height / 2 - cRect.top;
+
+        var targets = [
+          { el: document.getElementById("cardOpening"), color: "#d97706", side: "left" },
+          { el: document.getElementById("cardPractice"), color: "#2563eb", side: "left" },
+          { el: document.getElementById("cardMain"), color: "#059669", side: "right" },
+          { el: document.getElementById("cardClosing"), color: "#7c3aed", side: "right" }
+        ];
+
+        var svgContent =
+          "<defs>" +
+          targets
+            .map(function (t, idx) {
+              return (
+                '<marker id="arrowHead' +
+                idx +
+                '" markerWidth="8" markerHeight="8" refX="6" refY="3.5" orient="auto">' +
+                '<polygon points="0 0, 7 3.5, 0 7" fill="' +
+                t.color +
+                '" />' +
+                "</marker>"
+              );
+            })
+            .join("") +
+          "</defs>";
+
+        for (var i = 0; i < targets.length; i++) {
+          var item = targets[i];
+          if (!item.el) continue;
+          var r = item.el.getBoundingClientRect();
+          var targetY = r.top + r.height / 2 - cRect.top;
+          var startX, targetX, ctrl1X, ctrl2X;
+
+          if (item.side === "left") {
+            startX = hRect.left - cRect.left + 4;
+            targetX = r.right - cRect.left + 2;
+            ctrl1X = startX - 38;
+            ctrl2X = targetX + 38;
+          } else {
+            startX = hRect.right - cRect.left - 4;
+            targetX = r.left - cRect.left - 2;
+            ctrl1X = startX + 38;
+            ctrl2X = targetX - 38;
+          }
+
+          var pathD =
+            "M " +
+            startX.toFixed(1) +
+            " " +
+            centerY.toFixed(1) +
+            " C " +
+            ctrl1X.toFixed(1) +
+            " " +
+            centerY.toFixed(1) +
+            ", " +
+            ctrl2X.toFixed(1) +
+            " " +
+            targetY.toFixed(1) +
+            ", " +
+            targetX.toFixed(1) +
+            " " +
+            targetY.toFixed(1);
+
+          svgContent +=
+            '<path d="' +
+            pathD +
+            '" fill="none" stroke="' +
+            item.color +
+            '" stroke-width="2.2" stroke-dasharray="5,3" opacity="0.85" marker-end="url(#arrowHead' +
+            i +
+            ')" />';
+        }
+
+        svgEl.setAttribute("viewBox", "0 0 " + cRect.width + " " + cRect.height);
+        svgEl.innerHTML = svgContent;
+      }
+
+      // Unified font sizing across all 4 colored cards
+      function fitAllCardsUnified() {
+        var cards = document.querySelectorAll("#mindmapPage .stage-card");
+        if (!cards || cards.length === 0) return;
+
+        var maxFont = 12.2;
+        var minFont = 8.6;
+        var chosenFont = minFont;
+
+        for (var size = maxFont; size >= minFont; size -= 0.2) {
+          var allFit = true;
+          for (var i = 0; i < cards.length; i++) {
+            var bodyEl = cards[i].querySelector(".stage-card-body");
+            if (!bodyEl) continue;
+            bodyEl.style.fontSize = size.toFixed(1) + "px";
+            bodyEl.style.lineHeight = "1.46";
+          }
+
+          // Measure after setting size
+          for (var j = 0; j < cards.length; j++) {
+            var bEl = cards[j].querySelector(".stage-card-body");
+            if (!bEl) continue;
+            if (bEl.scrollHeight > bEl.clientHeight + 2) {
+              allFit = false;
+              break;
+            }
+          }
+
+          if (allFit) {
+            chosenFont = size;
+            break;
+          }
+        }
+
+        for (var k = 0; k < cards.length; k++) {
+          var finalBody = cards[k].querySelector(".stage-card-body");
+          if (finalBody) {
+            finalBody.style.fontSize = chosenFont.toFixed(1) + "px";
+            finalBody.style.lineHeight = "1.46";
+          }
+        }
+      }
+
+      // Card vertical height controls and drag handles
+      function clampHeight(val) {
+        var n = Number(val);
+        if (isNaN(n)) return MIN_CARD_HEIGHT;
+        if (n < MIN_CARD_HEIGHT) return MIN_CARD_HEIGHT;
+        if (n > MAX_CARD_HEIGHT) return MAX_CARD_HEIGHT;
+        return Math.round(n);
+      }
+
+      function setCardHeightPx(cardEl, px, shouldSave) {
+        if (!cardEl) return;
+        var clamped = clampHeight(px);
+        cardEl.style.setProperty("height", clamped + "px", "important");
+        cardEl.style.setProperty("min-height", clamped + "px", "important");
+        cardEl.classList.add("custom-height-set");
+        cardEl.setAttribute("data-custom-height", String(clamped));
+
+        var readout = cardEl.querySelector(".card-height-readout");
+        if (readout) readout.textContent = clamped + "px";
+
+        var key = cardEl.getAttribute("data-card-key");
+        if (shouldSave && key) {
+          customCardHeights[key] = clamped;
+        }
+        fitAllCardsUnified();
+        drawConnectingArrows();
+      }
+
+      function resetCardHeightPx(cardEl) {
+        if (!cardEl) return;
+        cardEl.style.removeProperty("height");
+        cardEl.style.removeProperty("min-height");
+        cardEl.classList.remove("custom-height-set");
+        cardEl.removeAttribute("data-custom-height");
+
+        var key = cardEl.getAttribute("data-card-key");
+        if (key && Object.prototype.hasOwnProperty.call(customCardHeights, key)) {
+          delete customCardHeights[key];
+        }
+
+        var readout = cardEl.querySelector(".card-height-readout");
+        if (readout) readout.textContent = "تلقائي";
+
+        fitAllCardsUnified();
+        drawConnectingArrows();
+      }
+
+      function applySavedCardHeights() {
+        var cards = document.querySelectorAll("#mindmapPage .stage-card");
+        for (var i = 0; i < cards.length; i++) {
+          var card = cards[i];
+          var key = card.getAttribute("data-card-key");
+          if (key && Object.prototype.hasOwnProperty.call(customCardHeights, key)) {
+            setCardHeightPx(card, customCardHeights[key], false);
+          } else {
+            var readout = card.querySelector(".card-height-readout");
+            var h = Math.round(card.getBoundingClientRect().height || card.offsetHeight || 0);
+            if (readout) readout.textContent = h > 0 ? h + "px" : "تلقائي";
+          }
+        }
+      }
+
+      function attachResizeHandles() {
+        var cards = document.querySelectorAll("#mindmapPage .stage-card");
+        for (var i = 0; i < cards.length; i++) {
+          (function (card) {
+            if (card.querySelector(".card-resize-bar")) return;
+
+            var bar = document.createElement("div");
+            bar.className = "card-resize-bar";
+            bar.title = "اسحب لتغيير ارتفاع البطاقة";
+
+            var ctrls = document.createElement("div");
+            ctrls.className = "card-height-controls";
+
+            var plusBtn = document.createElement("button");
+            plusBtn.type = "button";
+            plusBtn.className = "card-height-btn";
+            plusBtn.setAttribute("data-card-resize", "plus");
+            plusBtn.textContent = "+";
+            plusBtn.title = "زيادة ارتفاع البطاقة";
+
+            var minusBtn = document.createElement("button");
+            minusBtn.type = "button";
+            minusBtn.className = "card-height-btn";
+            minusBtn.setAttribute("data-card-resize", "minus");
+            minusBtn.textContent = "−";
+            minusBtn.title = "تقليص ارتفاع البطاقة";
+
+            var resetBtn = document.createElement("button");
+            resetBtn.type = "button";
+            resetBtn.className = "card-height-btn";
+            resetBtn.setAttribute("data-card-resize", "reset");
+            resetBtn.textContent = "↺";
+            resetBtn.title = "الارتفاع التلقائي";
+
+            ctrls.appendChild(plusBtn);
+            ctrls.appendChild(minusBtn);
+            ctrls.appendChild(resetBtn);
+
+            var grip = document.createElement("div");
+            grip.className = "card-resize-grip";
+
+            var readout = document.createElement("div");
+            readout.className = "card-height-readout";
+            var initH = Math.round(card.getBoundingClientRect().height || card.offsetHeight || 0);
+            readout.textContent = initH > 0 ? initH + "px" : "تلقائي";
+
+            bar.appendChild(ctrls);
+            bar.appendChild(grip);
+            bar.appendChild(readout);
+            card.appendChild(bar);
+          })(cards[i]);
+        }
+      }
+
+      function generateScienceMindmap(targetSessionNum) {
+        var ta = document.getElementById("rawScienceTextarea");
+        if (ta && String(ta.value || "").trim()) {
+          extractedLessonText = sanitizeNoSlideWords(ta.value);
+        }
+
+        var sessionToUse = normalizeSessionNum(targetSessionNum) || activeSessionNum || "1";
+        activeSessionNum = sessionToUse;
+
+        var genBtn = document.getElementById("generateMindmapBtn");
+        if (genBtn) genBtn.disabled = true;
+        setUploadStatus("جاري تحليل محتوى النشاط العلمي...");
+
+        resolveApiKey()
+          .then(function (apiKey) {
+            if (!extractedLessonText && !extractedFileName) {
+              var emptyData = analyzeLocally("", "", sessionToUse);
+              renderMindmapSheet(emptyData);
+              showView("resultView");
+              setResultStatus("تم إنشاء نموذج فارغ قابل للتعديل المباشر.");
+              return null;
+            }
+
+            if (!apiKey || !navigator.onLine) {
+              var localData = analyzeLocally(extractedLessonText, extractedFileName, sessionToUse);
+              renderMindmapSheet(localData);
+              showView("resultView");
+              setResultStatus("");
+              return null;
+            }
+
+            var prompt =
+              "اسم الملف: " +
+              (extractedFileName || "درس النشاط العلمي") +
+              "\nالحصة المطلوبة: S" +
+              sessionToUse +
+              "\nنص الدرس:\n" +
+              extractedLessonText;
+
+            return callGeminiWithFallback(apiKey, prompt, 0).then(function (aiJson) {
+              lastGeminiResult = aiJson;
+              var merged = mergeGeminiWithLocal(
+                aiJson,
+                extractedLessonText,
+                extractedFileName,
+                sessionToUse
+              );
+              activeSessionNum = merged.sessionS;
+              renderMindmapSheet(merged);
+              showView("resultView");
+              setResultStatus("");
+            });
+          })
+          .catch(function () {
+            var fallbackData = analyzeLocally(extractedLessonText, extractedFileName, sessionToUse);
+            renderMindmapSheet(fallbackData);
+            showView("resultView");
+            setResultStatus("");
+          })
+          .finally(function () {
+            setUploadStatus("");
+            if (genBtn) genBtn.disabled = false;
+          });
+      }
+
+      function exportMindmapHtml() {
+        var pageEl = document.getElementById("mindmapPage");
+        if (!pageEl) return;
+
+        var clone = pageEl.cloneNode(true);
+        var removeEls = clone.querySelectorAll(".card-resize-bar, .sessions-footer");
+        for (var i = 0; i < removeEls.length; i++) {
+          if (removeEls[i].parentNode) {
+            removeEls[i].parentNode.removeChild(removeEls[i]);
+          }
+        }
+
+        var fullDoc =
+          "<!DOCTYPE html>\n<html lang=\"ar\" dir=\"rtl\">\n<head>\n<meta charset=\"UTF-8\" />\n" +
+          "<title>النشاط العلمي - الحصة S" +
+          escapeHtml(activeSessionNum) +
+          "</title>\n" +
+          "<link href=\"https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap\" rel=\"stylesheet\" />\n" +
+          "<style>\n" +
+          "body { margin: 0; padding: 10px; font-family: 'Cairo', system-ui, sans-serif; background: #ffffff; color: #0f172a; }\n" +
+          ".mindmap-page { width: 100%; max-width: 1200px; margin: 0 auto; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 12px; display: flex; flex-direction: column; gap: 10px; }\n" +
+          ".admin-header { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; background: #f8fafc; border: 1.5px solid #94a3b8; border-radius: 10px; padding: 6px 10px; font-size: 11px; }\n" +
+          ".admin-cell { display: flex; gap: 4px; align-items: center; }\n" +
+          ".admin-label { font-weight: 800; color: #334155; }\n" +
+          ".admin-val { font-weight: 700; border-bottom: 1px dotted #64748b; flex: 1; padding: 0 4px; }\n" +
+          ".title-banner { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; background: #f0f9ff; border: 1.5px solid #7dd3fc; border-radius: 10px; padding: 8px 12px; }\n" +
+          ".banner-main-title { margin: 0; font-size: 19px; font-weight: 900; color: #0c4a6e; }\n" +
+          ".banner-meta-tags { display: flex; gap: 6px; font-size: 11.5px; font-weight: 800; }\n" +
+          ".meta-pill { background: #fff; border: 1px solid #94a3b8; border-radius: 8px; padding: 2px 8px; }\n" +
+          ".session-rect-box { border: 2px solid #0284c7; background: #e0f2fe; color: #0c4a6e; border-radius: 8px; padding: 3px 10px; font-weight: 900; font-size: 12px; }\n" +
+          ".mindmap-canvas-area { display: grid; grid-template-columns: minmax(240px, 1fr) 210px minmax(240px, 1fr); gap: 12px; align-items: stretch; }\n" +
+          ".arrows-overlay-svg { display: none; }\n" +
+          ".side-column { display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }\n" +
+          ".center-hub-column { display: flex; align-items: center; justify-content: center; }\n" +
+          ".objective-circle { width: 195px; min-height: 195px; border-radius: 999px; background: #e0f2fe; border: 2.5px solid #0284c7; padding: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 5px; }\n" +
+          ".objective-badge { font-size: 10.5px; font-weight: 900; background: #fff; border: 1px solid #7dd3fc; border-radius: 999px; padding: 1px 9px; color: #0369a1; }\n" +
+          ".objective-heading { font-size: 11.5px; font-weight: 900; }\n" +
+          ".objective-statement { font-size: 10.5px; font-weight: 700; line-height: 1.4; }\n" +
+          ".stage-card { border-radius: 12px; border: 1.5px solid #cbd5e1; overflow: hidden; display: flex; flex-direction: column; flex: 1; }\n" +
+          ".stage-card.custom-height-set { flex: 0 0 auto !important; }\n" +
+          ".stage-card-title { padding: 6px 10px; font-weight: 900; font-size: 12.5px; text-align: center; }\n" +
+          ".stage-card-body { padding: 8px 10px; font-size: 11px; line-height: 1.48; flex: 1; }\n" +
+          ".stage-line { margin-bottom: 4px; }\n" +
+          ".correction-line { color: #065f46; font-weight: 700; padding-right: 8px; border-right: 2px solid #10b981; margin-bottom: 4px; }\n" +
+          ".card-opening { background: #fffbeb; border-color: #f59e0b; } .card-opening .stage-card-title { background: #fde68a; color: #92400e; }\n" +
+          ".card-main { background: #ecfdf5; border-color: #10b981; } .card-main .stage-card-title { background: #a7f3d0; color: #065f46; }\n" +
+          ".card-practice { background: #eff6ff; border-color: #3b82f6; } .card-practice .stage-card-title { background: #bfdbfe; color: #1e3a8a; }\n" +
+          ".card-closing { background: #f5f3ff; border-color: #8b5cf6; } .card-closing .stage-card-title { background: #ddd6fe; color: #5b21b6; }\n" +
+          "@media print { @page { size: A4 landscape; margin: 4mm; } body { padding: 0; } .mindmap-page { min-height: 196mm; padding: 6px 8px; } }\n" +
+          "</style>\n</head>\n<body>\n" +
+          clone.outerHTML +
+          "\n</body>\n</html>";
+
+        try {
+          var blob = new Blob([fullDoc], { type: "text/html;charset=utf-8" });
+          var url = URL.createObjectURL(blob);
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = "cartes_science_S" + activeSessionNum + ".html";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(function () {
+            URL.revokeObjectURL(url);
+          }, 1200);
+        } catch (err) {}
+      }
+
+      function bindDropZone() {
+        var zone = document.querySelector('[data-drop-zone="science"]');
+        var inp = document.getElementById("fileInputScience");
+        if (!zone || !inp) return;
+
+        ["dragenter", "dragover"].forEach(function (evtName) {
+          zone.addEventListener(evtName, function (ev) {
+            ev.preventDefault();
+            zone.classList.add("drag-over");
+          });
+        });
+
+        ["dragleave", "drop"].forEach(function (evtName) {
+          zone.addEventListener(evtName, function (ev) {
+            ev.preventDefault();
+            zone.classList.remove("drag-over");
+          });
+        });
+
+        zone.addEventListener("drop", function (ev) {
+          var dt = ev.dataTransfer;
+          if (dt && dt.files && dt.files.length > 0) {
+            try {
+              inp.files = dt.files;
+            } catch (e) {}
+            handleFileChange({ files: [dt.files[0]] });
+          }
+        });
+      }
+
+      function bindEvents() {
+        var backIndexBtn = document.getElementById("backToIndexBtn");
+        var backUploadBtn = document.getElementById("backToUploadBtn");
+        var fileInp = document.getElementById("fileInputScience");
+        var ta = document.getElementById("rawScienceTextarea");
+        var genBtn = document.getElementById("generateMindmapBtn");
+        var autoFitBtn = document.getElementById("autoFitFontBtn");
+        var printBtn = document.getElementById("printSheetBtn");
+        var dlBtn = document.getElementById("downloadHtmlBtn");
+
+        if (backIndexBtn) {
+          backIndexBtn.addEventListener("click", function () {
+            try {
+              window.location.href = "index.html";
+            } catch (err) {
+              setUploadStatus("تعذر الرجوع إلى index.html في هذه البيئة.");
+            }
+          });
+        }
+
+        if (backUploadBtn) {
+          backUploadBtn.addEventListener("click", function () {
+            showView("uploadView");
+          });
+        }
+
+        if (fileInp) {
+          fileInp.addEventListener("change", function () {
+            handleFileChange(fileInp);
+          });
+        }
+
+        if (ta) {
+          ta.addEventListener("input", function () {
+            extractedLessonText = sanitizeNoSlideWords(ta.value || "");
+          });
+        }
+
+        bindDropZone();
+
+        if (genBtn) {
+          genBtn.addEventListener("click", function () {
+            generateScienceMindmap(activeSessionNum);
+          });
+        }
+
+        if (autoFitBtn) {
+          autoFitBtn.addEventListener("click", function () {
+            fitAllCardsUnified();
+            drawConnectingArrows();
+          });
+        }
+
+        if (printBtn) {
+          printBtn.addEventListener("click", function () {
+            fitAllCardsUnified();
+            window.print();
+          });
+        }
+
+        window.addEventListener("beforeprint", function () {
+          fitAllCardsUnified();
+        });
+
+        window.addEventListener("afterprint", function () {
+          applySavedCardHeights();
+          fitAllCardsUnified();
+          drawConnectingArrows();
+        });
+
+        window.addEventListener("resize", function () {
+          fitAllCardsUnified();
+          drawConnectingArrows();
+        });
+
+        window.addEventListener("message", function (ev) {
+          var d = ev && ev.data;
+          if (!d || typeof d !== "object") return;
+          var incomingKey = d.geminiApiKey || d.apiKey || d.key || "";
+          if (incomingKey && String(incomingKey).trim()) {
+            syncApiKeyAcrossStores(String(incomingKey).trim());
+          }
+        });
+
+        if (dlBtn) {
+          dlBtn.addEventListener("click", exportMindmapHtml);
+        }
+
+        // Pointer / mouse drag to resize cards vertically
+        function startResize(clientY, target, pointerId) {
+          if (!target || !target.closest) return;
+          if (target.closest("[data-card-resize]")) return;
+          var bar = target.closest(".card-resize-bar");
+          if (!bar) return;
+          var card = bar.closest(".stage-card");
+          if (!card) return;
+
+          var h = card.getBoundingClientRect().height || card.offsetHeight || 160;
+          activeDragState = {
+            card: card,
+            startY: clientY,
+            startH: h
+          };
+          card.classList.add("is-resizing");
+          try {
+            if (bar.setPointerCapture && pointerId !== undefined) {
+              bar.setPointerCapture(pointerId);
+            }
+          } catch (e) {}
+        }
+
+        function moveResize(clientY) {
+          if (!activeDragState || !activeDragState.card) return;
+          var delta = clientY - activeDragState.startY;
+          setCardHeightPx(activeDragState.card, activeDragState.startH + delta, true);
+        }
+
+        function endResize() {
+          if (!activeDragState) return;
+          if (activeDragState.card) {
+            activeDragState.card.classList.remove("is-resizing");
+          }
+          activeDragState = null;
+        }
+
+        document.addEventListener("pointerdown", function (ev) {
+          startResize(ev.clientY, ev.target, ev.pointerId);
+        });
+        document.addEventListener("pointermove", function (ev) {
+          moveResize(ev.clientY);
+        });
+        document.addEventListener("pointerup", endResize);
+        document.addEventListener("pointercancel", endResize);
+
+        document.addEventListener("mousedown", function (ev) {
+          if (ev.button !== 0) return;
+          if (!activeDragState) startResize(ev.clientY, ev.target);
+        });
+        document.addEventListener("mousemove", function (ev) {
+          if (activeDragState) moveResize(ev.clientY);
+        });
+        document.addEventListener("mouseup", endResize);
+
+        document.addEventListener("click", function (ev) {
+          var target = ev.target;
+          if (!target || !target.closest) return;
+
+          var resizeBtn = target.closest("[data-card-resize]");
+          if (resizeBtn) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            var card = resizeBtn.closest(".stage-card");
+            if (!card) return;
+            var mode = resizeBtn.getAttribute("data-card-resize");
+            if (mode === "reset") {
+              resetCardHeightPx(card);
+              return;
+            }
+            var curH = card.getBoundingClientRect().height || card.offsetHeight || 160;
+            if (mode === "plus") {
+              setCardHeightPx(card, curH + STEP_CARD_HEIGHT, true);
+            } else if (mode === "minus") {
+              setCardHeightPx(card, curH - STEP_CARD_HEIGHT, true);
+            }
+            return;
+          }
+
+          var sessBtn = target.closest("[data-select-session]");
+          if (sessBtn) {
+            var picked = normalizeSessionNum(sessBtn.getAttribute("data-select-session"));
+            if (picked && picked !== activeSessionNum) {
+              activeSessionNum = picked;
+              if (lastGeminiResult) {
+                renderMindmapSheet(
+                  mergeGeminiWithLocal(
+                    lastGeminiResult,
+                    extractedLessonText,
+                    extractedFileName,
+                    activeSessionNum
+                  )
+                );
+              } else {
+                renderMindmapSheet(
+                  analyzeLocally(extractedLessonText, extractedFileName, activeSessionNum)
+                );
+              }
+              setResultStatus("");
+            }
+          }
+        });
+      }
+
+      function init() {
+        initFirebase();
+        readKeyFromStores();
+        updateAccountBadge();
+        showView("uploadView");
+        resolveApiKey();
+        bindEvents();
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
